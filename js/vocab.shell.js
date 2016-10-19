@@ -14,6 +14,7 @@ white : true
 vocab.shell = (function () {
 	//---------------- BEGIN MODULE SCOPE VARIABLES --------------
 	var
+    configMap = {
 			main_html : String()
 				+	'<div class="vocab-shell-head">'
 					+	'<div class="vocab-shell-head-logo">'
@@ -21,8 +22,8 @@ vocab.shell = (function () {
           + '</div>'
 				+	'</div>'
 				+	'<div class="vocab-shell-main">'
-					+	'<div class="vocab-search"></div>'
-					+	'<div class="vocab-edit"></div>'
+					+	'<div class="vocab-search row"></div>'
+					+	'<div class="vocab-edit row"></div>'
 				+	'</div>',
 		},
 		stateMap	= {
@@ -41,6 +42,8 @@ vocab.shell = (function () {
   	var $container = stateMap.$container;
   	jqueryMap = {
       $container : $container,
+      $search : $container.find('.vocab-search'),
+      $edit : $container.find('.vocab-edit')
     };
   };
 
@@ -61,7 +64,7 @@ vocab.shell = (function () {
     vocab.search.configModule({
       terms_model : vocab.model.terms
     });
-    vocab.search.initModule( jqueryMap.$container );
+    vocab.search.initModule( jqueryMap.$search );
   };
 
   return { initModule : initModule };

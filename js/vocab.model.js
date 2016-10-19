@@ -34,7 +34,7 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
-			updateTerms,
+			updateTerms, get_items,
 			get_by_id, get_by_uri, get_by_name;
 
 		updateTerms = function ( jsonArray ) {
@@ -58,11 +58,16 @@ vocab.model = (function () {
 			return stateMap.term_stack[ stateMap.terms_by_label[ label ] ];
 		};
 
+		get_items = function () {
+			return stateMap.term_stack;
+		};
+
 		return {
 			updateTerms : updateTerms,
 			get_by_id : get_by_id,
 			get_by_uri : get_by_uri,
-			get_by_name : get_by_name
+			get_by_name : get_by_name,
+			get_items : get_items
 		}
 	}());
 
@@ -70,6 +75,9 @@ vocab.model = (function () {
   	$( window ).on('solrUpdate', function(e, data){
   		terms.updateTerms(data.data);
   	});
+  	$( window ).on('termsearch', function(e, query) {
+  		vocab.data.solr.search(query);
+  	})
   };
 
   return {
