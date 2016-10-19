@@ -1,8 +1,8 @@
-data = (function () {
+vocab.data = (function () {
 
 	var
 		resource_base = "http://vivo.brown.edu/individual/",
-		solr, rest, request;
+		solr, rest, request, initModule;
 
 	request = function ( params, callback ) {
 		$.ajax({
@@ -17,6 +17,7 @@ data = (function () {
 		});
 	};
 
+	//Begin Solr interface
 	solr = (function () {
 		var
 			sorl_url = 'http://localhost:8080/rabsolr/',
@@ -43,7 +44,7 @@ data = (function () {
 				jdata.push(solrData);
 			}
 
-			$( document ).trigger("solrUpdate", jdata);
+			$( window ).trigger("solrUpdate", [{data: jdata}]);
 		};
 
 		search = function ( term ) {
@@ -72,8 +73,12 @@ data = (function () {
 			search : search
 		};
 	}());
+	//end Solr interface
+
+	initModule = function (){};
 
 	return {
+		initModule : initModule,
 		solr : solr
 	};
 }());

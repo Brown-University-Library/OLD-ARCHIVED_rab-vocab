@@ -1,25 +1,79 @@
 vocab.model = (function () {
 	var
+    stateMap  = {
+      term_stack			: [],
+      terms_by_uri		: {},
+      terms_by_id			: {},
+      terms_by_label	: {}
+    },
 
+		terms, makeTerm, termProto, initModule;
 
-		terms, makeTerm, termProto;
+	termProto = {
+		uri : null,
+		id : null,
+		label : null,
+		broader : [],
+		narrower : [],
+		related : [],
+		hidden : [],
+		alternative : []
+	};	
 
-		searchTermProto = {
-			uri : null,
-			get_id : function () {
-				return uri.substring(resource_base.length);
-			},
+	makeTerm = function ( term_map ) {
+		var
+			term = Object.create( termProto );
+
+		term = vocab.utils.mergeMaps(term, term_map);
+		stateMap.term_stack.push(term);
+		idx = stateMap.term_stack.length - 1;
+		stateMap.terms_by_uri[ term.uri ] = idx;
+		stateMap.terms_by_id[ term.id ] = idx;
+		stateMap.terms_by_label[ term.label ] = idx;
+	};
+
+	terms = (function () {
+		var
+			updateTerms,
+			get_by_id, get_by_uri, get_by_name;
+
+		updateTerms = function ( jsonArray ) {
+			var i, len;
+			for ( i = 0, len = jsonArray.length; i < len; i++ ) {
+				makeTerm(jsonArray[i]);
+			}
+
+			$( window ).trigger('modelUpdate');
 		};
 
-		makeSearch = function( solr_doc ) {
-			var term = {};
-			term.label = solr_doc.nameRaw[0];
-			term.uri = solr_doc.URI;
-			term.id = term.uri.substring(resource_base.length);
-		};		
+		get_by_id = function ( id ) {
+			return stateMap.term_stack[ stateMap.terms_by_id[ id ] ];
+		};
 
-		terms = (function () {
-			var
-				_publish_listchange
-		}());
+		get_by_uri = function ( uri ) {
+			return stateMap.term_stack[ stateMap.terms_by_uri[ uri ] ];
+		};
+
+		get_by_name = function ( label ) {
+			return stateMap.term_stack[ stateMap.terms_by_label[ label ] ];
+		};
+
+		return {
+			updateTerms : updateTerms,
+			get_by_id : get_by_id,
+			get_by_uri : get_by_uri,
+			get_by_name : get_by_name
+		}
+	}());
+
+  initModule = function () {
+  	$( window ).on('solrUpdate', function(e, data){
+  		terms.updateTerms(data.data);
+  	});
+  };
+
+  return {
+    initModule : initModule,
+    terms : terms
+  };
 }());
