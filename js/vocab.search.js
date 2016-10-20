@@ -9,7 +9,42 @@ vocab.search = (function () {
 				 		+ '<button type="button" class="search-submit btn btn-success">Search</button>'
 					+ '</div>'
 					+ '<ul class="search-results-list list-group row">'
-						+ '<li data-uri="0">No results</li>'
+						+ '<div class="col-sm-4" data-column="0">'
+							+ '<li class="list-group-item" data-search-result="0" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="1" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="2" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="3" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="4" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="5" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="6" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="7" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="8" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="9" data-rabid=""></li>'
+						+ '</div>'
+						+ '<div class="col-sm-4" data-column="1">'
+							+ '<li class="list-group-item" data-search-result="10" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="11" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="12" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="13" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="14" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="15" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="16" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="17" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="18" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="19" data-rabid=""></li>'
+						+ '</div>'
+						+ '<div class="col-sm-4" data-column="2">'
+							+ '<li class="list-group-item" data-search-result="20" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="21" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="22" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="23" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="24" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="25" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="26" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="27" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="28" data-rabid=""></li>'
+							+ '<li class="list-group-item" data-search-result="29" data-rabid=""></li>'
+						+ '</div>'
 					+ '</ul>'
 				+ '</div>',
 			terms_model : null
@@ -17,11 +52,13 @@ vocab.search = (function () {
 
 		stateMap	= {
 			$append_target : null,
+			search_results : [],
+			results_page : 0
 		},
 
 		jqueryMap = {},
 
-		updateResultsList, onClickSearch,
+		updateResultsList, onClickSearch, displayResultsPage,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -36,59 +73,40 @@ vocab.search = (function () {
 			$search : $search,
 			$input : $search.find( '.search-input input[type=text]' ),
 			$submit: $search.find( '.search-submit' ),
-			$results: $search.find( '.search-results-list' ),
+			$results: $search.find( '.search-results-list li' ),
 		};
 	};
 	// End DOM method /setJqueryMap/
 	updateResultsList = function () {
+		stateMap.search_results = configMap.terms_model.get_items();
+		stateMap.results_page = 0;
+		displayResultsPage();		
+	};
+
+	displayResultsPage = function () {
 		var
-			list_items = [],
-			results_list = configMap.terms_model.get_items();
+			i, page,
+			paged_results = [],
+			results_length = stateMap.search_results.length,
+			cols_for_page = 3,
+			rows_for_col = 10;
 
-		for (var i = 0, len = results_list.length; i < len; i++) {
-			var
-				result = results_list[i];
-				$list_item = $("<li>");
-			$list_item.data("uri", result.uri);
-			$list_item.text(result.label);
-			$list_item.addClass("list-group-item");
-
-			list_items.push($list_item);
+		i = 0;
+		while ( i < results_length ) {
+			paged_results.push(
+				stateMap.search_results.slice(
+					i, i += rows_for_col * cols_for_page));
 		}
 
-		jqueryMap.$results.empty();
-
-		if (list_items.length > 0) {
-			var paged;
-
-			paged = vocab.utils.paginate(list_items, 10);
-			for (var i = 0, pages = paged.length; i < pages; i++ ) {
-				var
-					li_list = paged[i],
-					$column = $("<div>");
-
-				$column.addClass("col-sm-4");
-				
-				for (var n = 0, list_len = li_list.length; n < list_len; n++ ) {
-					$column.append(li_list[n]);
-				}
-				jqueryMap.$results.append($column);
-			}
+		page = paged_results[ stateMap.results_page ];
+		i = 0;
+		while ( i < page.length ) {
+			var $result = jqueryMap.$results.eq(i);
+			$result.append(page[i].label);
+			$result.attr('data-rabid', page[i].id);
+			i++;
 		}
-		else {
-			var $column = $("<div>");
-			$column.addClass("col-sm-4");
-			
-			var $no_results = $('<li>')
-			$no_results.addClass('list-group-item');
-			$no_results.text('No results');
-			$no_results.data('uri', '0');
-			
-			$column.append($no_results);
-
-			jqueryMap.$results.append($column);
-		}
-	}
+	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------

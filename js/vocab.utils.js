@@ -20,23 +20,6 @@ vocab.utils = (function () {
 		return map_to_update;
 	};
 
-	function paginate(list, pageSize) {
-		if (pageSize < 2) {
-			return [list];
-		}
-
-		var
-			total_len = list.length,
-			out = [],
-			i = 0;
-
-		while (i < total_len) {
-			out.push(list.slice(i, i += pageSize));
-		}
-
-		return out;
-	};
-
 	mergeMap = function ( map_to_update, map_to_add ){
 		var
 			key_name, error;
@@ -58,7 +41,6 @@ vocab.utils = (function () {
 	};
 
 	return {
-		mergeMaps : mergeMaps,
-		paginate : paginate
+		mergeMaps : mergeMaps
 	};
 }());
