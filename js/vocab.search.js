@@ -47,7 +47,9 @@ vocab.search = (function () {
 						+ '</div>'
 					+ '</ul>'
 				+ '</div>',
-			terms_model : null
+			terms_model : null,
+			cols_for_page : 3,
+			rows_for_col : 10
 		},
 
 		stateMap	= {
@@ -58,7 +60,8 @@ vocab.search = (function () {
 
 		jqueryMap = {},
 
-		updateResultsList, onClickSearch, displayResultsPage,
+		updateResultsList, onClickSearch,
+		displayResultsPage, clearResultsList,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -83,19 +86,30 @@ vocab.search = (function () {
 		displayResultsPage();		
 	};
 
+	clearResultsList = function () {
+		jqueryMap.$results.each( function (idx) {
+			$(this).text('');
+			$(this).attr('data-rabid', '');
+		});
+
+		return true;
+	};
+
 	displayResultsPage = function () {
 		var
 			i, page,
 			paged_results = [],
-			results_length = stateMap.search_results.length,
-			cols_for_page = 3,
-			rows_for_col = 10;
+			results_length = stateMap.search_results.length;
+
+		clearResultsList();
+
+		if ( results_length === 0 ) { return true };
 
 		i = 0;
 		while ( i < results_length ) {
 			paged_results.push(
 				stateMap.search_results.slice(
-					i, i += rows_for_col * cols_for_page));
+					i, i += configMap.rows_for_col * configMap.cols_for_page));
 		}
 
 		page = paged_results[ stateMap.results_page ];
