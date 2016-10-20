@@ -59,25 +59,34 @@ vocab.search = (function () {
 		jqueryMap.$results.empty();
 
 		if (list_items.length > 0) {
-			var chunked;
+			var paged;
 
-			chunked = vocab.utils.chunkify(list_items, 10, false);
-			
-			for (var i = 0, len = chunked.length; i < len; i++ ) {
+			paged = vocab.utils.paginate(list_items, 10);
+			for (var i = 0, pages = paged.length; i < pages; i++ ) {
 				var
-					li_list = chunked[i],
+					li_list = paged[i],
 					$column = $("<div>");
+
 				$column.addClass("col-sm-4");
 				
-				for (var i = 0, len = li_list.length; i < len; i++ ) {
-					$column.append(li_list[i]);
+				for (var n = 0, list_len = li_list.length; n < list_len; n++ ) {
+					$column.append(li_list[n]);
 				}
 				jqueryMap.$results.append($column);
 			}
 		}
 		else {
-			var $no_results = $('<li>', {'data-uri': 0})
-			jqueryMap.$results.append($no_results);
+			var $column = $("<div>");
+			$column.addClass("col-sm-4");
+			
+			var $no_results = $('<li>')
+			$no_results.addClass('list-group-item');
+			$no_results.text('No results');
+			$no_results.data('uri', '0');
+			
+			$column.append($no_results);
+
+			jqueryMap.$results.append($column);
 		}
 	}
 	//---------------------- END DOM METHODS ---------------------

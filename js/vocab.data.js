@@ -37,11 +37,11 @@ vocab.data = (function () {
 				jdata = [];
 			if (solrResp.response.numFound > 0) {
 				docs = solrResp.response.docs;
-			}
-			for ( i = 0; i < docs.length; i++ ) {
-				doc = docs[i];
-				solrData = makeSolrJSON(doc);
-				jdata.push(solrData);
+				for ( i = 0; i < docs.length; i++ ) {
+					doc = docs[i];
+					solrData = makeSolrJSON(doc);
+					jdata.push(solrData);
+				}
 			}
 
 			$( window ).trigger("solrUpdate", [{data: jdata}]);
@@ -62,7 +62,8 @@ vocab.data = (function () {
 					data : {
 						"q" : query,
 						"fl": "URI,nameRaw",
-						"wt": "json"
+						"wt": "json",
+						"rows": "30"
 					}
 				};
 

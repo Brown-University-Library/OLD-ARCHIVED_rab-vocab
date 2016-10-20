@@ -20,42 +20,18 @@ vocab.utils = (function () {
 		return map_to_update;
 	};
 
-	//http://stackoverflow.com/questions/8188548/splitting-a-js-array-into-n-arrays
-	function chunkify(a, n, balanced) {
-		if (n < 2)
-			return [a];
+	function paginate(list, pageSize) {
+		if (pageSize < 2) {
+			return [list];
+		}
 
 		var
-			len = a.length,
+			total_len = list.length,
 			out = [],
-			i = 0,
-			size;
+			i = 0;
 
-		if (len % n === 0) {
-			size = Math.floor(len / n);
-			while (i < len) {
-				out.push(a.slice(i, i += size));
-			}
-		}
-
-		else if (balanced) {
-			while (i < len) {
-				size = Math.ceil((len - i) / n--);
-				out.push(a.slice(i, i += size));
-			}
-		}
-
-		else {
-
-			n--;
-			size = Math.floor(len / n);
-			if (len % size === 0)
-				size--;
-			while (i < size * n) {
-				out.push(a.slice(i, i += size));
-			}
-			out.push(a.slice(size * n));
-
+		while (i < total_len) {
+			out.push(list.slice(i, i += pageSize));
 		}
 
 		return out;
@@ -83,6 +59,6 @@ vocab.utils = (function () {
 
 	return {
 		mergeMaps : mergeMaps,
-		chunkify : chunkify
+		paginate : paginate
 	};
 }());

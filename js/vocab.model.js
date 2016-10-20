@@ -34,8 +34,12 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
-			updateTerms, get_items,
+			updateTerms, get_items, clearTerms,
 			get_by_id, get_by_uri, get_by_name;
+
+		clearTerms = function () {
+			stateMap.term_stack = [];
+		};
 
 		updateTerms = function ( jsonArray ) {
 			var i, len;
@@ -63,6 +67,7 @@ vocab.model = (function () {
 		};
 
 		return {
+			clearTerms : clearTerms,
 			updateTerms : updateTerms,
 			get_by_id : get_by_id,
 			get_by_uri : get_by_uri,
@@ -73,6 +78,7 @@ vocab.model = (function () {
 
   initModule = function () {
   	$( window ).on('solrUpdate', function(e, data){
+  		terms.clearTerms();
   		terms.updateTerms(data.data);
   	});
   	$( window ).on('termsearch', function(e, query) {
