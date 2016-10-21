@@ -8,44 +8,7 @@ vocab.search = (function () {
 				 		+ '<input class="search-input" type="text" />'
 				 		+ '<button type="button" class="search-submit btn btn-success">Search</button>'
 					+ '</div>'
-					+ '<ul class="search-results-list list-group row">'
-						+ '<div class="col-sm-4" data-column="0">'
-							+ '<li class="list-group-item" data-search-result="0" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="1" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="2" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="3" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="4" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="5" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="6" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="7" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="8" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="9" data-rabid=""></li>'
-						+ '</div>'
-						+ '<div class="col-sm-4" data-column="1">'
-							+ '<li class="list-group-item" data-search-result="10" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="11" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="12" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="13" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="14" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="15" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="16" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="17" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="18" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="19" data-rabid=""></li>'
-						+ '</div>'
-						+ '<div class="col-sm-4" data-column="2">'
-							+ '<li class="list-group-item" data-search-result="20" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="21" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="22" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="23" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="24" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="25" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="26" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="27" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="28" data-rabid=""></li>'
-							+ '<li class="list-group-item" data-search-result="29" data-rabid=""></li>'
-						+ '</div>'
-					+ '</ul>'
+					+ '<ul class="search-results-list list-group row"></ul>'
 				+ '</div>',
 			terms_model : null,
 			cols_for_page : 3,
@@ -59,7 +22,7 @@ vocab.search = (function () {
 		},
 
 		jqueryMap = {},
-
+		initializeResultsList,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
 		setJqueryMap, initModule, configModule;
@@ -80,6 +43,37 @@ vocab.search = (function () {
 		};
 	};
 	// End DOM method /setJqueryMap/
+	initializeResultsList = function () {
+		var i, $result_list;
+		
+		$result_list = stateMap.$append_target.find('.search-results-list');
+
+		i = 0;
+		while (i < configMap.cols_for_page) {
+			var $col = $('<div/>', {'class': 'col-sm-4', 'data-column': i});
+			$result_list.append($col);
+			i++;
+		}
+
+		$result_list.find('div').each( function (idx) {
+			i = 0;
+			while (i < configMap.rows_for_col) {
+				var $row, $button;
+
+				$row = $('<li/>', {	'class': 'list-group-item',
+									'data-rabid': ''});
+				$button = $('<button/>', { 'class': 'btn pull-right'});
+				
+				$row.append('<span class="result-label"></span>');
+				$button.append('<span class="glyphicon glyphicon-search"></span>');
+				$row.append($button);
+
+				$(this).append($row);
+				i++;
+			} 
+		});
+	};
+
 	updateResultsList = function () {
 		stateMap.search_results = configMap.terms_model.get_items();
 		stateMap.results_page = 0;
@@ -88,7 +82,7 @@ vocab.search = (function () {
 
 	clearResultsList = function () {
 		jqueryMap.$results.each( function (idx) {
-			$(this).text('');
+			$(this).find('.result-label').text('');
 			$(this).attr('data-rabid', '');
 		});
 
@@ -115,8 +109,10 @@ vocab.search = (function () {
 		page = paged_results[ stateMap.results_page ];
 		i = 0;
 		while ( i < page.length ) {
-			var $result = jqueryMap.$results.eq(i);
-			$result.append(page[i].label);
+			var 
+				$result = jqueryMap.$results.eq(i);
+
+			$result.find('.result-label').text(page[i].label);
 			$result.attr('data-rabid', page[i].id);
 			i++;
 		}
@@ -137,7 +133,9 @@ vocab.search = (function () {
 
 	initModule = function ( $append_target ) {
 		$append_target.append( configMap.main_html );
+
 		stateMap.$append_target = $append_target;
+		initializeResultsList();
 		setJqueryMap();
 
 		jqueryMap.$submit.click( onClickSearch );

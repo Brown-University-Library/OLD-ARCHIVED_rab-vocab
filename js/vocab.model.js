@@ -1,6 +1,7 @@
 vocab.model = (function () {
 	var
     stateMap  = {
+    	inspected_term	: null,
       term_stack			: [],
       terms_by_uri		: {},
       terms_by_id			: {},
@@ -34,8 +35,26 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
+			inspectTerm,
 			updateTerms, get_items, clearTerms,
 			get_by_id, get_by_uri, get_by_name;
+
+		inspectTerm = function ( jdata ) {
+			var
+				idx, term;
+
+			idx = stateMap.terms_by_uri[jdata.uri];
+			if (idx > -1) {
+    		stateMap.term_stack.splice(idx, 1);
+			}
+
+			term = makeTerm(jdata);
+			stateMap.inspected_term = term;
+
+			$( window ).trigger('termInspected');
+
+			return true;
+		};
 
 		clearTerms = function () {
 			stateMap.term_stack = [];

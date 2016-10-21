@@ -111,6 +111,8 @@ vocab.data = (function () {
 				jdata = makeRESTObj( resp );
 
 				$( window ).trigger('restFind', [{data: jdata}]);
+
+			return true;
 		};
 
 		find = function ( rabid ) {
@@ -123,6 +125,7 @@ vocab.data = (function () {
 				};
 
 			request( params, _processFind );
+
 		}
 
 		return {
