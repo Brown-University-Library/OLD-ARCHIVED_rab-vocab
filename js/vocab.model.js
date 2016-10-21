@@ -83,7 +83,10 @@ vocab.model = (function () {
   	});
   	$( window ).on('termsearch', function(e, query) {
   		vocab.data.solr.search(query);
-  	})
+  	});
+  	$( window ).on('restFind', function(e, data){
+  		console.log(data.data);
+  	});
   };
 
   return {
