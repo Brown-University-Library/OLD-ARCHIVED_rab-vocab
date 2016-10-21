@@ -39,6 +39,7 @@ vocab.search = (function () {
 			$search : $search,
 			$input : $search.find( '.search-input input[type=text]' ),
 			$submit: $search.find( '.search-submit' ),
+			$inspect: $search.find( '.inspect'),
 			$results: $search.find( '.search-results-list li' ),
 		};
 	};
@@ -62,7 +63,7 @@ vocab.search = (function () {
 
 				$row = $('<li/>', {	'class': 'list-group-item',
 									'data-rabid': ''});
-				$button = $('<button/>', { 'class': 'btn pull-right'});
+				$button = $('<button/>', { 	'class': 'inspect btn pull-right'});
 				
 				$row.append('<span class="result-label"></span>');
 				$button.append('<span class="glyphicon glyphicon-search"></span>');
@@ -125,6 +126,11 @@ vocab.search = (function () {
 		$( window ).trigger('termsearch', query);
 	};
 
+	onClickInspect = function () {
+		var rabid = $(this).parent('li').attr('data-rabid');
+		$( window ).trigger('inspectTerm', rabid);
+	}
+
 	//-------------------- END EVENT HANDLERS --------------------
 
 	configModule = function ( map ) {
@@ -139,6 +145,7 @@ vocab.search = (function () {
 		setJqueryMap();
 
 		jqueryMap.$submit.click( onClickSearch );
+		jqueryMap.$inspect.click( onClickInspect );
 
 		$( window ).on('modelUpdate', function(e) {
 			updateResultsList();

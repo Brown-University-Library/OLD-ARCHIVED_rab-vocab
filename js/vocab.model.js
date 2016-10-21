@@ -103,6 +103,9 @@ vocab.model = (function () {
   	$( window ).on('termsearch', function(e, query) {
   		vocab.data.solr.search(query);
   	});
+  	$( window ).on('inspectTerm', function(e, rabid) {
+  		vocab.data.rest.find(rabid);
+  	});
   	$( window ).on('restFind', function(e, data){
   		console.log(data.data);
   	});
