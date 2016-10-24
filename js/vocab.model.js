@@ -5,7 +5,9 @@ vocab.model = (function () {
       term_stack			: [],
       terms_by_uri		: {},
       terms_by_id			: {},
-      terms_by_label	: {}
+      terms_by_label	: {},
+      inspecting			: false,
+      editing					: false
     },
 
 		terms, makeTerm, termProto, initModule;
@@ -26,27 +28,33 @@ vocab.model = (function () {
 			term = Object.create( termProto );
 
 		term = vocab.utils.mergeMaps(term, term_map);
+		return term;
+	};
+
+	indexTerm = function (term) {
+		var existing, idx;
+
+		if ( term.uri in stateMap.terms_by_uri ) {
+			existing = stateMap.terms_by_uri[term.uri];
+  		stateMap.term_stack.splice(existing, 1);
+		}
+
 		stateMap.term_stack.push(term);
 		idx = stateMap.term_stack.length - 1;
 		stateMap.terms_by_uri[ term.uri ] = idx;
 		stateMap.terms_by_id[ term.id ] = idx;
 		stateMap.terms_by_label[ term.label ] = idx;
-	};
+	}
 
 	terms = (function () {
 		var
-			inspectTerm,
+			setInspectedTerm, get_inspected,
 			updateTerms, get_items, clearTerms,
 			get_by_id, get_by_uri, get_by_name;
 
-		inspectTerm = function ( jdata ) {
+		setInspectedTerm = function ( jdata ) {
 			var
 				idx, term;
-
-			idx = stateMap.terms_by_uri[jdata.uri];
-			if (idx > -1) {
-    		stateMap.term_stack.splice(idx, 1);
-			}
 
 			term = makeTerm(jdata);
 			stateMap.inspected_term = term;
@@ -63,7 +71,8 @@ vocab.model = (function () {
 		updateTerms = function ( jsonArray ) {
 			var i, len;
 			for ( i = 0, len = jsonArray.length; i < len; i++ ) {
-				makeTerm(jsonArray[i]);
+				term = makeTerm(jsonArray[i]);
+				indexTerm(term);
 			}
 
 			$( window ).trigger('modelUpdate');
@@ -85,13 +94,19 @@ vocab.model = (function () {
 			return stateMap.term_stack;
 		};
 
+		get_inspected = function () {
+			return stateMap.inspected_term;
+		}
+
 		return {
 			clearTerms : clearTerms,
 			updateTerms : updateTerms,
 			get_by_id : get_by_id,
 			get_by_uri : get_by_uri,
 			get_by_name : get_by_name,
-			get_items : get_items
+			get_items : get_items,
+			setInspectedTerm : setInspectedTerm,
+			get_inspected : get_inspected
 		}
 	}());
 
@@ -104,10 +119,14 @@ vocab.model = (function () {
   		vocab.data.solr.search(query);
   	});
   	$( window ).on('inspectTerm', function(e, rabid) {
+  		stateMap.inspecting = true;
   		vocab.data.rest.find(rabid);
   	});
   	$( window ).on('restFind', function(e, data){
-  		console.log(data.data);
+  		if (stateMap.inspecting === true) {
+  			terms.setInspectedTerm(data.data);
+  			stateMap.inspecting = false;
+  	}
   	});
   };
 
