@@ -16,11 +16,13 @@ vocab.model = (function () {
 		uri : null,
 		id : null,
 		label : null,
-		broader : [],
-		narrower : [],
-		related : [],
-		hidden : [],
-		alternative : []
+		data : {
+			broader : [],
+			narrower : [],
+			related : [],
+			hidden : [],
+			alternative : []
+		}
 	};	
 
 	makeTerm = function ( term_map ) {
@@ -50,15 +52,26 @@ vocab.model = (function () {
 		var
 			setInspectedTerm, get_inspected,
 			updateTerms, get_items, clearTerms,
+			updateTerm,
 			get_by_id, get_by_uri, get_by_name;
 
 		setInspectedTerm = function ( jdata ) {
 			var
-				idx, term;
+				idx, term, key, vals;
 
+			jdata.label = jdata.label[0];
 			term = makeTerm(jdata);
-			stateMap.inspected_term = term;
+			
+			for (key in term.data) {
+				if (term.data.hasOwnProperty(key)) {
+					vals = term.data[key];
+					for (var i = 0, len=vals.length; i < len; i++) {
+						$result_list.append('<li>'+vals[i]+'</li>');
+					}
+				}
+			}
 
+			stateMap.inspected_term = term;
 			$( window ).trigger('termInspected');
 
 			return true;
@@ -66,6 +79,24 @@ vocab.model = (function () {
 
 		clearTerms = function () {
 			stateMap.term_stack = [];
+		};
+
+		getInspection = function ( rabid ) {
+			vocab.data.rest.find(rabid)
+
+		};
+
+		updateTerm = function ( servData ) {
+			var
+				term, existing;
+
+			if (servData.uri in stateMap.terms_by_uri ) {
+				existing = stateMap.terms_by_uri[term.uri];
+	  		stateMap.term_stack.splice(existing, 1);
+			}
+
+			term = makeTerm(servData);
+			indexTerm(term);
 		};
 
 		updateTerms = function ( jsonArray ) {
@@ -106,7 +137,8 @@ vocab.model = (function () {
 			get_by_name : get_by_name,
 			get_items : get_items,
 			setInspectedTerm : setInspectedTerm,
-			get_inspected : get_inspected
+			get_inspected : get_inspected,
+			updateTerm : updateTerm
 		}
 	}());
 

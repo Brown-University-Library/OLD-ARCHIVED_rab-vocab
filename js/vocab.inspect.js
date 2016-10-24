@@ -56,21 +56,22 @@ vocab.inspect = (function () {
 	loadInspected = function () {
 		var 
 			no_results = ["None"],
-			results_map, inspected,
+			results_map, inspected, data,
 			key, vals, $result_list;
 
 		jqueryMap.$inspect.find('li').remove();
 
 		inspected = configMap.terms_model.get_inspected();
+		data = inspected.data;
 		results_map = {
-			'broader' : inspected.broader.length > 0 ? inspected.broader : no_results,
-			'narrower' : inspected.narrower.length > 0 ? inspected.narrower: no_results,
-			'related' : inspected.related.length > 0 ? inspected.related : no_results,
-			'hidden' : inspected.hidden.length > 0 ? inspected.hidden : no_results,
-			'alternative' : inspected.alternative.length > 0 ? inspected.alternative : no_results,
+			'broader' : data.broader.length > 0 ? data.broader : no_results,
+			'narrower' : data.narrower.length > 0 ? data.narrower: no_results,
+			'related' : data.related.length > 0 ? data.related : no_results,
+			'hidden' : data.hidden.length > 0 ? data.hidden : no_results,
+			'alternative' : data.alternative.length > 0 ? data.alternative : no_results,
 		};
 
-		jqueryMap.$inspect_head.text( inspected.label[0] );
+		jqueryMap.$inspect_head.text( inspected.label );
 		jqueryMap.$inspect_groups.each( function (idx) {
 			$(this).addClass('show');
 		})

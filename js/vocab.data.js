@@ -2,7 +2,7 @@ vocab.data = (function () {
 
 	var
 		resource_base = "http://vivo.brown.edu/individual/",
-		solr, rest, request, initModule;
+		solr, rest, request, initModule, get;
 
 	request = function ( params, callback ) {
 		$.ajax({
@@ -16,6 +16,14 @@ vocab.data = (function () {
 			console.log(xhr);
 		});
 	};
+
+	getJSON = function ( url ) {
+		return $.ajax({
+			dataType : "html text json",
+			type: "GET",
+			url: url
+		});
+	}
 
 	//Begin Solr interface
 	solr = (function () {
@@ -96,12 +104,14 @@ vocab.data = (function () {
 			data = jdata[uri];
 			term.uri = uri;
 			term.id = term.uri.substring(resource_base.length);
-			term.label = data.label;
-			term.broader = data.broader;
-			term.narrower = data.narrower;
-			term.related = data.related;
-			term.hidden = data.hidden;
-			term.alternative = data.alternative;
+			term.label = data.label[0];
+			term.data = {
+				'broader' : data.broader,
+				'narrower' : data.narrower,
+				'related' : data.related,
+				'hidden' : data.hidden,
+				'alternative' : data.alternative
+			};
 
 			return term
 		};
@@ -124,7 +134,24 @@ vocab.data = (function () {
 					url : res_url,
 				};
 
-			request( params, _processFind );
+			getJSON( res_url ).done( function(resp) {
+				term = makeRESTObj(resp);
+				vocab.model.terms.updateTerm(term);
+				for (key in term.data) {
+					for (var i=0, len=term.data[key].length; i < len; i++) {
+						(function (uri) {
+							var
+								next_rabid = uri.substring(resource_base.length),
+								rest_url = rest_base + next_rabid; 
+							console.log(rest_url);
+							getJSON( rest_url ).done( function(r) {
+								var m = makeRESTObj(r);
+								vocab.model.terms.updateTerm(m);
+							});
+						}(term.data[key][i]))
+					}
+				}
+			}).then($(window).trigger('restFind'));
 
 		}
 
