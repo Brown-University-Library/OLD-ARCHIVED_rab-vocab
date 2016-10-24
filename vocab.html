@@ -9,6 +9,13 @@
 		li {
 			height: 50px;
 		}
+
+		.inspect-group {
+			display: none;
+		}
+		.inspect-group.show {
+			display: block;
+		} 
 	</style>
 	<script src="lib/jquery/jquery-3.1.1.min.js"></script>
 	<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
@@ -19,6 +26,7 @@
 	<script src="js/vocab.model.js"></script>
 	<script src="js/vocab.shell.js"></script>
 	<script src="js/vocab.search.js"></script>
+	<script src="js/vocab.inspect.js"></script>
 	<script>
 		$(function () { vocab.initModule( $('#vocab') ); });
 	</script>

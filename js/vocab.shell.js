@@ -22,7 +22,10 @@ vocab.shell = (function () {
           + '</div>'
 				+	'</div>'
 				+	'<div class="vocab-shell-main">'
-					+	'<div class="vocab-search row"></div>'
+					+	'<div class="vocab-view row">'
+            + '<div class="vocab-search col-sm-9"></div>'
+            + '<div class="vocab-inspect col-sm-3"></div>'
+          + '</div>'
 					+	'<div class="vocab-edit row"></div>'
 				+	'</div>',
 		},
@@ -43,6 +46,7 @@ vocab.shell = (function () {
   	jqueryMap = {
       $container : $container,
       $search : $container.find('.vocab-search'),
+      $inspect : $container.find('.vocab-inspect'),
       $edit : $container.find('.vocab-edit')
     };
   };
@@ -65,6 +69,11 @@ vocab.shell = (function () {
       terms_model : vocab.model.terms
     });
     vocab.search.initModule( jqueryMap.$search );
+
+    vocab.inspect.configModule({
+      terms_model : vocab.model.terms
+    });
+    vocab.inspect.initModule( jqueryMap.$inspect );
   };
 
   return { initModule : initModule };
