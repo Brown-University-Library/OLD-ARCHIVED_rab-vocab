@@ -140,67 +140,43 @@ vocab.data = (function () {
 				};
 
 			request( params )
-				.then( function(resp) {
-					term = makeRESTObj(resp);
-					vocab.model.terms.updateTerm(term);
+			.then( function(resp) {
+				term = makeRESTObj(resp);
+				vocab.model.terms.updateTerm(term);
 
-					neighbors = [];
+				neighbors = [];
 
-					for (key in term.data) {
-						neighbors.push.apply(neighbors, term.data[key]);
-					}
+				for (key in term.data) {
+					neighbors.push.apply(neighbors, term.data[key]);
+				}
 
-					var res = {term: term, neighbors: neighbors};
-					return res;
-				})
-				.then( function(data) {
-					ajax_calls = [];
-					for (var i=0, len=data.neighbors.length; i < len; i++) {
-						tmp_rabid = data.neighbors[i].substring(resource_base.length),
-						tmp_url = rest_base + tmp_rabid;
-						params.url = tmp_url;
-						ajax_calls.push(
-							$.ajax({
-								dataType: "html text json",
-						  	type: "GET",
-								url: tmp_url,
-								success: function(resp){
-									tmp_rest = makeRESTObj(resp);
-									vocab.model.terms.updateTerm(tmp_rest);
-      					}
-							})
-						);
-					}
+				var res = {term: term, neighbors: neighbors};
+				return res;
+			})
+			.then( function(data) {
+				ajax_calls = [];
+				for (var i=0, len=data.neighbors.length; i < len; i++) {
+					tmp_rabid = data.neighbors[i].substring(resource_base.length),
+					tmp_url = rest_base + tmp_rabid;
+					params.url = tmp_url;
+					ajax_calls.push(
+						$.ajax({
+							dataType: "html text json",
+					  	type: "GET",
+							url: tmp_url,
+							success: function(resp){
+								tmp_rest = makeRESTObj(resp);
+								vocab.model.terms.updateTerm(tmp_rest);
+    					}
+						})
+					);
+				}
 
-					$.when.apply(null,ajax_calls)
-						.done( function() {
-							callback(data.term)
-					});
+				$.when.apply(null,ajax_calls)
+					.done( function() {
+						callback(data.term)
 				});
-				// 	for (key in term.data) {
-				// 		// if (term.data[key].length === 0) { continue ;}
-				// 		for (var i=0, len=term.data[key].length; i < len; i++) {
-				// 			(function (uri) {
-				// 				console.log("iterating");
-				// 				var
-				// 					next_rabid = uri.substring(resource_base.length),
-				// 					rest_url = rest_base + next_rabid; 
-				// 				getJSON( rest_url ).done( function(r) {
-				// 					console.log("done!");
-				// 					var m = makeRESTObj(r);
-				// 					vocab.model.terms.updateTerm(m);
-				// 				});
-				// 			}(term.data[key][i]))
-				// 		}
-				// 	}
-				// 	console.log("returning");
-				// 	return term;
-				// })
-				// .then( function(term) {
-				// 	console.log("callback!");
-				// 	callback(term)
-				// });
-
+			});
 		}
 
 		return {

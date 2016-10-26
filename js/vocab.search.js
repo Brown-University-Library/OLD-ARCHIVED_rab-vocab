@@ -40,6 +40,7 @@ vocab.search = (function () {
 			$input : $search.find( '.search-input input[type=text]' ),
 			$submit: $search.find( '.search-submit' ),
 			$inspect: $search.find( '.inspect'),
+			$edit: $search.find( '.edit'),
 			$results: $search.find( '.search-results-list li' ),
 		};
 	};
@@ -63,11 +64,14 @@ vocab.search = (function () {
 
 				$row = $('<li/>', {	'class': 'list-group-item',
 									'data-rabid': ''});
-				$button = $('<button/>', { 	'class': 'inspect btn pull-right'});
-				
+				$inspect_button = $('<button/>', { 	'class': 'inspect btn pull-right'});
+				$edit_button = $('<button/>', { 'class': 'edit btn pull-right'});
+
 				$row.append('<span class="result-label"></span>');
-				$button.append('<span class="glyphicon glyphicon-search"></span>');
-				$row.append($button);
+				$inspect_button.append('<span class="glyphicon glyphicon-search"></span>');
+				$edit_button.append('<span class="glyphicon glyphicon-edit"></span>');
+				$row.append($edit_button);
+				$row.append($inspect_button);
 
 				$(this).append($row);
 				i++;
@@ -131,6 +135,11 @@ vocab.search = (function () {
 		$( window ).trigger('inspectTerm', rabid);
 	}
 
+	onClickEdit = function () {
+		var rabid = $(this).parent('li').attr('data-rabid');
+		$( window ).trigger('editTerm', rabid);
+	}
+
 	//-------------------- END EVENT HANDLERS --------------------
 
 	configModule = function ( map ) {
@@ -146,6 +155,7 @@ vocab.search = (function () {
 
 		jqueryMap.$submit.click( onClickSearch );
 		jqueryMap.$inspect.click( onClickInspect );
+		jqueryMap.$edit.click( onClickEdit );
 
 		$( window ).on('modelUpdate', function(e) {
 			updateResultsList();

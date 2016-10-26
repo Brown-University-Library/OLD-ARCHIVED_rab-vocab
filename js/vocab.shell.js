@@ -26,7 +26,7 @@ vocab.shell = (function () {
             + '<div class="vocab-search col-sm-9"></div>'
             + '<div class="vocab-inspect col-sm-3"></div>'
           + '</div>'
-					+	'<div class="vocab-edit row"></div>'
+					+	'<div class="vocab-edit"></div>'
 				+	'</div>',
 		},
 		stateMap	= {
@@ -74,6 +74,11 @@ vocab.shell = (function () {
       terms_model : vocab.model.terms
     });
     vocab.inspect.initModule( jqueryMap.$inspect );
+
+    vocab.edit.configModule({
+      terms_model : vocab.model.terms
+    });
+    vocab.edit.initModule( jqueryMap.$edit );
   };
 
   return { initModule : initModule };
