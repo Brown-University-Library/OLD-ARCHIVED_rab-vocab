@@ -2,6 +2,7 @@ vocab.model = (function () {
 	var
     stateMap  = {
     	inspected_term	: null,
+    	editable_term		: null,
       term_stack			: [],
       terms_by_uri		: {},
       terms_by_id			: {},
@@ -53,7 +54,8 @@ vocab.model = (function () {
 			setInspectedTerm, get_inspected,
 			updateTerms, get_items, clearTerms,
 			updateTerm, inspect, onInspect,
-			get_by_id, get_by_uri, get_by_name;
+			get_by_id, get_by_uri, get_by_name,
+			edit, onEdit, get_editable;
 
 		setInspectedTerm = function ( jdata ) {
 			var
@@ -94,6 +96,16 @@ vocab.model = (function () {
 			term = makeTerm(servData);
 			stateMap.inspected_term = term;
 			$( window ).trigger('termInspected');			
+		};
+
+		edit = function ( rabid ) {
+			vocab.data.rest.find(rabid, onEdit);
+		};
+
+		onEdit = function ( servData ) {
+			term = makeTerm(servData);
+			stateMap.editable_term = term;
+			$( window ).trigger('termEditable');			
 		};
 
 		updateTerm = function ( servData ) {
@@ -139,6 +151,10 @@ vocab.model = (function () {
 			return stateMap.inspected_term;
 		}
 
+		get_editable = function () {
+			return stateMap.editable_term;
+		}
+
 		return {
 			clearTerms : clearTerms,
 			updateTerms : updateTerms,
@@ -148,8 +164,10 @@ vocab.model = (function () {
 			get_items : get_items,
 			setInspectedTerm : setInspectedTerm,
 			get_inspected : get_inspected,
+			get_editable : get_editable,
 			updateTerm : updateTerm,
-			inspect : inspect
+			inspect : inspect,
+			edit : edit
 		}
 	}());
 
@@ -165,6 +183,11 @@ vocab.model = (function () {
   		stateMap.inspecting = true;
   		terms.inspect(rabid);
   	});
+  	$( window ).on('editTerm', function(e, rabid) {
+  		stateMap.editing = true;
+  		terms.edit(rabid);
+  	});
+
   	$( window ).on('restFind', function(e, data){
   		if (stateMap.inspecting === true) {
   			terms.setInspectedTerm(data.data);
