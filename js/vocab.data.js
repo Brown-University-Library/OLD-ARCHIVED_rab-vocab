@@ -4,24 +4,25 @@ vocab.data = (function () {
 		resource_base = "http://vivo.brown.edu/individual/",
 		solr, rest, request, initModule, get;
 
-	request = function ( params, callback ) {
-		$.ajax({
+	// request = function ( params, callback ) {
+	// 	$.ajax({
+	// 		dataType: params.dataType,
+	//         type: params.type,
+	// 		url: params.url,
+	// 		data: params.data
+	// 	}).done( function(response) {
+	// 			callback(response);
+	// 	}).fail( function(xhr) {
+	// 		console.log(xhr);
+	// 	});
+	// };
+
+	request = function ( params ) {
+		return $.ajax({
 			dataType: params.dataType,
 	        type: params.type,
 			url: params.url,
 			data: params.data
-		}).done( function(response) {
-				callback(response);
-		}).fail( function(xhr) {
-			console.log(xhr);
-		});
-	};
-
-	getJSON = function ( url ) {
-		return $.ajax({
-			dataType : "html text json",
-			type: "GET",
-			url: url
 		});
 	}
 
@@ -75,7 +76,10 @@ vocab.data = (function () {
 					}
 				};
 
-			request( params, _processSolrResponse );
+			request( params )
+			.done( function ( resp ) {
+				_processSolrResponse(resp);
+			});
 		};
 
 		return {
@@ -97,7 +101,6 @@ vocab.data = (function () {
 				term = {};
 
 			if ( Object.keys(jdata).length !== 1) {
-				alert(jdata);
 				return false;
 			}
 			uri = Object.keys(jdata)[0];
@@ -125,33 +128,78 @@ vocab.data = (function () {
 			return true;
 		};
 
-		find = function ( rabid ) {
+		find = function ( rabid, callback ) {
 			var
-				res_url = rest_base + rabid,
+				term, neighbors, ajax_calls,
+				tmp_rabid, tmp_url, tmp_rest,
+				rest_url = rest_base + rabid,
 				params = {
 					dataType : "html text json",
 					type: "GET",
-					url : res_url,
+					url : rest_url,
 				};
 
-			getJSON( res_url ).done( function(resp) {
-				term = makeRESTObj(resp);
-				vocab.model.terms.updateTerm(term);
-				for (key in term.data) {
-					for (var i=0, len=term.data[key].length; i < len; i++) {
-						(function (uri) {
-							var
-								next_rabid = uri.substring(resource_base.length),
-								rest_url = rest_base + next_rabid; 
-							console.log(rest_url);
-							getJSON( rest_url ).done( function(r) {
-								var m = makeRESTObj(r);
-								vocab.model.terms.updateTerm(m);
-							});
-						}(term.data[key][i]))
+			request( params )
+				.then( function(resp) {
+					term = makeRESTObj(resp);
+					vocab.model.terms.updateTerm(term);
+
+					neighbors = [];
+
+					for (key in term.data) {
+						neighbors.push.apply(neighbors, term.data[key]);
 					}
-				}
-			}).then($(window).trigger('restFind'));
+
+					var res = {term: term, neighbors: neighbors};
+					return res;
+				})
+				.then( function(data) {
+					ajax_calls = [];
+					for (var i=0, len=data.neighbors.length; i < len; i++) {
+						tmp_rabid = data.neighbors[i].substring(resource_base.length),
+						tmp_url = rest_base + tmp_rabid;
+						params.url = tmp_url;
+						ajax_calls.push(
+							$.ajax({
+								dataType: "html text json",
+						  	type: "GET",
+								url: tmp_url,
+								success: function(resp){
+									tmp_rest = makeRESTObj(resp);
+									vocab.model.terms.updateTerm(tmp_rest);
+      					}
+							})
+						);
+					}
+
+					$.when.apply(null,ajax_calls)
+						.done( function() {
+							callback(data.term)
+					});
+				});
+				// 	for (key in term.data) {
+				// 		// if (term.data[key].length === 0) { continue ;}
+				// 		for (var i=0, len=term.data[key].length; i < len; i++) {
+				// 			(function (uri) {
+				// 				console.log("iterating");
+				// 				var
+				// 					next_rabid = uri.substring(resource_base.length),
+				// 					rest_url = rest_base + next_rabid; 
+				// 				getJSON( rest_url ).done( function(r) {
+				// 					console.log("done!");
+				// 					var m = makeRESTObj(r);
+				// 					vocab.model.terms.updateTerm(m);
+				// 				});
+				// 			}(term.data[key][i]))
+				// 		}
+				// 	}
+				// 	console.log("returning");
+				// 	return term;
+				// })
+				// .then( function(term) {
+				// 	console.log("callback!");
+				// 	callback(term)
+				// });
 
 		}
 

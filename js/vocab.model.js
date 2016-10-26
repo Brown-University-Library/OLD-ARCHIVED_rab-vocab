@@ -52,7 +52,7 @@ vocab.model = (function () {
 		var
 			setInspectedTerm, get_inspected,
 			updateTerms, get_items, clearTerms,
-			updateTerm,
+			updateTerm, inspect, onInspect,
 			get_by_id, get_by_uri, get_by_name;
 
 		setInspectedTerm = function ( jdata ) {
@@ -86,12 +86,22 @@ vocab.model = (function () {
 
 		};
 
+		inspect = function ( rabid ) {
+			vocab.data.rest.find(rabid, onInspect);
+		};
+
+		onInspect = function ( servData ) {
+			term = makeTerm(servData);
+			stateMap.inspected_term = term;
+			$( window ).trigger('termInspected');			
+		};
+
 		updateTerm = function ( servData ) {
 			var
 				term, existing;
 
 			if (servData.uri in stateMap.terms_by_uri ) {
-				existing = stateMap.terms_by_uri[term.uri];
+				existing = stateMap.terms_by_uri[servData.uri];
 	  		stateMap.term_stack.splice(existing, 1);
 			}
 
@@ -138,7 +148,8 @@ vocab.model = (function () {
 			get_items : get_items,
 			setInspectedTerm : setInspectedTerm,
 			get_inspected : get_inspected,
-			updateTerm : updateTerm
+			updateTerm : updateTerm,
+			inspect : inspect
 		}
 	}());
 
@@ -152,7 +163,7 @@ vocab.model = (function () {
   	});
   	$( window ).on('inspectTerm', function(e, rabid) {
   		stateMap.inspecting = true;
-  		vocab.data.rest.find(rabid);
+  		terms.inspect(rabid);
   	});
   	$( window ).on('restFind', function(e, data){
   		if (stateMap.inspecting === true) {
