@@ -21,33 +21,33 @@ vocab.edit = (function () {
 							+ '<div class="col-sm-4">'
 								+	'<section class="edit-group">'
 									+	'<h4>Broader</h4>'
-									+ '<ul class="edit-broader"></ul>'
+									+ '<ul class="edit-broader edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="col-sm-4">'
 								+ '<section class="edit-group">'
 									+ '<h4>Narrower</h4>'
-									+ '<ul class="edit-narrower"></ul>'
+									+ '<ul class="edit-narrower edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="col-sm-4">'
 								+ '<section class="edit-group">'
-									+ '<h4 class="edit-related">Related</h4>'
-									+ '<ul></ul>'
+									+ '<h4>Related</h4>'
+									+ '<ul class="edit-related edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
 						+ '</div>'
 						+ '<div class="row">'
 							+ '<div class="col-sm-5 col-sm-offset-1">'
 								+ '<section class="edit-group">'
-									+ '<h4 class="edit-alternative">Alternative labels</h4>'
-									+ '<ul></ul>'
+									+ '<h4>Alternative labels</h4>'
+									+ '<ul class="edit-alternative edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="col-sm-5 col-sm-offset-1">'
 								+ '<section class="edit-group">'
-									+ '<h4 class="edit-hidden">Hidden labels</h4>'
-									+ '<ul></ul>'
+									+ '<h4>Hidden labels</h4>'
+									+ '<ul class="edit-hidden edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
 						+ '</div>'
@@ -68,7 +68,7 @@ vocab.edit = (function () {
 		},
 
 		jqueryMap = {},
-		initializeResultsList,
+		initializeResultsList, makeDroppable,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
 		setJqueryMap, initModule, configModule;
@@ -92,7 +92,7 @@ vocab.edit = (function () {
 
 	loadEditable = function () {
 		var 
-			no_results = ["None"],
+			no_results = [""],
 			results_map = {},
 			editable, data,
 			key, vals, $result_list;
@@ -128,6 +128,14 @@ vocab.edit = (function () {
 			}
 		}
 	};
+
+	makeDroppable = function () {
+		jqueryMap.$edit_ctrl.find('ul')
+			.addClass('ui-state-default')
+			.sortable({
+				revert: "true"
+			});
+	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
@@ -146,6 +154,7 @@ vocab.edit = (function () {
 
 		$( window ).on('termEditable', function(e) {
 			loadEditable();
+			makeDroppable();
 		});
 
 		return true;
