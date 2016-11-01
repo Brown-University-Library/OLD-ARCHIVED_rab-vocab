@@ -105,7 +105,7 @@ vocab.model = (function () {
 		onEdit = function ( servData ) {
 			term = makeTerm(servData);
 			stateMap.editable_term = term;
-			$( window ).trigger('termEditable');			
+			$( window ).trigger('termEditable', term.id);			
 		};
 
 		updateTerm = function ( servData ) {
@@ -188,11 +188,8 @@ vocab.model = (function () {
   		terms.edit(rabid);
   	});
 
-  	$( window ).on('restFind', function(e, data){
-  		if (stateMap.inspecting === true) {
-  			terms.setInspectedTerm(data.data);
-  			stateMap.inspecting = false;
-  	}
+  	$( window ).on('submitTermUpdate', function(e, data){
+  		
   	});
   };
 

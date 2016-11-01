@@ -92,7 +92,7 @@ vocab.edit = (function () {
 
 	loadEditable = function () {
 		var 
-			no_results = [""],
+			no_results = ['<span class="glyphicon glyphicon-plus"></span>'],
 			results_map = {},
 			editable, data,
 			key, vals, $result_list;
@@ -123,7 +123,7 @@ vocab.edit = (function () {
 				vals = results_map[key];
 				$result_list = jqueryMap.$edit_ctrl.find( '.edit-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
-					$result_list.append('<li>'+vals[i]+'</li>');
+					$result_list.append('<li class="list-group-item">'+vals[i]+'</li>');
 				}
 			}
 		}
@@ -139,6 +139,11 @@ vocab.edit = (function () {
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
+	onSubmit = function () {
+		var data;
+		data = gatherData();
+		$( window ).trigger('submitTermUpdate');
+	}
 
 	//-------------------- END EVENT HANDLERS --------------------
 

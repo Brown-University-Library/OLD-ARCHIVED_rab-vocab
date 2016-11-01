@@ -23,6 +23,7 @@ vocab.search = (function () {
 
 		jqueryMap = {},
 		initializeResultsList, makeDraggable,
+		enableEditControls,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
 		setJqueryMap, initModule, configModule;
@@ -136,6 +137,20 @@ vocab.search = (function () {
 			i++;
 		});
 	};
+
+	enableEditControls = function (termId) {
+		jqueryMap.$results.each(function (idx) {
+			if ($(this).attr('data-rabid') !== termId) {
+				jqueryMap.$results.eq(idx)
+					.draggable({
+					connectToSortable: ".edit-sort",
+					helper: "clone",
+					revert: "invalid"
+					})
+					.find('button').remove();
+			}
+		});
+	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
@@ -175,8 +190,10 @@ vocab.search = (function () {
 			updateResultsList();
 		});
 
-		$( window ).on('termEditable', function(e) {
-			makeDraggable();			
+		$( window ).on('termEditable', function(e, termId) {
+			// removeControls();
+			// makeDraggable();
+			enableEditControls(termId);
 		});
 
 		return true;
