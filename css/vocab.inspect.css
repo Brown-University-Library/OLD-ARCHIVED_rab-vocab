@@ -1,0 +1,6 @@
+.inspect-group {
+	display: none;
+}
+.inspect-group.show {
+	display: block;
+} 
