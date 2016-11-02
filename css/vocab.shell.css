@@ -1,0 +1,46 @@
+/*
+ * vocab.shell.css
+ * Shell styles
+*/
+.vocab-shell-head, .vocab-shell-head-logo, .vocab-shell-head-acct,
+.vocab-shell-head-search, .vocab-shell-main, .vocab-shell-main-nav,
+.vocab-shell-main-content, .vocab-shell-foot, /*.vocab-shell-chat,*/
+.vocab-shell-modal {
+}
+.vocab-shell-head {
+	display: table-row;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 40px;
+}
+.vocab-shell-head-logo {
+	top: 4px;
+	left: 8px;
+	height: 32px;
+}
+
+.vocab-shell-main {
+	display: table;
+	border-spacing: 10px;
+}
+
+.vocab-shell-view {
+	display: table-row;
+}
+
+.vocab-shell-search {
+	display: table-cell;
+}
+
+.vocab-shell-inspect {
+	display: table-cell;
+}
+
+.vocab-shell-edit {
+	display: table-row;
+}
+
+.vocab-shell-foot {
+	display: table-cell;
+}

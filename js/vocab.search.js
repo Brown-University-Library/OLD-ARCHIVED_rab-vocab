@@ -4,15 +4,15 @@ vocab.search = (function () {
 		configMap = {
 			main_html : String()
 				+ '<div class="search">'
-			 		+ '<div class="row">'
+			 		+ '<div class="search-ctrl">'
 				 		+ '<input class="search-input" type="text" />'
-				 		+ '<button type="button" class="search-submit btn btn-success">Search</button>'
+				 		+ '<button type="button" class="search-submit">Search</button>'
 					+ '</div>'
-					+ '<ul class="search-results-list list-group row"></ul>'
+					+ '<ul class="search-results-list"></ul>'
 				+ '</div>',
 			terms_model : null,
 			cols_for_page : 3,
-			rows_for_col : 10
+			rows_for_col : 6
 		},
 
 		stateMap	= {
@@ -53,7 +53,7 @@ vocab.search = (function () {
 
 		i = 0;
 		while (i < configMap.cols_for_page) {
-			var $col = $('<div/>', {'class': 'col-sm-4', 'data-column': i});
+			var $col = $('<div/>', {'class': 'search-results-col', 'data-column': i});
 			$result_list.append($col);
 			i++;
 		}
@@ -63,14 +63,13 @@ vocab.search = (function () {
 			while (i < configMap.rows_for_col) {
 				var $row, $button;
 
-				$row = $('<li/>', {	'class': 'list-group-item',
-									'data-rabid': ''});
-				$inspect_button = $('<button/>', { 	'class': 'inspect btn pull-right'});
-				$edit_button = $('<button/>', { 'class': 'edit btn pull-right'});
+				$row = $('<li/>', {	'class': '','data-rabid': ''});
+				$inspect_button = $('<button/>', { 	'class': 'inspect'});
+				$edit_button = $('<button/>', { 'class': 'edit'});
 
 				$row.append('<span class="result-label"></span>');
-				$inspect_button.append('<span class="glyphicon glyphicon-search"></span>');
-				$edit_button.append('<span class="glyphicon glyphicon-edit"></span>');
+				$inspect_button.append('<span class="search-result-btn glyphicon glyphicon-search"></span>');
+				$edit_button.append('<span class="search-result-btn glyphicon glyphicon-edit"></span>');
 				$row.append($edit_button);
 				$row.append($inspect_button);
 

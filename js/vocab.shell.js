@@ -16,17 +16,17 @@ vocab.shell = (function () {
 	var
     configMap = {
 			main_html : String()
-				+	'<div class="vocab-shell-head">'
-					+	'<div class="vocab-shell-head-logo">'
-            + '<h1>Vocabulary Manager</h1>'
-          + '</div>'
-				+	'</div>'
 				+	'<div class="vocab-shell-main">'
-					+	'<div class="vocab-view row">'
-            + '<div class="vocab-search col-sm-9"></div>'
-            + '<div class="vocab-inspect col-sm-3"></div>'
+          + '<div class="vocab-shell-head">'
+            + '<div class="vocab-shell-head-logo">'
+              + '<h1>Vocabulary Manager</h1>'
+            + '</div>'
           + '</div>'
-					+	'<div class="vocab-edit"></div>'
+          + '<div class="vocab-shell-view">'
+            + '<div class="vocab-shell-search"></div>'
+            + '<div class="vocab-shell-inspect"></div>'
+          + '</div>'
+					+	'<div class="vocab-shell-edit"></div>'
 				+	'</div>',
 		},
 		stateMap	= {
@@ -45,9 +45,9 @@ vocab.shell = (function () {
   	var $container = stateMap.$container;
   	jqueryMap = {
       $container : $container,
-      $search : $container.find('.vocab-search'),
-      $inspect : $container.find('.vocab-inspect'),
-      $edit : $container.find('.vocab-edit')
+      $search : $container.find('.vocab-shell-search'),
+      $inspect : $container.find('.vocab-shell-inspect'),
+      $edit : $container.find('.vocab-shell-edit')
     };
   };
 

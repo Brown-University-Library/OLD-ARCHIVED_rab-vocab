@@ -1,0 +1,58 @@
+/*
+ * spa.chat.css
+ * Chat feature styles
+*/
+
+.search-results-list {
+	margin-top: 10px;
+	height: 380px;
+	border: solid 3px gray;
+	border-radius: 5px;
+	padding: 5px 0;
+}
+
+.search-results-col {
+	display: inline-block;
+	margin: 0 5px;
+}
+
+.search-results-list li {
+	height: 60px;
+	width: 300px;
+	overflow: hidden;
+	border: solid 1px gray;
+	margin-top: 1px;
+	list-style-type: none;
+}
+
+.search-ctrl {
+
+}
+
+/*.result-label {
+	display: inline-block;
+	margin: 5px;
+	width: 65%;
+}
+
+.inspect {
+	display: inline-block;
+	margin: 5px;
+}
+
+.edit {
+	display: inline-block;
+	margin: 5px;
+}*/
+
+.search-result-btn {
+	height: 25px;
+	width: 25px;
+}
+
+.inspect-group {
+	display: none;
+}
+.inspect-group.show {
+	display: block;
+} 
