@@ -44,7 +44,7 @@ vocab.edit = (function () {
 									+ '<ul class="edit-alternative edit-sort"></ul>'
 								+ '</section>'
 							+ '</div>'
-							+ '<div class="edit-cell>'
+							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Hidden labels</h4>'
 									+ '<ul class="edit-hidden edit-sort"></ul>'
@@ -123,7 +123,7 @@ vocab.edit = (function () {
 				vals = results_map[key];
 				$result_list = jqueryMap.$edit_ctrl.find( '.edit-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
-					$result_list.append('<li class="list-group-item">'+vals[i]+'</li>');
+					$result_list.append('<li>'+vals[i]+'</li>');
 				}
 			}
 		}

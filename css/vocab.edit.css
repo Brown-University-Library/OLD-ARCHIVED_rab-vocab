@@ -10,6 +10,15 @@
 	display: table-cell;
 }
 
+.edit-group {
+	border: solid 3px gray;
+}
+
+.edit-group h4 {
+	display: table-header;
+	border-bottom: solid 3px gray;
+}
+
 .edit-group li {
 	height: 60px;
 	width: 300px;
