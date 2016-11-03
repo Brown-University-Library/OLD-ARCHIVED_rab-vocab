@@ -7,6 +7,7 @@
 .vocab-shell-main-content, .vocab-shell-foot, /*.vocab-shell-chat,*/
 .vocab-shell-modal {
 }
+
 .vocab-shell-head {
 	display: table-row;
 	top: 0;
@@ -14,6 +15,7 @@
 	right: 0;
 	height: 40px;
 }
+
 .vocab-shell-head-logo {
 	top: 4px;
 	left: 8px;

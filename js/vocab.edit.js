@@ -21,19 +21,19 @@ vocab.edit = (function () {
 							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Broader</h4>'
-									+ '<ul class="edit-broader edit-sort"></ul>'
+									+ '<ul class="edit-broader edit-sort" data-edit="broader"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Narrower</h4>'
-									+ '<ul class="edit-narrower edit-sort"></ul>'
+									+ '<ul class="edit-narrower edit-sort" data-edit="narrower"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Related</h4>'
-									+ '<ul class="edit-related edit-sort"></ul>'
+									+ '<ul class="edit-related edit-sort" data-edit="related"></ul>'
 								+ '</section>'
 							+ '</div>'
 						+ '</div>'
@@ -41,19 +41,19 @@ vocab.edit = (function () {
 							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Alternative labels</h4>'
-									+ '<ul class="edit-alternative edit-sort"></ul>'
+									+ '<ul class="edit-alternative edit-sort" data-edit="alternative"></ul>'
 								+ '</section>'
 							+ '</div>'
 							+ '<div class="edit-cell">'
 								+ '<section class="edit-group">'
 									+ '<h4>Hidden labels</h4>'
-									+ '<ul class="edit-hidden edit-sort"></ul>'
+									+ '<ul class="edit-hidden edit-sort" data-edit="hidden"></ul>'
 								+ '</section>'
 							+ '</div>'
 						+ '</div>'
 						+ '<div class="edit-row inputBox">'
 							+ '<div>'
-								+ '<button>Submit</button>'
+								+ '<button class="edit-submit">Submit</button>'
 							+ '</div>'
 						+ '</div>'
 					+ '</div>'
@@ -71,8 +71,36 @@ vocab.edit = (function () {
 		initializeResultsList, makeDroppable,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
+		gatherData,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
+	//------------------- BEGIN UTILITY METHODS ------------------
+	gatherData = function () {
+		var editable, data, rabid;
+		
+		data = {
+			'broader' : [],
+			'narrower' : [],
+			'related' : [],
+			'alternative': [],
+			'hidden' : []
+		};
+		console.log("Gathering!");
+		editable = configMap.terms_model.get_editable();
+		jqueryMap.$edit_groups.each( function () {
+			$ul = $(this).find('ul');
+			$termType = $ul.attr('data-edit');
+			$li = $ul.find('li');
+			$li.each( function () {
+				if ($(this).attr('data-rabid')) {
+					rabid = $(this).attr('data-rabid');
+					data[$termType].push('http://vivo.brown.edu/individual/'+rabid);
+				}
+			});
+		});
+		console.log(data);
+	};
+	//-------------------- END UTILITY METHODS -------------------
 
 	//--------------------- BEGIN DOM METHODS --------------------
 	// Begin DOM method /setJqueryMap/
@@ -85,7 +113,8 @@ vocab.edit = (function () {
 			$editor : $editor,
 			$edit_head : $editor.find( '#edit-head' ),
 			$edit_ctrl : $editor.find( '#edit-ctrl'),
-			$edit_groups : $inspect.find( '.edit-group')
+			$edit_groups : $editor.find( '.edit-group'),
+			$submit : $editor.find('.edit-submit')
 		};
 	};
 	// End DOM method /setJqueryMap/
@@ -139,7 +168,7 @@ vocab.edit = (function () {
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
-	onSubmit = function () {
+	onClickSubmit = function () {
 		var data;
 		data = gatherData();
 		$( window ).trigger('submitTermUpdate');
@@ -156,6 +185,8 @@ vocab.edit = (function () {
 
 		stateMap.$append_target = $append_target;
 		setJqueryMap();
+
+		jqueryMap.$submit.click( onClickSubmit );
 
 		$( window ).on('termEditable', function(e) {
 			loadEditable();
