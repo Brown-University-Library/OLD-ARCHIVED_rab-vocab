@@ -2,13 +2,13 @@ vocab.model = (function () {
 	var
     stateMap  = {
     	inspected_term	: null,
-    	editable_term		: null,
-      term_stack			: [],
-      terms_by_uri		: {},
-      terms_by_id			: {},
-      terms_by_label	: {},
-      inspecting			: false,
-      editing					: false
+    	editable_term	: null,
+     	term_stack		: [],
+    	terms_by_uri	: {},
+    	terms_by_id		: {},
+    	terms_by_label	: {},
+    	inspecting		: false,
+    	editing			: false
     },
 
 		terms, makeTerm, termProto, initModule;
@@ -102,11 +102,22 @@ vocab.model = (function () {
 			vocab.data.rest.find(rabid, onEdit);
 		};
 
+		overwrite =  function ( data ) {
+  			terms.updateTerm(data);
+  			var term = get_by_uri(data.uri);
+  			vocab.data.rest.update(term, onUpdate);
+		};
+
 		onEdit = function ( servData ) {
 			term = makeTerm(servData);
 			stateMap.editable_term = term;
 			$( window ).trigger('termEditable', term.id);			
 		};
+
+		onUpdate = function ( resp ) {
+			console.log(resp);
+			$( window ).trigger('termUpdated');
+		} ;
 
 		updateTerm = function ( servData ) {
 			var
@@ -167,7 +178,8 @@ vocab.model = (function () {
 			get_editable : get_editable,
 			updateTerm : updateTerm,
 			inspect : inspect,
-			edit : edit
+			edit : edit,
+			overwrite : overwrite
 		}
 	}());
 
@@ -189,7 +201,7 @@ vocab.model = (function () {
   	});
 
   	$( window ).on('submitTermUpdate', function(e, data){
-  		
+  		terms.overwrite(data);
   	});
   };
 

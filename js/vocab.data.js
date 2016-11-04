@@ -22,9 +22,11 @@ vocab.data = (function () {
 			dataType: params.dataType,
 	        type: params.type,
 			url: params.url,
-			data: params.data
+			data: params.data,
+			headers: params.headers,
+			contentType: params.contentType
 		});
-	}
+	};
 
 	//Begin Solr interface
 	solr = (function () {
@@ -91,11 +93,11 @@ vocab.data = (function () {
 	//Begin REST interface
 	rest = (function () {
 		var
-			find, update, makeRESTObj,
+			find, update, makeRESTObj, update,
 			_processFind,
 			rest_base = 'http://localhost:8000/vocab/';
 
-		makeRESTObj = function ( jdata ) {
+		makeRESTObj = function ( jdata, etag ) {
 			var
 				uri, data,
 				term = {};
@@ -108,6 +110,7 @@ vocab.data = (function () {
 			term.uri = uri;
 			term.id = term.uri.substring(resource_base.length);
 			term.label = data.label[0];
+			term.etag = etag;
 			term.data = {
 				'broader' : data.broader,
 				'narrower' : data.narrower,
@@ -140,8 +143,9 @@ vocab.data = (function () {
 				};
 
 			request( params )
-			.then( function(resp) {
-				term = makeRESTObj(resp);
+			.then( function(resp, _, xhr) {
+				var etag = xhr.getResponseHeader('etag');
+				term = makeRESTObj(resp, etag);
 				vocab.model.terms.updateTerm(term);
 
 				neighbors = [];
@@ -177,10 +181,43 @@ vocab.data = (function () {
 						callback(data.term)
 				});
 			});
-		}
+		};
+
+		update = function ( term, callback ) {
+			var
+				label, uri, rest_url,
+				data, params,
+				payload = {}, 
+				etag;
+
+			label = [term.label];
+			uri = term.uri;
+			console.log(uri);
+			rest_url = rest_base + term.id;
+			data = term.data;
+			data.label = label;
+			data.class = ['http://www.w3.org/2004/02/skos/core#Concept'];
+			etag = term.etag;
+			payload[uri] = data ;
+			params = {
+				dataType : "json",
+				contentType: 'application/json; charset=UTF-8',
+				type: "PUT",
+				data: JSON.stringify(payload),
+				url : rest_url,
+				headers: {"If-Match": etag}
+			};
+
+			console.log( params );
+			request( params )
+			.then( function(resp) {
+				callback(resp);
+			});
+		};
 
 		return {
-			find : find
+			find 	: find,
+			update  : update
 		};
 	}());
 

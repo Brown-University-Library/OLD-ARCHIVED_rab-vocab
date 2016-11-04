@@ -76,7 +76,7 @@ vocab.edit = (function () {
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 	//------------------- BEGIN UTILITY METHODS ------------------
 	gatherData = function () {
-		var editable, data, rabid;
+		var editable, data, rabid, graph;
 		
 		data = {
 			'broader' : [],
@@ -85,7 +85,6 @@ vocab.edit = (function () {
 			'alternative': [],
 			'hidden' : []
 		};
-		console.log("Gathering!");
 		editable = configMap.terms_model.get_editable();
 		jqueryMap.$edit_groups.each( function () {
 			$ul = $(this).find('ul');
@@ -98,7 +97,8 @@ vocab.edit = (function () {
 				}
 			});
 		});
-		console.log(data);
+		editable.data = data;
+		return editable;
 	};
 	//-------------------- END UTILITY METHODS -------------------
 
@@ -152,6 +152,7 @@ vocab.edit = (function () {
 				vals = results_map[key];
 				$result_list = jqueryMap.$edit_ctrl.find( '.edit-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
+					//need rabids
 					$result_list.append('<li>'+vals[i]+'</li>');
 				}
 			}
@@ -171,7 +172,7 @@ vocab.edit = (function () {
 	onClickSubmit = function () {
 		var data;
 		data = gatherData();
-		$( window ).trigger('submitTermUpdate');
+		$( window ).trigger('submitTermUpdate', data);
 	}
 
 	//-------------------- END EVENT HANDLERS --------------------
