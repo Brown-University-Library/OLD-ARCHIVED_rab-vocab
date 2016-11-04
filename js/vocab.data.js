@@ -31,7 +31,7 @@ vocab.data = (function () {
 	//Begin Solr interface
 	solr = (function () {
 		var
-			sorl_url = 'http://localhost:8080/rabsolr/',
+			sorl_url = 'http://dvivocit1.services.brown.edu:8080/vivosolr/',
 
 			search, _processSolrResponse, makeSolrObj;
 
@@ -60,7 +60,7 @@ vocab.data = (function () {
 
 		search = function ( term ) {
 			var
-				solr_field_title = 'acNameStemmed:',
+				/*solr_field_title = 'acNameStemmed:',
 				solr_field_type = 'type:http://vivo.brown.edu/ontology/vivo-brown/ResearchArea',
 				
 				endpoint = sorl_url + 'select/',
@@ -76,8 +76,12 @@ vocab.data = (function () {
 						"wt": "json",
 						"rows": "30"
 					}
-				};
-
+				};*/
+			params = {
+				dataType : "html text json",
+				type : "GET",
+				url : "https://dvivocit1.services.brown.edu/rabdata/search/"+term
+			};
 			request( params )
 			.done( function ( resp ) {
 				_processSolrResponse(resp);
@@ -95,7 +99,7 @@ vocab.data = (function () {
 		var
 			find, update, makeRESTObj, update,
 			_processFind,
-			rest_base = 'http://localhost:8000/vocab/';
+			rest_base = 'https://dvivocit1.services.brown.edu/rabdata/vocab/';
 
 		makeRESTObj = function ( jdata, etag ) {
 			var
