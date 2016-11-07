@@ -31,7 +31,7 @@ vocab.data = (function () {
 	//Begin Solr interface
 	solr = (function () {
 		var
-			sorl_url = 'http://localhost:8080/rabsolr/',
+			sorl_url = 'http://localhost:8080/solr/',
 
 			search, _processSolrResponse, makeSolrObj;
 
