@@ -113,7 +113,6 @@ vocab.data = (function () {
 
 				foundObj = makeApiObj(resp, etag);
 				callback(foundObj);
-
 				if ('neighbors' in foundObj) {
 					for (var i=0; i < foundObj.neighbors.length; i++) {
 						nbor = foundObj.neighbors[i];
@@ -135,7 +134,7 @@ vocab.data = (function () {
 
 			label = [term.label];
 			uri = term.uri;
-			rest_url = rest_base + term.id;
+			rest_url = configMap.rest_base + term.id;
 			data = term.data;
 			data.label = label;
 			data.class = ['http://www.w3.org/2004/02/skos/core#Concept'];

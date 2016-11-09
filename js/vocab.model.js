@@ -18,6 +18,7 @@ vocab.model = (function () {
 		onModelUpdate, initModule;
 
 	termProto = {
+		etag : null,
 		editing : false,
 		inspecting : false,
 		uri : null,
