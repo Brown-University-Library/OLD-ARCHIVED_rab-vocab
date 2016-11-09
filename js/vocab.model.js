@@ -162,7 +162,7 @@ vocab.model = (function () {
   			var updated;
 
   			updated = updateTerm(data);
-  			vocab.data.rest.update(term, resetModel);
+  			vocab.data.rest.update(updated, resetModel);
 		};
 
 		onEdit = function ( resp ) {
