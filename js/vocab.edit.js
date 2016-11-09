@@ -71,7 +71,7 @@ vocab.edit = (function () {
 		initializeResultsList, makeDroppable,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
-		gatherData,
+		gatherData, resetModule,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 	//------------------- BEGIN UTILITY METHODS ------------------
@@ -91,9 +91,9 @@ vocab.edit = (function () {
 			$termType = $ul.attr('data-edit');
 			$li = $ul.find('li');
 			$li.each( function () {
-				if ($(this).attr('data-rabid')) {
-					rabid = $(this).attr('data-rabid');
-					data[$termType].push('http://vivo.brown.edu/individual/'+rabid);
+				if ($(this).attr('data-uri')) {
+					uri = $(this).attr('data-uri');
+					data[$termType].push(uri);
 				}
 			});
 		});
@@ -121,10 +121,11 @@ vocab.edit = (function () {
 
 	loadEditable = function () {
 		var 
-			no_results = ['<span class="glyphicon glyphicon-plus"></span>'],
+			no_results = [{label:'<span class="ui-icon ui-icon-plus"></span>'}],
 			results_map = {},
 			editable, data,
-			key, vals, $result_list;
+			key, vals, $result_list,
+			li;
 
 		jqueryMap.$edit_ctrl.find('li').remove();
 
@@ -137,7 +138,7 @@ vocab.edit = (function () {
 				results_map[key] = [];
 				for (var i = 0, len=data[key].length; i < len; i++) {
 					var nbor = configMap.terms_model.get_by_uri(data[key][i]);
-					results_map[key].push(nbor.label);
+					results_map[key].push({uri: data[key][i], label: nbor.label});
 				}
 			}
 		};
@@ -152,8 +153,11 @@ vocab.edit = (function () {
 				vals = results_map[key];
 				$result_list = jqueryMap.$edit_ctrl.find( '.edit-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
-					//need rabids
-					$result_list.append('<li>'+vals[i]+'</li>');
+					li = $('<li/>').append(vals[i].label);
+					if ('uri' in vals[i]) {
+						li.attr('data-uri', vals[i].uri);
+					}
+					$result_list.append(li);
 				}
 			}
 		}
@@ -165,6 +169,11 @@ vocab.edit = (function () {
 			.sortable({
 				revert: "true"
 			});
+	};
+
+	resetModule = function () {
+		jqueryMap.$edit_head.text("");
+		jqueryMap.$edit_ctrl.find('li').remove();
 	};
 	//---------------------- END DOM METHODS ---------------------
 
@@ -193,6 +202,10 @@ vocab.edit = (function () {
 			loadEditable();
 			makeDroppable();
 		});
+
+		$( window ).on('resetModel', function(e) {
+			resetModule();
+		})
 
 		return true;
 	};

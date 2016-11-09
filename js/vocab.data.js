@@ -135,7 +135,6 @@ vocab.data = (function () {
 
 			label = [term.label];
 			uri = term.uri;
-			console.log(uri);
 			rest_url = rest_base + term.id;
 			data = term.data;
 			data.label = label;
@@ -151,7 +150,6 @@ vocab.data = (function () {
 				headers: {"If-Match": etag}
 			};
 
-			console.log( params );
 			request( params )
 			.then( function(resp) {
 				callback(resp);

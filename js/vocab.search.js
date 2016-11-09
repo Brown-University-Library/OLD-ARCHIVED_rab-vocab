@@ -23,7 +23,7 @@ vocab.search = (function () {
 
 		jqueryMap = {},
 		initializeResultsList, makeDraggable,
-		enableEditControls,
+		enableEditControls, resetModule,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
 		setJqueryMap, initModule, configModule;
@@ -119,6 +119,7 @@ vocab.search = (function () {
 
 			$result.find('.result-label').text(page[i].label);
 			$result.attr('data-rabid', page[i].id);
+			$result.attr('data-uri', page[i].uri);
 			i++;
 		}
 	};
@@ -149,6 +150,11 @@ vocab.search = (function () {
 					.find('button').remove();
 			}
 		});
+	};
+
+	resetModule = function () {
+		$('.search-input').val("");
+		clearResultsList();
 	};
 	//---------------------- END DOM METHODS ---------------------
 
@@ -194,6 +200,10 @@ vocab.search = (function () {
 			// makeDraggable();
 			enableEditControls(termId);
 		});
+
+		$( window ).on('resetModel', function(e) {
+			resetModule();
+		})
 
 		return true;
 	};

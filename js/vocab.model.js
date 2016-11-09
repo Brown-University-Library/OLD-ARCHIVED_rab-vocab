@@ -12,6 +12,7 @@ vocab.model = (function () {
 		},
 
 		terms, makeTerm, termProto,
+		resetModel,
 		createTerm, updateTerm, deleteTerm,
 		createMany, makeEditable,
 		onModelUpdate, initModule;
@@ -30,6 +31,21 @@ vocab.model = (function () {
 			alternative : []
 		}
 	};	
+
+	resetModel = function () {
+		stateMap  = {
+			inspected_term	: null,
+			editable_term	: null,
+		 	term_stack		: [],
+			terms_by_uri	: {},
+			terms_by_id		: {},
+			terms_by_label	: {},
+			inspecting		: false,
+			editing			: false
+		};
+
+		onModelUpdate('resetModel');
+	};
 
 	createTerm = function ( term_data ) {
 		var idx, attr, term;
@@ -142,9 +158,10 @@ vocab.model = (function () {
 		};
 
 		overwrite =  function ( data ) {
-  			terms.updateTerm(data);
-  			var term = get_by_uri(data.uri);
-  			vocab.data.rest.update(term, onUpdate);
+  			var updated;
+
+  			updated = updateTerm(data);
+  			vocab.data.rest.update(term, resetModel);
 		};
 
 		onEdit = function ( resp ) {
