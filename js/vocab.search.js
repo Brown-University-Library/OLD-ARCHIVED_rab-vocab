@@ -3,12 +3,12 @@ vocab.search = (function () {
 	var
 		configMap = {
 			main_html : String()
-				+ '<div class="search">'
-			 		+ '<div class="search-ctrl">'
-				 		+ '<input class="search-input" type="text" />'
-				 		+ '<button type="button" class="search-submit">Search</button>'
+				+ '<div class="search ui-widget">'
+			 		+ '<div class="search-ctrl ui-widget-header">'
+				 		+ '<input class="search-input ui-autocomplete-input" type="text" />'
+				 		+ '<button type="button" class="search-submit ui-button">Search</button>'
 					+ '</div>'
-					+ '<ul class="search-results-list"></ul>'
+					+ '<ul class="search-results-list ui-widget-content"></ul>'
 				+ '</div>',
 			terms_model : null,
 			cols_for_page : 3,
@@ -64,12 +64,12 @@ vocab.search = (function () {
 				var $row, $button;
 
 				$row = $('<li/>', {	'class': '','data-rabid': ''});
-				$inspect_button = $('<button/>', { 	'class': 'inspect'});
-				$edit_button = $('<button/>', { 'class': 'edit'});
+				$inspect_button = $('<button/>', { 	'class': 'search-result-btn inspect ui-button'});
+				$edit_button = $('<button/>', { 'class': 'search-result-btn edit ui-button'});
 
 				$row.append('<span class="result-label"></span>');
-				$inspect_button.append('<span class="search-result-btn glyphicon glyphicon-search"></span>');
-				$edit_button.append('<span class="search-result-btn glyphicon glyphicon-edit"></span>');
+				$inspect_button.append('<span class="ui-icon ui-icon-search"></span>');
+				$edit_button.append('<span class="ui-icon ui-icon-pencil"></span>');
 				$row.append($edit_button);
 				$row.append($inspect_button);
 
@@ -155,7 +155,7 @@ vocab.search = (function () {
 	//------------------- BEGIN EVENT HANDLERS -------------------
 	onClickSearch = function () {
 		var query = $('.search-input').val();
-		$( window ).trigger('termsearch', query);
+		$( window ).trigger('termSearch', query);
 	};
 
 	onClickInspect = function () {
@@ -185,7 +185,7 @@ vocab.search = (function () {
 		jqueryMap.$inspect.click( onClickInspect );
 		jqueryMap.$edit.click( onClickEdit );
 
-		$( window ).on('modelUpdate', function(e) {
+		$( window ).on('termsCreated', function(e) {
 			updateResultsList();
 		});
 

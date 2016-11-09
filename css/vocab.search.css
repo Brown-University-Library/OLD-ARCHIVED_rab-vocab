@@ -3,13 +3,13 @@
  * Chat feature styles
 */
 
-.search-results-list {
+/*.search-results-list {
 	margin-top: 10px;
 	height: 380px;
 	border: solid 3px gray;
 	border-radius: 5px;
 	padding: 5px 0;
-}
+}*/
 
 .search-results-col {
 	display: inline-block;
@@ -25,25 +25,20 @@
 	list-style-type: none;
 }
 
-.search-ctrl {
-
-}
-
 .result-label {
 	margin: 5px;
-	width: 200px;
+	width: 190px;
 	display: inline-block;
 }
 
-.inspect {
+/*.inspect {
 	margin: 5px;
 }
 
 .edit {
 	margin: 5px;
-}
+}*/
 
 .search-result-btn {
-	height: 25px;
-	width: 25px;
+	margin-top: 0.8em;
 }

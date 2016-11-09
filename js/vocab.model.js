@@ -1,19 +1,24 @@
 vocab.model = (function () {
 	var
-    stateMap  = {
-    	inspected_term	: null,
-    	editable_term	: null,
-     	term_stack		: [],
-    	terms_by_uri	: {},
-    	terms_by_id		: {},
-    	terms_by_label	: {},
-    	inspecting		: false,
-    	editing			: false
-    },
+		stateMap  = {
+			inspected_term	: null,
+			editable_term	: null,
+		 	term_stack		: [],
+			terms_by_uri	: {},
+			terms_by_id		: {},
+			terms_by_label	: {},
+			inspecting		: false,
+			editing			: false
+		},
 
-		terms, makeTerm, termProto, initModule;
+		terms, makeTerm, termProto,
+		createTerm, updateTerm, deleteTerm,
+		createMany, makeEditable,
+		onModelUpdate, initModule;
 
 	termProto = {
+		editing : false,
+		inspecting : false,
 		uri : null,
 		id : null,
 		label : null,
@@ -26,60 +31,94 @@ vocab.model = (function () {
 		}
 	};	
 
-	makeTerm = function ( term_map ) {
-		var
-			term = Object.create( termProto );
-
-		term = vocab.utils.mergeMaps(term, term_map);
-		return term;
-	};
-
-	indexTerm = function (term) {
-		var existing, idx;
-
-		if ( term.uri in stateMap.terms_by_uri ) {
-			existing = stateMap.terms_by_uri[term.uri];
-  		stateMap.term_stack.splice(existing, 1);
+	createTerm = function ( term_data ) {
+		var idx, attr, term;
+		
+		term = Object.create( termProto );
+		for ( attr in term ) {
+			if ( attr in term_data ) {
+				term[ attr ] = term_data[ attr ];
+			}
 		}
-
 		stateMap.term_stack.push(term);
 		idx = stateMap.term_stack.length - 1;
 		stateMap.terms_by_uri[ term.uri ] = idx;
 		stateMap.terms_by_id[ term.id ] = idx;
 		stateMap.terms_by_label[ term.label ] = idx;
-	}
 
-	terms = (function () {
-		var
-			setInspectedTerm, get_inspected,
-			updateTerms, get_items, clearTerms,
-			updateTerm, inspect, onInspect,
-			get_by_id, get_by_uri, get_by_name,
-			edit, onEdit, get_editable;
+		return term;
+	};
 
-		setInspectedTerm = function ( jdata ) {
-			var
-				idx, term, key, vals;
+	updateTerm = function ( updated ) {
+		var attr, idx, to_update;
 
-			jdata.label = jdata.label[0];
-			term = makeTerm(jdata);
-			
-			for (key in term.data) {
-				if (term.data.hasOwnProperty(key)) {
-					vals = term.data[key];
-					for (var i = 0, len=vals.length; i < len; i++) {
-						$result_list.append('<li>'+vals[i]+'</li>');
-					}
+		if ( updated.uri in stateMap.terms_by_uri ) {
+			idx = stateMap.terms_by_uri[ updated.uri ];
+			to_update = stateMap.term_stack[ idx ];
+
+			for ( attr in to_update ) {
+				if ( attr in updated ) {
+					stateMap.term_stack[ idx ][ attr ] = updated[ attr ];
 				}
 			}
 
-			stateMap.inspected_term = term;
-			$( window ).trigger('termInspected');
+			return stateMap.term_stack[ idx ];
+		}
+		else {
+			createTerm( updated );
+		}
+	};
 
-			return true;
-		};
+	deleteTerm = function ( term ) {
+		var existing;
 
-		clearTerms = function () {
+		if ( term.uri in stateMap.terms_by_uri ) {
+				existing = stateMap.terms_by_uri[term.uri];
+	  			delete stateMap.terms_by_uri[ existing.uri ];
+	  			delete stateMap.terms_by_id[ existing.id ];
+	  			delete stateMap.terms_by_label[ existing.label ];
+	  			return true;
+		}
+		else {
+			return false;
+		}
+	};
+
+	createMany = function ( objList ) {
+		var i, res;
+
+		for (i=0; i < objList.length; i++) {
+			res = createTerm(objList[ i ]);
+		}
+
+		onModelUpdate('termsCreated');
+	};
+
+	makeEditable = function ( resp ) {
+		var idx, uri;
+		uri	= Object.keys(resp)[0];
+		idx = stateMap.terms_by_uri[ uri ];
+		stateMap.term_stack[ idx ].editing = true;
+
+		return resp;
+	};
+
+	terms = (function () {
+		var
+			create,
+			setInspectedTerm, get_inspected,
+			get_items, clear, inspect, onInspect,
+			get_by_id, get_by_uri, get_by_name,
+			edit, onEdit, get_editable;
+
+		clear = function () {
+			var i, len, term;
+			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
+				term  = stateMap.term_stack[ i ];
+				if ( term.editing === false ) {
+					deleteTerm(term);
+				}
+			}
 			stateMap.term_stack = [];
 		};
 
@@ -108,38 +147,11 @@ vocab.model = (function () {
   			vocab.data.rest.update(term, onUpdate);
 		};
 
-		onEdit = function ( servData ) {
-			term = makeTerm(servData);
-			stateMap.editable_term = term;
-			$( window ).trigger('termEditable', term.id);			
-		};
+		onEdit = function ( resp ) {
+			var editable;
 
-		onUpdate = function ( resp ) {
-			console.log(resp);
-			$( window ).trigger('termUpdated');
-		} ;
-
-		updateTerm = function ( servData ) {
-			var
-				term, existing;
-
-			if (servData.uri in stateMap.terms_by_uri ) {
-				existing = stateMap.terms_by_uri[servData.uri];
-	  		stateMap.term_stack.splice(existing, 1);
-			}
-
-			term = makeTerm(servData);
-			indexTerm(term);
-		};
-
-		updateTerms = function ( jsonArray ) {
-			var i, len;
-			for ( i = 0, len = jsonArray.length; i < len; i++ ) {
-				term = makeTerm(jsonArray[i]);
-				indexTerm(term);
-			}
-
-			$( window ).trigger('modelUpdate');
+			editable = makeEditable(resp);
+			$( window ).trigger('termEditable', editable);			
 		};
 
 		get_by_id = function ( id ) {
@@ -163,12 +175,19 @@ vocab.model = (function () {
 		}
 
 		get_editable = function () {
-			return stateMap.editable_term;
+			var i;
+			
+			for (i = 0; i < stateMap.term_stack.length; i++ ) {
+				if (stateMap.term_stack[i].editing === true) {
+					return stateMap.term_stack[i];
+				}
+			} 
+
+			return false;
 		}
 
 		return {
-			clearTerms : clearTerms,
-			updateTerms : updateTerms,
+			clear : clear,
 			get_by_id : get_by_id,
 			get_by_uri : get_by_uri,
 			get_by_name : get_by_name,
@@ -176,37 +195,44 @@ vocab.model = (function () {
 			setInspectedTerm : setInspectedTerm,
 			get_inspected : get_inspected,
 			get_editable : get_editable,
-			updateTerm : updateTerm,
 			inspect : inspect,
 			edit : edit,
-			overwrite : overwrite
+			overwrite : overwrite,
+			create : create
 		}
 	}());
 
-  initModule = function () {
-  	$( window ).on('solrUpdate', function(e, data){
-  		terms.clearTerms();
-  		terms.updateTerms(data.data);
-  	});
-  	$( window ).on('termsearch', function(e, query) {
-  		vocab.data.solr.search(query);
-  	});
-  	$( window ).on('inspectTerm', function(e, rabid) {
-  		stateMap.inspecting = true;
-  		terms.inspect(rabid);
-  	});
-  	$( window ).on('editTerm', function(e, rabid) {
-  		stateMap.editing = true;
-  		terms.edit(rabid);
-  	});
+	onModelUpdate = function ( evt ) {
+		$( window ).trigger(evt);
+	} ;
 
-  	$( window ).on('submitTermUpdate', function(e, data){
-  		terms.overwrite(data);
-  	});
-  };
+	initModule = function () {
+  		$( window ).on('termSearch', function(e, query) {
+  			terms.clear();
+  			vocab.data.solr.search(query, createMany);
+  		});
+  		$( window ).on('inspectTerm', function(e, rabid) {
+  			stateMap.inspecting = true;
+  			terms.inspect(rabid);
+  		});
+  		$( window ).on('editTerm', function(e, rabid) {
+  			var term;
+  			stateMap.editing = true;
+  			vocab.data.rest.find(rabid, updateTerm)
+  			.then( function ( resp ) {
+  				makeEditable( resp );
+  			})
+  			.then (function ( resp ) {
+  				onModelUpdate('termEditable');
+  			});
+  		});
+	  	$( window ).on('submitTermUpdate', function(e, data){
+  			terms.overwrite(data);
+  		});
+ 	 };
 
-  return {
-    initModule : initModule,
-    terms : terms
-  };
+	return {
+		initModule : initModule,
+		terms : terms
+	};
 }());

@@ -20,6 +20,15 @@ vocab.utils = (function () {
 		return map_to_update;
 	};
 
+	intersectMaps = function ( map_to_update, map_to_add ) {
+		var key_name;
+		for ( key_name in map_to_update) {
+			map_to_update[ key_name ] = map_to_add[ key_name ];
+		}
+
+		return map_to_update;
+	};
+
 	mergeMap = function ( map_to_update, map_to_add ){
 		var
 			key_name, error;
