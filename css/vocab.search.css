@@ -16,8 +16,9 @@
 	margin: 0 5px;
 }
 
-.search-results-list li {
+.search-results-item {
 	height: 60px;
+	background-color: #fff;
 	width: 300px;
 	overflow: hidden;
 	border: solid 1px gray;
@@ -25,7 +26,7 @@
 	list-style-type: none;
 }
 
-.result-label {
+.search-results-item-label {
 	margin: 5px;
 	width: 190px;
 	display: inline-block;

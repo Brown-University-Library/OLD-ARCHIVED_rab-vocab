@@ -8,9 +8,13 @@ vocab.search = (function () {
 				 		+ '<input class="search-input ui-autocomplete-input" type="text" />'
 				 		+ '<button type="button" class="search-submit ui-button">Search</button>'
 					+ '</div>'
-					+ '<ul class="search-results-list ui-widget-content"></ul>'
+					+ '<div class="search-results">'
+						+ '<ul class="search-results-tabs">'
+						+ '</ul>'
+					+ '</div>'
 				+ '</div>',
 			terms_model : null,
+			results_total : 100,
 			cols_for_page : 3,
 			rows_for_col : 6
 		},
@@ -26,6 +30,11 @@ vocab.search = (function () {
 		enableEditControls, resetModule,
 		updateResultsList, onClickSearch,
 		displayResultsPage, clearResultsList,
+
+		bindDataToLi,
+
+		doSearch, showSearchResults, clearSearchResults,
+		toggleSearchResultsInspect, toggleSearchResultsDrag,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -42,47 +51,115 @@ vocab.search = (function () {
 			$submit: $search.find( '.search-submit' ),
 			$inspect: $search.find( '.inspect'),
 			$edit: $search.find( '.edit'),
-			$results: $search.find( '.search-results-list li' ),
+			$results: $search.find( '.search-results-item' ),
 		};
 	};
 	// End DOM method /setJqueryMap/
 	initializeResultsList = function () {
-		var i, $result_list;
+		var $results,
+			li_count, li_array,
+			$li, $li_slice,
+			col_total, col_count,
+			col_array, $col, $col_slice,
+			page_total, page_count, $page,
+			$tabs_list, $tab, $tab_link;
 		
-		$result_list = stateMap.$append_target.find('.search-results-list');
+		$results = stateMap.$append_target.find('.search-results');
+		$tabs_list = stateMap.$append_target.find('.search-results-tabs');
 
-		i = 0;
-		while (i < configMap.cols_for_page) {
-			var $col = $('<div/>', {'class': 'search-results-col', 'data-column': i});
-			$result_list.append($col);
-			i++;
+		li_array = [];
+		li_count = 0;
+		while ( li_count < configMap.results_total ) {
+			$li = $('<li/>', {	'class'		: 'search-results-item',
+								'data-index': li_count,
+								'data-rabid': '',
+								'data-uri'	: ''});
+			$li.append('<span class="search-results-item-label"></span>');
+
+			li_array.push($li);
+			li_count++;
+		};
+
+		col_total = Math.ceil(
+			configMap.results_total / configMap.rows_for_col );
+		col_array = [];
+		col_count = 0;
+		while ( col_count < col_total ) {
+			$col = $('<div/>', {	'class': 'search-results-col',
+									'data-index': col_count });
+			$li_slice = li_array.slice(
+				(col_count * configMap.rows_for_col) ,
+				(( col_count + 1 ) * configMap.rows_for_col)
+				)
+			$($li_slice).each( function() {
+				$col.append($(this));
+			});
+
+			col_array.push($col);
+			col_count++;
 		}
 
-		$result_list.find('div').each( function (idx) {
-			i = 0;
-			while (i < configMap.rows_for_col) {
-				var $row, $button;
+		page_total = Math.ceil(
+			configMap.results_total / ( configMap.cols_for_page * configMap.rows_for_col ));
+		page_count = 0;
+		while ( page_count < page_total ) {
+			$tab = $('<li/>');
+			$tab_link = $('<a/>', { 'href': '#results-page-' + page_count })
+			$tab_link.text( '' 
+				+ ( ( page_count * configMap.cols_for_page * configMap.rows_for_col ) + 1 )
+				+ '-'
+				+ ( ( page_count + 1) * configMap.cols_for_page * configMap.rows_for_col )
+			);
+			$tab.append( $tab_link );
+			$tabs_list.append($tab);
 
-				$row = $('<li/>', {	'class': '','data-rabid': ''});
-				$inspect_button = $('<button/>', { 	'class': 'search-result-btn inspect ui-button'});
-				$edit_button = $('<button/>', { 'class': 'search-result-btn edit ui-button'});
+			$page = $('<div/>', {	'id': 'results-page-' + page_count });
+			$col_slice = col_array.slice(
+				( page_count * configMap.cols_for_page ) ,
+				(( page_count + 1 ) * configMap.cols_for_page )
+				)
+			$($col_slice).each( function() {
+				$page.append($(this));
+			});
+			 
+			$results.append($page);
+			page_count++;
+		}
 
-				$row.append('<span class="result-label"></span>');
-				$inspect_button.append('<span class="ui-icon ui-icon-search"></span>');
-				$edit_button.append('<span class="ui-icon ui-icon-pencil"></span>');
-				$row.append($edit_button);
-				$row.append($inspect_button);
+		$results.tabs();
+	};
 
-				$(this).append($row);
-				i++;
-			} 
-		});
+	bindDataToLi = function ( dataObj, $li ) {
+		var $label;
+
+		$label = $li.find('.search-results-item-label');
+		
+		$li.attr('data-rabid', dataObj.rabid);
+		$li.attr('data-uri', dataObj.uri);
+		$label.text(dataObj.label);
+	};
+
+	showSearchResults = function ( dataArray ) {
+		var i, len,
+			dataObj, $li;
+
+		for ( i = 0, len=dataArray.length; i < len; i++ ) {
+			dataObj = dataArray[ i ];
+			if ( i < jqueryMap.$results.length ) {
+				$li = jqueryMap.$results.eq( i );
+				bindDataToLi( dataObj, $li );
+			}
+			else {
+				console.log("Too many search results");
+			}
+		}
 	};
 
 	updateResultsList = function () {
 		stateMap.search_results = configMap.terms_model.get_items();
 		stateMap.results_page = 0;
-		displayResultsPage();		
+		// displayResultsPage();
+		showSearchResults( stateMap.search_results );
 	};
 
 	clearResultsList = function () {

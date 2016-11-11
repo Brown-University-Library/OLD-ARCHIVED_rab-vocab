@@ -167,7 +167,8 @@ vocab.edit = (function () {
 		jqueryMap.$edit_ctrl.find('ul')
 			.addClass('ui-state-default')
 			.sortable({
-				revert: "true"
+				revert: "true",
+				dropOnEmpty: true
 			});
 	};
 
