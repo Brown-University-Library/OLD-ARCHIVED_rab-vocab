@@ -7,6 +7,7 @@ vocab.search = (function () {
 			 		+ '<div class="search-ctrl ui-widget-header">'
 				 		+ '<input class="search-input ui-autocomplete-input" type="text" />'
 				 		+ '<button type="button" class="search-submit ui-button">Search</button>'
+				 		+ '<button type="button" class="search-reset ui-button">Reset</button>'
 					+ '</div>'
 					+ '<div class="search-results">'
 						+ '<ul class="search-results-tabs">'
@@ -14,26 +15,24 @@ vocab.search = (function () {
 					+ '</div>'
 				+ '</div>',
 			terms_model : null,
-			results_total : 100,
+			results_total : 72,
 			cols_for_page : 3,
-			rows_for_col : 6
+			rows_for_col : 8
 		},
 
 		stateMap	= {
 			$append_target : null,
-			search_results : [],
-			results_page : 0
+			search_results : []
 		},
 
 		jqueryMap = {},
-		initializeResultsList, makeDraggable,
+		 makeDraggable,
 		enableEditControls, resetModule,
-		updateResultsList, onClickSearch,
-		displayResultsPage, clearResultsList,
+		onClickSearch, onClickReset,
+		initializeResultsList, bindDataToLi,
 
-		bindDataToLi,
-
-		doSearch, showSearchResults, clearSearchResults,
+		doSearch, showSearchResults,
+		clearSearchResults, updateSearchResults,
 		toggleSearchResultsInspect, toggleSearchResultsDrag,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
@@ -47,11 +46,12 @@ vocab.search = (function () {
 
 		jqueryMap = {
 			$search : $search,
-			$input : $search.find( '.search-input input[type=text]' ),
+			$input : $search.find( '.search-input' ),
 			$submit: $search.find( '.search-submit' ),
+			$reset: $search.find('.search-reset'),
 			$inspect: $search.find( '.inspect'),
 			$edit: $search.find( '.edit'),
-			$results: $search.find( '.search-results-item' ),
+			$results: $search.find( '.search-results-item' )
 		};
 	};
 	// End DOM method /setJqueryMap/
@@ -85,7 +85,7 @@ vocab.search = (function () {
 		col_array = [];
 		col_count = 0;
 		while ( col_count < col_total ) {
-			$col = $('<div/>', {	'class': 'search-results-col',
+			$col = $('<ul/>', {	'class': 'search-results-col',
 									'data-index': col_count });
 			$li_slice = li_array.slice(
 				(col_count * configMap.rows_for_col) ,
@@ -139,9 +139,11 @@ vocab.search = (function () {
 		$label.text(dataObj.label);
 	};
 
-	showSearchResults = function ( dataArray ) {
-		var i, len,
+	showSearchResults = function () {
+		var i, len, dataArray,
 			dataObj, $li;
+
+		dataArray = stateMap.search_results;
 
 		for ( i = 0, len=dataArray.length; i < len; i++ ) {
 			dataObj = dataArray[ i ];
@@ -155,50 +157,27 @@ vocab.search = (function () {
 		}
 	};
 
-	updateResultsList = function () {
-		stateMap.search_results = configMap.terms_model.get_items();
-		stateMap.results_page = 0;
-		// displayResultsPage();
-		showSearchResults( stateMap.search_results );
-	};
-
-	clearResultsList = function () {
+	clearSearchResults = function () {
+		var $label;
 		jqueryMap.$results.each( function (idx) {
-			$(this).find('.result-label').text('');
-			$(this).attr('data-rabid', '');
-		});
+			$label = $(this).find('.search-results-item-label');
 
-		return true;
+			$label.text('');
+			$(this).attr('data-rabid', '');
+			$(this).attr('data-uri', '');
+		});		
 	};
 
-	displayResultsPage = function () {
-		var
-			i, page,
-			paged_results = [],
-			results_length = stateMap.search_results.length;
+	updateSearchResults = function () {
+		stateMap.search_results = configMap.terms_model.get_items();
+		clearSearchResults();
+		showSearchResults();
+	};
 
-		clearResultsList();
-
-		if ( results_length === 0 ) { return true };
-
-		i = 0;
-		while ( i < results_length ) {
-			paged_results.push(
-				stateMap.search_results.slice(
-					i, i += configMap.rows_for_col * configMap.cols_for_page));
-		}
-
-		page = paged_results[ stateMap.results_page ];
-		i = 0;
-		while ( i < page.length ) {
-			var 
-				$result = jqueryMap.$results.eq(i);
-
-			$result.find('.result-label').text(page[i].label);
-			$result.attr('data-rabid', page[i].id);
-			$result.attr('data-uri', page[i].uri);
-			i++;
-		}
+	resetSearchResults = function () {
+		stateMap.search_results = [];
+		clearSearchResults();
+		jqueryMap.$input.val("");
 	};
 
 	makeDraggable = function () {
@@ -237,8 +216,12 @@ vocab.search = (function () {
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
 	onClickSearch = function () {
-		var query = $('.search-input').val();
+		var query = jqueryMap.$input.val();
 		$( window ).trigger('termSearch', query);
+	};
+
+	onClickReset = function () {
+		resetSearchResults();
 	};
 
 	onClickInspect = function () {
@@ -265,11 +248,12 @@ vocab.search = (function () {
 		setJqueryMap();
 
 		jqueryMap.$submit.click( onClickSearch );
+		jqueryMap.$reset.click(onClickReset);
 		jqueryMap.$inspect.click( onClickInspect );
 		jqueryMap.$edit.click( onClickEdit );
 
 		$( window ).on('termsCreated', function(e) {
-			updateResultsList();
+			updateSearchResults();
 		});
 
 		$( window ).on('termEditable', function(e, termId) {

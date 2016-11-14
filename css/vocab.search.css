@@ -13,6 +13,7 @@
 
 .search-results-col {
 	display: inline-block;
+	vertical-align: top;
 	margin: 0 5px;
 }
 
