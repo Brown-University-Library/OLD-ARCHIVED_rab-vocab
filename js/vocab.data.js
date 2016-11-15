@@ -17,7 +17,9 @@ vocab.data = (function () {
 	  return new Promise(function(resolve, reject) {
 	    // Do the usual XHR stuff
 	    var req = new XMLHttpRequest();
+	    // for CORS
 	    req.withCredentials = true;
+	    
 	    req.open('GET', url);
 
 	    req.onload = function() {
@@ -171,7 +173,7 @@ vocab.data = (function () {
 			.then( function (terms) {
 				terms.forEach( function ( term ) {
 					vocab.model.updateTerm( term );
-				})
+				});
 				callback();
 			})
 		};

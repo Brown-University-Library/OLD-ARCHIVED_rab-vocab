@@ -61,7 +61,7 @@ vocab.shell = (function () {
     vocab.model.terms.getTermByRabid(rabid);
   };
 
-  onTermRetrieved = function ( rabid ) {
+  onTermFound = function ( rabid ) {
     console.log( rabid );
     // vocab.details.loadTermDetails( rabid );
   };
@@ -96,8 +96,8 @@ vocab.shell = (function () {
     $( window ).on('getTermDetails', function( e, rabid ) {
       onGetTermDetails( rabid );
     });
-    $( window ).on('termRetrieved', function( e, rabid ) {
-      onTermRetrieved( rabid );
+    $( window ).on('termFound', function( e, rabid ) {
+      onTermFound( rabid );
     });
   };
 

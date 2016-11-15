@@ -3,7 +3,7 @@ vocab.details = (function () {
 	var
 		configMap = {
 			main_html : String()
-				+ '<div class="inspect">'
+				+ '<div class="details">'
 					+ '<h3 id="inspectedLabel"></h3>'
 					+ '<section class="inspect-group">'
 					+ '<h4>Broader</h4>'

@@ -205,6 +205,12 @@ vocab.model = (function () {
 			return false;
 		}
 
+		getTermByRabid = function ( rabid ) {
+			vocab.data.rest.find( rabid, function () {
+				console.log(rabid);
+			});
+		}
+
 		return {
 			clear : clear,
 			get_by_id : get_by_id,
