@@ -1,6 +1,13 @@
-.inspect-group {
-	display: none;
+.details-col {
+	display: inline-block;
+	vertical-align: top;
 }
-.inspect-group.show {
+
+.details-group {
+	display: none;
+	min-height: 200px;
+	width: 300px;
+}
+.details-group.show {
 	display: block;
 } 
