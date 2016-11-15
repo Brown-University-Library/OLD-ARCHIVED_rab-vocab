@@ -24,16 +24,19 @@ vocab.shell = (function () {
           + '</div>'
           + '<div class="vocab-shell-view">'
             + '<div class="vocab-shell-search"></div>'
-            + '<div class="vocab-shell-inspect"></div>'
+            + '<div class="vocab-shell-details"></div>'
           + '</div>'
 					+	'<div class="vocab-shell-edit"></div>'
 				+	'</div>',
 		},
-		stateMap	= {
+		
+    stateMap	= {
       $container : undefined
     },
-		jqueryMap = {},
+		
+    jqueryMap = {},
 
+    onGetTermDetails,
 		setJqueryMap, initModule
     ;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
@@ -46,13 +49,22 @@ vocab.shell = (function () {
   	jqueryMap = {
       $container : $container,
       $search : $container.find('.vocab-shell-search'),
-      $inspect : $container.find('.vocab-shell-inspect'),
+      $details : $container.find('.vocab-shell-details'),
       $edit : $container.find('.vocab-shell-edit')
     };
   };
 
   //---------------------- END DOM METHODS ---------------------
   //------------------- BEGIN EVENT HANDLERS -------------------
+
+  onGetTermDetails = function ( rabid ) {
+    vocab.model.terms.getTermByRabid(rabid);
+  };
+
+  onTermRetrieved = function ( rabid ) {
+    console.log( rabid );
+    // vocab.details.loadTermDetails( rabid );
+  };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
   //----------------------- END CALLBACKS ----------------------
@@ -70,15 +82,23 @@ vocab.shell = (function () {
     });
     vocab.search.initModule( jqueryMap.$search );
 
-    vocab.inspect.configModule({
+    vocab.details.configModule({
       terms_model : vocab.model.terms
     });
-    vocab.inspect.initModule( jqueryMap.$inspect );
+    vocab.details.initModule( jqueryMap.$details );
 
     vocab.edit.configModule({
       terms_model : vocab.model.terms
     });
     vocab.edit.initModule( jqueryMap.$edit );
+
+    //set event handlers
+    $( window ).on('getTermDetails', function( e, rabid ) {
+      onGetTermDetails( rabid );
+    });
+    $( window ).on('termRetrieved', function( e, rabid ) {
+      onTermRetrieved( rabid );
+    });
   };
 
   return { initModule : initModule };

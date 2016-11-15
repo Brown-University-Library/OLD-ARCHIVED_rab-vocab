@@ -1,4 +1,4 @@
-vocab.inspect = (function () {
+vocab.details = (function () {
 	//---------------- BEGIN MODULE SCOPE VARIABLES --------------
 	var
 		configMap = {
@@ -35,7 +35,7 @@ vocab.inspect = (function () {
 
 		jqueryMap = {},
 
-		loadInspected;
+		loadTermDetails;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
 	//--------------------- BEGIN DOM METHODS --------------------
@@ -53,7 +53,7 @@ vocab.inspect = (function () {
 	};
 	// End DOM method /setJqueryMap/
 
-	loadInspected = function () {
+	loadTermDetails = function () {
 		var 
 			no_results = ["None"],
 			results_map = {},
@@ -126,6 +126,7 @@ vocab.inspect = (function () {
 
 	return {
 		configModule		: configModule,
-		initModule			: initModule
+		initModule			: initModule,
+		loadTermDetails		: loadTermDetails
 	};
 }());

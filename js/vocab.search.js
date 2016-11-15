@@ -26,9 +26,12 @@ vocab.search = (function () {
 		},
 
 		jqueryMap = {},
-		 makeDraggable,
-		enableEditControls, resetModule,
+		
+		makeDraggable,
+		enableEditControls,
 		onClickSearch, onClickReset,
+		onClickDetails,
+
 		initializeResultsList, bindDataToLi,
 
 		doSearch, showSearchResults,
@@ -49,7 +52,7 @@ vocab.search = (function () {
 			$input : $search.find( '.search-input' ),
 			$submit: $search.find( '.search-submit' ),
 			$reset: $search.find('.search-reset'),
-			$inspect: $search.find( '.inspect'),
+			$details: $search.find( '.search-results-item-details'),
 			$edit: $search.find( '.edit'),
 			$results: $search.find( '.search-results-item' )
 		};
@@ -59,6 +62,7 @@ vocab.search = (function () {
 		var $results,
 			li_count, li_array,
 			$li, $li_slice,
+			$details_button,
 			col_total, col_count,
 			col_array, $col, $col_slice,
 			page_total, page_count, $page,
@@ -74,7 +78,12 @@ vocab.search = (function () {
 								'data-index': li_count,
 								'data-rabid': '',
 								'data-uri'	: ''});
-			$li.append('<span class="search-results-item-label"></span>');
+			$li.append('<span class="search-results-item-label"></span>')
+			$details_button = $('<button/>', {	'type': 'button',
+												'class' : 'search-results-item-details ui-button'
+											});
+			$details_button.append('<span class="ui-icon ui-icon-search"></span>');
+			$li.append($details_button);
 
 			li_array.push($li);
 			li_count++;
@@ -207,11 +216,6 @@ vocab.search = (function () {
 			}
 		});
 	};
-
-	resetModule = function () {
-		$('.search-input').val("");
-		clearResultsList();
-	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
@@ -224,9 +228,9 @@ vocab.search = (function () {
 		resetSearchResults();
 	};
 
-	onClickInspect = function () {
+	onClickDetails = function () {
 		var rabid = $(this).parent('li').attr('data-rabid');
-		$( window ).trigger('inspectTerm', rabid);
+		$( window ).trigger('getTermDetails', rabid);
 	}
 
 	onClickEdit = function () {
@@ -249,7 +253,7 @@ vocab.search = (function () {
 
 		jqueryMap.$submit.click( onClickSearch );
 		jqueryMap.$reset.click(onClickReset);
-		jqueryMap.$inspect.click( onClickInspect );
+		jqueryMap.$details.click( onClickDetails );
 		jqueryMap.$edit.click( onClickEdit );
 
 		$( window ).on('termsCreated', function(e) {
@@ -261,10 +265,6 @@ vocab.search = (function () {
 			// makeDraggable();
 			enableEditControls(termId);
 		});
-
-		$( window ).on('resetModel', function(e) {
-			resetModule();
-		})
 
 		return true;
 	};

@@ -22,7 +22,7 @@ vocab.model = (function () {
 		editing : false,
 		inspecting : false,
 		uri : null,
-		id : null,
+		rabid : null,
 		label : null,
 		data : {
 			broader : [],
@@ -122,6 +122,7 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
+			getTermByRabid,
 			create,
 			setInspectedTerm, get_inspected,
 			get_items, clear, inspect, onInspect,
@@ -139,7 +140,7 @@ vocab.model = (function () {
 			stateMap.term_stack = [];
 		};
 
-		getInspection = function ( rabid ) {
+		getTerm = function ( rabid ) {
 			vocab.data.rest.find(rabid)
 
 		};
@@ -216,7 +217,8 @@ vocab.model = (function () {
 			inspect : inspect,
 			edit : edit,
 			overwrite : overwrite,
-			create : create
+			create : create,
+			getTermByRabid : getTermByRabid
 		}
 	}());
 
@@ -251,6 +253,7 @@ vocab.model = (function () {
 
 	return {
 		initModule : initModule,
-		terms : terms
+		terms : terms,
+		updateTerm : updateTerm
 	};
 }());

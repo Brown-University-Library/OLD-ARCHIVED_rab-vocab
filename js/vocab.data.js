@@ -7,8 +7,81 @@ vocab.data = (function () {
 			rest_base : null
 		},
 		
-		solr, rest, request,
+		solr, rest, request, get,
+		getTerm, makeTerm,
 		initModule, configModule;
+
+	get = function ( url ) {
+		//https://developers.google.com/web/fundamentals/getting-started/primers/promises
+	  // Return a new promise.
+	  return new Promise(function(resolve, reject) {
+	    // Do the usual XHR stuff
+	    var req = new XMLHttpRequest();
+	    req.withCredentials = true;
+	    req.open('GET', url);
+
+	    req.onload = function() {
+	      // This is called even on 404 etc
+	      // so check the status
+	      if (req.status == 200) {
+	        // Resolve the promise with the response text
+	        resolve({ 'resp'	: req.response,
+	        					'etag'	: req.getResponseHeader('etag')
+	        				});
+	      }
+	      else {
+	        // Otherwise reject with the status text
+	        // which will hopefully be a meaningful error
+	        reject(Error(req.statusText));
+	      }
+	    };
+
+	    // Handle network errors
+	    req.onerror = function() {
+	      reject(Error("Network Error"));
+	    };
+
+	    // Make the request
+	    req.send();
+	  });
+	};
+
+	getTerm = function ( url ) {
+  	return get( url ).then( function( respObj ) {
+  		data = JSON.parse(respObj.resp);
+			etag = respObj.etag;
+			term = makeTerm(data, etag);
+			return term;
+  	});
+	};
+
+	makeTerm = function ( resp, etag ) {
+		var
+			uri, data,
+			term = {};
+
+		if ( Object.keys(resp).length !== 1) {
+			return false;
+		}
+		uri = Object.keys(resp)[0];
+		data = resp[uri];
+		term.uri = uri;
+		term.rabid = term.uri.substring(configMap.resource_base.length);
+		term.label = data.label[0];
+		term.etag = etag;
+		if ('neighbors' in data) {
+			term.neighbors = data.neighbors;
+		}
+		term.data = {
+			'broader' : data.broader,
+			'narrower' : data.narrower,
+			'related' : data.related,
+			'hidden' : data.hidden,
+			'alternative' : data.alternative
+		};
+
+		return term
+	};
 
 	request = function ( params ) {
 		return $.ajax({
@@ -30,7 +103,7 @@ vocab.data = (function () {
 			var term = {};
 			term.uri = Object.keys(result)[0];
 			term.label = result[term.uri];
-			term.id = term.uri.substring(configMap.resource_base.length);
+			term.rabid = term.uri.substring(configMap.resource_base.length);
 			return term;
 		};
 
@@ -65,64 +138,42 @@ vocab.data = (function () {
 	//Begin REST interface
 	rest = (function () {
 		var
-			find, update, makeApiObj;
-
-		makeApiObj = function ( resp, etag ) {
-			var
-				uri, data,
-				term = {};
-
-			if ( Object.keys(resp).length !== 1) {
-				return false;
-			}
-			uri = Object.keys(resp)[0];
-			data = resp[uri];
-			term.uri = uri;
-			term.id = term.uri.substring(configMap.resource_base.length);
-			term.label = data.label[0];
-			term.etag = etag;
-			if ('neighbors' in data) {
-				term.neighbors = data.neighbors;
-			}
-			term.data = {
-				'broader' : data.broader,
-				'narrower' : data.narrower,
-				'related' : data.related,
-				'hidden' : data.hidden,
-				'alternative' : data.alternative
-			};
-
-			return term
-		};
+			find, update;
 
 		find = function ( rabid, callback ) {
 			var
-				rest_url = configMap.rest_base + rabid + "?neighbors=True",
-				params = {
-					dataType : "html text json",
-					type: "GET",
-					url : rest_url
-				};
+				i, len, key,
+				data, etag, term,
+				nbor, nbors,
+				n_rabid, n_url,
+				
+				rest_url = configMap.rest_base + rabid;
 
-			return request( params )
-			.then( function(resp, _, xhr) {
-				var
-					etag, foundObj,
-					respObj, nbor;
-				etag = xhr.getResponseHeader('etag');
+			getTerm( rest_url ).then( function(term) {
+				vocab.model.updateTerm(term);
 
-				foundObj = makeApiObj(resp, etag);
-				callback(foundObj);
-				if ('neighbors' in foundObj) {
-					for (var i=0; i < foundObj.neighbors.length; i++) {
-						nbor = foundObj.neighbors[i];
-						respObj = makeApiObj(nbor, null);
-						callback(respObj);
-					}
+				nbors = [];
+				for (key in term.data) {
+					if (term.data[key] !== []) {
+						for ( i=0, len=term.data[key].length; i < len; i++) {
+							nbor = term.data[ key ][ i ];
+							n_rabid = nbor.substring(configMap.resource_base.length);
+							n_url = configMap.rest_base + n_rabid;
+							nbors.push(n_url);
+						}
+					} 
 				}
 
-				return resp;
-			});
+				return Promise.all(
+					nbors.map(getTerm)
+				);
+			})
+			.then( function (terms) {
+				terms.forEach( function ( term ) {
+					vocab.model.updateTerm( term );
+				})
+				callback();
+			})
 		};
 
 		update = function ( term, callback ) {
@@ -172,6 +223,7 @@ vocab.data = (function () {
 		configModule : configModule,
 		initModule : initModule,
 		solr : solr,
-		rest : rest
+		rest : rest,
+		getTerm : getTerm
 	};
 }());
