@@ -3,27 +3,27 @@ vocab.details = (function () {
 	var
 		configMap = {
 			main_html : String()
-				+ '<div class="details">'
-					+ '<h3 id="inspectedLabel"></h3>'
-					+ '<section class="inspect-group">'
+				+ '<div class="term-details">'
+					+ '<h3 id="termLabel"></h3>'
+					+ '<section class="details-group">'
 					+ '<h4>Broader</h4>'
-					+ '<ul class="inspect-broader"></ul>'
+					+ '<ul class="details-broader"></ul>'
 					+ '</section>'
-					+ '<section class="inspect-group">'
+					+ '<section class="details-group">'
 					+ '<h4>Narrower</h4>'
-					+ '<ul class="inspect-narrower"></ul>'
+					+ '<ul class="details-narrower"></ul>'
 					+ '</section>'
-					+ '<section class="inspect-group">'
+					+ '<section class="details-group">'
 					+ '<h4>Related</h4>'
-					+ '<ul class="inspect-related"></ul>'
+					+ '<ul class="details-related"></ul>'
 					+ '</section>'
-					+ '<section class="inspect-group">'
+					+ '<section class="details-group">'
 					+ '<h4>Alternative Labels</h4>'
-					+ '<ul class="inspect-alternative"></ul>'
+					+ '<ul class="details-alternative"></ul>'
 					+ '</section>'
-					+ '<section class="inspect-group">'
+					+ '<section class="details-group">'
 					+ '<h4>Hidden Labels</h4>'
-					+ '<ul class="inspect-hidden"></ul>'
+					+ '<ul class="details-hidden"></ul>'
 					+ '</section>'
 				+ '</div>',
 			terms_model : null,
@@ -43,26 +43,26 @@ vocab.details = (function () {
 	setJqueryMap = function () {
 		var
 			$append_target = stateMap.$append_target;
-			$inspect = $append_target.find( '.inspect' );
+			$details = $append_target.find( '.term-details' );
 
 		jqueryMap = {
-			$inspect : $inspect,
-			$inspect_head : $inspect.find( '#inspectedLabel'),
-			$inspect_groups : $inspect.find( '.inspect-group')
+			$details : $details,
+			$details_head : $details.find( '#termLabel'),
+			$details_groups : $details.find( '.details-group')
 		};
 	};
 	// End DOM method /setJqueryMap/
 
-	loadTermDetails = function () {
+	loadTermDetails = function ( rabid ) {
 		var 
 			no_results = ["None"],
 			results_map = {},
 			inspected, data,
 			key, vals, $result_list;
 
-		jqueryMap.$inspect.find('li').remove();
+		jqueryMap.$details.find('li').remove();
 
-		inspected = configMap.terms_model.get_inspected();
+		inspected = configMap.terms_model.get_by_rabid( rabid );
 		data = inspected.data;
 		for (key in data) {
 			if (data[key].length === 0) {
@@ -85,15 +85,15 @@ vocab.details = (function () {
 		// };
 
 
-		jqueryMap.$inspect_head.text( inspected.label );
-		jqueryMap.$inspect_groups.each( function (idx) {
+		jqueryMap.$details_head.text( inspected.label );
+		jqueryMap.$details_groups.each( function (idx) {
 			$(this).addClass('show');
 		})
 
 		for (key in results_map) {
 			if (results_map.hasOwnProperty(key)) {
 				vals = results_map[key];
-				$result_list = jqueryMap.$inspect.find( '.inspect-'+key );
+				$result_list = jqueryMap.$details.find( '.details-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
 					$result_list.append('<li>'+vals[i]+'</li>');
 				}

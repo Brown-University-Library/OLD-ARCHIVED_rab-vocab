@@ -58,12 +58,11 @@ vocab.shell = (function () {
   //------------------- BEGIN EVENT HANDLERS -------------------
 
   onGetTermDetails = function ( rabid ) {
-    vocab.model.terms.getTermByRabid(rabid);
+    vocab.model.terms.getTermByRabid( rabid );
   };
 
   onTermFound = function ( rabid ) {
-    console.log( rabid );
-    // vocab.details.loadTermDetails( rabid );
+    vocab.details.loadTermDetails( rabid );
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------

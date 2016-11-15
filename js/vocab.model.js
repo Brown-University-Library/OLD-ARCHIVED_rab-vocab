@@ -173,7 +173,7 @@ vocab.model = (function () {
 			$( window ).trigger('termEditable', editable);			
 		};
 
-		get_by_id = function ( id ) {
+		get_by_rabid = function ( id ) {
 			return stateMap.term_stack[ stateMap.terms_by_id[ id ] ];
 		};
 
@@ -207,13 +207,13 @@ vocab.model = (function () {
 
 		getTermByRabid = function ( rabid ) {
 			vocab.data.rest.find( rabid, function () {
-				console.log(rabid);
+				$( window ).trigger("termFound", rabid);
 			});
 		}
 
 		return {
 			clear : clear,
-			get_by_id : get_by_id,
+			get_by_rabid : get_by_rabid,
 			get_by_uri : get_by_uri,
 			get_by_name : get_by_name,
 			get_items : get_items,
