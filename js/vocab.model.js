@@ -60,7 +60,7 @@ vocab.model = (function () {
 		stateMap.term_stack.push(term);
 		idx = stateMap.term_stack.length - 1;
 		stateMap.terms_by_uri[ term.uri ] = idx;
-		stateMap.terms_by_id[ term.id ] = idx;
+		stateMap.terms_by_id[ term.rabid ] = idx;
 		stateMap.terms_by_label[ term.label ] = idx;
 
 		return term;
@@ -206,8 +206,7 @@ vocab.model = (function () {
 		}
 
 		getTermByRabid = function ( rabid ) {
-			vocab.data.rest.find( rabid )
-			.then( function ( rabid ) {
+			vocab.data.rest.find( rabid, function ( rabid ) {
 				$( window ).trigger("termFound", rabid);
 			});
 		}
