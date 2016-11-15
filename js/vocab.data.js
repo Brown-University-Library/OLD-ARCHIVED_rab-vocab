@@ -142,7 +142,7 @@ vocab.data = (function () {
 		var
 			find, update;
 
-		find = function ( rabid, callback ) {
+		find = function ( rabid ) {
 			var
 				i, len, key,
 				data, etag, term,
@@ -174,7 +174,7 @@ vocab.data = (function () {
 				terms.forEach( function ( term ) {
 					vocab.model.updateTerm( term );
 				});
-				callback();
+				return rabid;
 			})
 		};
 
