@@ -5,7 +5,6 @@
 }
 
 .details-group {
-	display: none;
 	min-height: 200px;
 	width: 300px;
 	margin: 0 0 5px 0;
@@ -13,10 +12,6 @@
 
 .details-group.editing {
 	border: 1px solid gray;
-}
-
-.details-group.show {
-	display: block;
 }
 
 .details-group ul {
@@ -37,3 +32,7 @@
 .label-edit.hide {
 	display: none;
 } 
+
+.edit-mode {
+	margin: 0 50% 0 0;
+}

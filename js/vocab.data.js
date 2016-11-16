@@ -174,7 +174,8 @@ vocab.data = (function () {
 				terms.forEach( function ( term ) {
 					vocab.model.updateTerm( term );
 				});
-				callback( rabid );
+				term = vocab.model.terms.get_by_rabid( rabid );
+				callback( term );
 			});
 		};
 

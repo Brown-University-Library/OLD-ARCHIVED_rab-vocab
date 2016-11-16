@@ -60,8 +60,8 @@ vocab.shell = (function () {
     vocab.model.terms.getTermByRabid( rabid );
   };
 
-  onTermFound = function ( rabid ) {
-    vocab.details.loadTermDetails( rabid );
+  onTermFound = function ( term ) {
+    vocab.details.loadTermDetails( term );
     jqueryMap.$details.toggleClass('hide');
   };
   //-------------------- END EVENT HANDLERS --------------------
@@ -95,8 +95,8 @@ vocab.shell = (function () {
     $( window ).on('getTermDetails', function( e, rabid ) {
       onGetTermDetails( rabid );
     });
-    $( window ).on('termFound', function( e, rabid ) {
-      onTermFound( rabid );
+    $( window ).on('termFound', function( e, term ) {
+      onTermFound( term );
     });
   };
 

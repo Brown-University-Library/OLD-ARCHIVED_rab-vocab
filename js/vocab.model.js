@@ -206,8 +206,8 @@ vocab.model = (function () {
 		}
 
 		getTermByRabid = function ( rabid ) {
-			vocab.data.rest.find( rabid, function ( rabid ) {
-				$( window ).trigger("termFound", rabid);
+			vocab.data.rest.find( rabid, function ( term ) {
+				$( window ).trigger("termFound", term);
 			});
 		}
 
