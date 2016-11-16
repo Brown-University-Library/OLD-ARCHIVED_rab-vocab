@@ -1,5 +1,6 @@
 .details-col {
 	display: inline-block;
+	margin: 0 0 0 5px ;
 	vertical-align: top;
 }
 
@@ -7,7 +8,29 @@
 	display: none;
 	min-height: 200px;
 	width: 300px;
+	border: 1px solid gray;
+	margin: 0 0 5px 0;
 }
+
 .details-group.show {
 	display: block;
+}
+
+.details-group ul {
+	margin: 0 0 0 5px;
+}
+
+.details-group li {
+	height: 30px;
+	overflow: hidden;
+	margin-top: 1px;
+	list-style-type: none;
+}
+
+.label-edit {
+	display: block;
+}
+
+.label-edit.hide {
+	display: none;
 } 
