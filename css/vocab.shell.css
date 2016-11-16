@@ -27,7 +27,7 @@
 	border-spacing: 10px;
 }
 
-.vocab-shell-view {
+.vocab-shell-ctl {
 	display: table-row;
 }
 
@@ -35,14 +35,10 @@
 	display: table-cell;
 }
 
-.vocab-shell-inspect {
+.vocab-shell-details {
 	display: table-cell;
 }
 
-.vocab-shell-edit {
-	display: table-row;
-}
-
-.vocab-shell-foot {
-	display: table-cell;
+.vocab-shell-details.hide {
+	display: none;
 }

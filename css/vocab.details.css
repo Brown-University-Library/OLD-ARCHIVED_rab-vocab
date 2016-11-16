@@ -8,8 +8,11 @@
 	display: none;
 	min-height: 200px;
 	width: 300px;
-	border: 1px solid gray;
 	margin: 0 0 5px 0;
+}
+
+.details-group.editing {
+	border: 1px solid gray;
 }
 
 .details-group.show {

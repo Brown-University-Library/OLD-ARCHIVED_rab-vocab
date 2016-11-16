@@ -5,7 +5,6 @@ vocab.details = (function () {
 			main_html : String()
 				+ '<div class="term-details ui-widget">'
 					+ '<h2 class="ui-widget-header">Review</h2>'
-					+ '<h2 class="ui-widget-header hide">Edit</h2>'
 					+ '<div class="ui-widget-content">'
 						+ '<h3 id="termLabel"></h3>'
 						+ '<input type="text" class="label-edit hide"></input>'

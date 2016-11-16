@@ -22,11 +22,10 @@ vocab.shell = (function () {
               + '<h1>Vocabulary Manager</h1>'
             + '</div>'
           + '</div>'
-          + '<div class="vocab-shell-view">'
+          + '<div class="vocab-shell-ctl">'
             + '<div class="vocab-shell-search"></div>'
-            + '<div class="vocab-shell-details"></div>'
+            + '<div class="vocab-shell-details hide"></div>'
           + '</div>'
-					+	'<div class="vocab-shell-edit"></div>'
 				+	'</div>',
 		},
 		
@@ -63,6 +62,7 @@ vocab.shell = (function () {
 
   onTermFound = function ( rabid ) {
     vocab.details.loadTermDetails( rabid );
+    jqueryMap.$details.toggleClass('hide');
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
