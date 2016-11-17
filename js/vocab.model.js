@@ -211,6 +211,44 @@ vocab.model = (function () {
 			});
 		}
 
+		get_term = function ( paramObj ) {
+			var i, len, key, value, matches;
+
+			matches = [];
+
+			terms:
+			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
+				term = stateMap.term_stack[ i ];
+				attrs:				
+				for ( key in paramObj ) {
+					if ( paramObj[key] !== term[key] ) {
+						continue terms;
+					}
+				}
+				matches.push(term);
+			}
+			return matches;
+		};
+
+		update_term = function ( updateObj, paramObj ) {
+			var i, len, key, value, matches, data;
+
+			terms:
+			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
+				term = stateMap.term_stack[ i ];
+				attrs:				
+				for ( key in paramObj ) {
+					if ( paramObj[key] !== term[key] ) {
+						continue terms;
+					}
+				}
+				for ( data in updateObj ) {
+					stateMap.term_stack[ i ][ data ] = updateObj[ data ];
+				}
+			}
+			return true;
+		};
+
 		return {
 			clear : clear,
 			get_by_rabid : get_by_rabid,
@@ -224,7 +262,9 @@ vocab.model = (function () {
 			edit : edit,
 			overwrite : overwrite,
 			create : create,
-			getTermByRabid : getTermByRabid
+			getTermByRabid : getTermByRabid,
+			get_term : get_term,
+			update_term : update_term
 		}
 	}());
 
