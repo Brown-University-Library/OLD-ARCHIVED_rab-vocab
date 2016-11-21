@@ -1,27 +1,26 @@
 vocab.model = (function () {
 	var
+
+		configMap = {
+			resource_base : "http://vivo.brown.edu/individual/"
+		},
+
 		stateMap  = {
-			inspected_term	: null,
-			editable_term	: null,
-		 	term_stack		: [],
-			terms_by_uri	: {},
-			terms_by_id		: {},
-			terms_by_label	: {},
 			inspecting		: false,
 			editing			: false
 		},
 
-		terms, makeTerm, termProto,
-		resetModel,
-		createTerm, updateTerm, deleteTerm,
-		createMany, makeEditable,
-		onModelUpdate, initModule;
+		terms,
+		terms_db, termProto, makeTerm,
+		search_db, searchProto, makeSearchResult,
+		
+		initModule;
 
+	terms_db = TAFFY();
 	termProto = {
-		etag : null,
 		editing : false,
-		inspecting : false,
 		uri : null,
+		etag : null,
 		rabid : null,
 		label : null,
 		data : {
@@ -31,240 +30,115 @@ vocab.model = (function () {
 			hidden : [],
 			alternative : []
 		}
-	};	
-
-	resetModel = function () {
-		stateMap  = {
-			inspected_term	: null,
-			editable_term	: null,
-		 	term_stack		: [],
-			terms_by_uri	: {},
-			terms_by_id		: {},
-			terms_by_label	: {},
-			inspecting		: false,
-			editing			: false
-		};
-
-		onModelUpdate('resetModel');
 	};
 
-	createTerm = function ( term_data ) {
-		var idx, attr, term;
-		
+	makeTerm = function ( term_data ) {
+		var term, key, existing;
+
 		term = Object.create( termProto );
-		for ( attr in term ) {
-			if ( attr in term_data ) {
-				term[ attr ] = term_data[ attr ];
+
+		term.uri = term_data.uri;
+		term.rabid = term.uri.substring(configMap.resource_base.length);
+		term.label = term_data.label[0];
+		term.etag = term_data.etag;
+		term.editing = false;
+		term.data = {
+			broader : [],
+			narrower : [],
+			related : [],
+			hidden : [],
+			alternative : []
+		};
+		for ( key in term.data ) {
+			if ( key in term_data ) {
+				term.data[key] = term_data[key];
 			}
 		}
-		stateMap.term_stack.push(term);
-		idx = stateMap.term_stack.length - 1;
-		stateMap.terms_by_uri[ term.uri ] = idx;
-		stateMap.terms_by_id[ term.rabid ] = idx;
-		stateMap.terms_by_label[ term.label ] = idx;
-
-		return term;
+		
+		terms_db.insert( term );
+		return terms_db({ rabid: term.rabid }).first();
 	};
 
-	updateTerm = function ( updated ) {
-		var attr, idx, to_update;
+	search_db = TAFFY();
+	searchProto = {
+		query : null,
+		uri : null
+	};
 
-		if ( updated.uri in stateMap.terms_by_uri ) {
-			idx = stateMap.terms_by_uri[ updated.uri ];
-			to_update = stateMap.term_stack[ idx ];
+	makeSearchResult = function ( result_data ) {
+		var match;
 
-			for ( attr in to_update ) {
-				if ( attr in updated ) {
-					stateMap.term_stack[ idx ][ attr ] = updated[ attr ];
-				}
+		match = Object.create( searchProto );
+
+		match.query = result_data.query;
+		match.uri = result_data.uri;
+
+		search_db.insert(match);
+
+		return search_db( { query: match.query },{ uri: match.uri } ).first();
+	};
+
+	searchDataUpdate = function ( dataArray, searchTerm ) {
+		var term_data, term, existing_term,
+				search_result, existing_match;
+
+		dataArray.forEach( function( serv_data ) {
+			term_data = serv_data.data;
+			term_data.uri = serv_data.uri;
+			
+			existing_term = terms_db({ uri : term_data.uri }).first();
+			if ( existing_term !== false ) {
+				return;
+			}
+			else {
+				term = makeTerm(term_data);				
 			}
 
-			return stateMap.term_stack[ idx ];
-		}
-		else {
-			createTerm( updated );
-		}
+			existing_match = search_db({ query : searchTerm },{ uri : term_data.uri }).first();
+			if ( existing_match !== false ) {
+				return;
+			}
+			search_result = makeSearchResult({ query: searchTerm, uri: term.uri });
+		});
+
+		return true;
 	};
 
-	deleteTerm = function ( term ) {
-		var existing;
-
-		if ( term.uri in stateMap.terms_by_uri ) {
-				existing = stateMap.terms_by_uri[term.uri];
-	  			delete stateMap.terms_by_uri[ existing.uri ];
-	  			delete stateMap.terms_by_id[ existing.id ];
-	  			delete stateMap.terms_by_label[ existing.label ];
-	  			return true;
-		}
-		else {
-			return false;
-		}
-	};
-
-	createMany = function ( objList ) {
-		var i, res;
-
-		for (i=0; i < objList.length; i++) {
-			res = createTerm(objList[ i ]);
-		}
-
-		onModelUpdate('termsCreated');
-	};
-
-	makeEditable = function ( resp ) {
-		var idx, uri;
-		uri	= Object.keys(resp)[0];
-		idx = stateMap.terms_by_uri[ uri ];
-		stateMap.term_stack[ idx ].editing = true;
-
-		return resp;
-	};
 
 	terms = (function () {
 		var
-			getTermByRabid,
-			create,
-			setInspectedTerm, get_inspected,
-			get_items, clear, inspect, onInspect,
-			get_by_id, get_by_uri, get_by_name,
-			edit, onEdit, get_editable;
+			search;
 
-		clear = function () {
-			var i, len, term;
-			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
-				term  = stateMap.term_stack[ i ];
-				if ( term.editing === false ) {
-					deleteTerm(term);
-				}
-			}
-			stateMap.term_stack = [];
-		};
-
-		getTerm = function ( rabid ) {
-			vocab.data.rest.find(rabid)
-
-		};
-
-		inspect = function ( rabid ) {
-			vocab.data.rest.find(rabid, onInspect);
-		};
-
-		onInspect = function ( servData ) {
-			term = makeTerm(servData);
-			stateMap.inspected_term = term;
-			$( window ).trigger('termInspected');			
-		};
-
-		edit = function ( rabid ) {
-			vocab.data.rest.find(rabid, onEdit);
-		};
-
-		overwrite =  function ( data ) {
-  			var updated;
-
-  			updated = updateTerm(data);
-  			vocab.data.rest.update(updated, resetModel);
-		};
-
-		onEdit = function ( resp ) {
-			var editable;
-
-			editable = makeEditable(resp);
-			$( window ).trigger('termEditable', editable);			
-		};
-
-		get_by_rabid = function ( id ) {
-			return stateMap.term_stack[ stateMap.terms_by_id[ id ] ];
-		};
-
-		get_by_uri = function ( uri ) {
-			return stateMap.term_stack[ stateMap.terms_by_uri[ uri ] ];
-		};
-
-		get_by_name = function ( label ) {
-			return stateMap.term_stack[ stateMap.terms_by_label[ label ] ];
-		};
-
-		get_items = function () {
-			return stateMap.term_stack;
-		};
-
-		get_inspected = function () {
-			return stateMap.inspected_term;
-		}
-
-		get_editable = function () {
-			var i;
-			
-			for (i = 0; i < stateMap.term_stack.length; i++ ) {
-				if (stateMap.term_stack[i].editing === true) {
-					return stateMap.term_stack[i];
-				}
-			} 
-
-			return false;
-		}
-
-		getTermByRabid = function ( rabid ) {
-			vocab.data.rest.find( rabid, function ( term ) {
-				$( window ).trigger("termFound", term);
+		search = function ( termQuery ) {
+			vocab.data.solr.search( termQuery, function ( resp ) {
+					var matches;
+					searchDataUpdate( resp, termQuery );
+					$( window ).trigger('searchComplete', termQuery );
 			});
-		}
-
-		get_term = function ( paramObj ) {
-			var i, len, key, value, matches;
-
-			matches = [];
-
-			terms:
-			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
-				term = stateMap.term_stack[ i ];
-				attrs:				
-				for ( key in paramObj ) {
-					if ( paramObj[key] !== term[key] ) {
-						continue terms;
-					}
-				}
-				matches.push(term);
-			}
-			return matches;
 		};
 
-		update_term = function ( updateObj, paramObj ) {
-			var i, len, key, value, matches, data;
+		get_search_matches = function ( termQuery ) {
+			var
+				matches, results, term;
 
-			terms:
-			for ( i = 0, len = stateMap.term_stack.length; i < len; i++ ) {
-				term = stateMap.term_stack[ i ];
-				attrs:				
-				for ( key in paramObj ) {
-					if ( paramObj[key] !== term[key] ) {
-						continue terms;
-					}
-				}
-				for ( data in updateObj ) {
-					stateMap.term_stack[ i ][ data ] = updateObj[ data ];
-				}
+			matches = search_db().get({ query : termQuery });
+
+			results = [];
+			if ( matches.length > 0) {
+				matches.forEach( function( match ) {
+					term = terms_db({ uri : match.uri }).first();
+					results.push( term );
+				});
+				return results;
 			}
-			return true;
+			else {
+				return results;
+			}
 		};
 
 		return {
-			clear : clear,
-			get_by_rabid : get_by_rabid,
-			get_by_uri : get_by_uri,
-			get_by_name : get_by_name,
-			get_items : get_items,
-			setInspectedTerm : setInspectedTerm,
-			get_inspected : get_inspected,
-			get_editable : get_editable,
-			inspect : inspect,
-			edit : edit,
-			overwrite : overwrite,
-			create : create,
-			getTermByRabid : getTermByRabid,
-			get_term : get_term,
-			update_term : update_term
+			search : search,
+			get_search_matches : get_search_matches
 		}
 	}());
 
@@ -273,10 +147,10 @@ vocab.model = (function () {
 	} ;
 
 	initModule = function () {
-  		$( window ).on('termSearch', function(e, query) {
-  			terms.clear();
-  			vocab.data.solr.search(query, createMany);
-  		});
+  		// $( window ).on('termSearch', function(e, query) {
+  		// 	terms.clear();
+  		// 	vocab.data.solr.search(query, createMany);
+  		// });
   		$( window ).on('inspectTerm', function(e, rabid) {
   			stateMap.inspecting = true;
   			terms.inspect(rabid);
@@ -299,7 +173,6 @@ vocab.model = (function () {
 
 	return {
 		initModule : initModule,
-		terms : terms,
-		updateTerm : updateTerm
+		terms : terms
 	};
 }());

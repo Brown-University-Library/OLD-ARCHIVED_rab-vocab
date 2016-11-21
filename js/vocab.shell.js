@@ -36,6 +36,8 @@ vocab.shell = (function () {
     jqueryMap = {},
 
     onGetTermDetails,
+    engageEditMode,
+    onTermSearch, onSearchCompleted,
 		setJqueryMap, initModule
     ;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
@@ -56,6 +58,16 @@ vocab.shell = (function () {
   //---------------------- END DOM METHODS ---------------------
   //------------------- BEGIN EVENT HANDLERS -------------------
 
+  onTermSearch = function ( query ) {
+    vocab.model.terms.search( query );
+  };
+
+  onSearchCompleted = function ( query ) {
+    var results;
+    results = vocab.model.terms.get_search_matches( query );
+    vocab.search.updateSearchResults( results );
+  };
+
   onGetTermDetails = function ( rabid ) {
     vocab.model.terms.getTermByRabid( rabid );
   };
@@ -63,6 +75,10 @@ vocab.shell = (function () {
   onTermFound = function ( term ) {
     vocab.details.loadTermDetails( term );
     jqueryMap.$details.toggleClass('hide');
+  };
+
+  engageEditMode = function () {
+    vocab.search.enableEditControls();
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
@@ -92,11 +108,22 @@ vocab.shell = (function () {
     vocab.edit.initModule( jqueryMap.$edit );
 
     //set event handlers
+    $( window ).on( 'termSearch', function( e, query ) {
+      onTermSearch( query );
+    });
+
+    $( window ).on( 'searchComplete', function( e, query ) {
+      onSearchCompleted( query );
+    });
+
     $( window ).on('getTermDetails', function( e, rabid ) {
       onGetTermDetails( rabid );
     });
     $( window ).on('termFound', function( e, term ) {
       onTermFound( term );
+    });
+    $( window ).on('editingEnabled', function( e ) {
+      engageEditMode();
     });
   };
 

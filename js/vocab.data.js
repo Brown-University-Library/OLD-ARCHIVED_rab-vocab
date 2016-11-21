@@ -6,10 +6,37 @@ vocab.data = (function () {
 			search_base : null,
 			rest_base : null
 		},
+
+		serviceDataProto,
 		
 		solr, rest, request, get,
 		getTerm, makeTerm,
 		initModule, configModule;
+
+	serviceDataProto = {
+		uri : null,
+		label : null,
+		etag : null,
+		data : {}
+	};
+
+	makeServiceData = function ( resp, etag ) {
+		var servData;
+
+		servData = Object.create( serviceDataProto );
+
+		if ( Object.keys(resp).length !== 1) {
+			return false;
+		}
+		servData.uri = Object.keys( resp )[0];
+		servData.data = resp[ servData.uri ];
+		//JSON.parse side effect?
+		delete servData.data.uri
+		servData.label = servData.data.label[0];
+		servData.etag = etag;
+
+		return servData;
+	};
 
 	get = function ( url ) {
 		//https://developers.google.com/web/fundamentals/getting-started/primers/promises
@@ -27,9 +54,10 @@ vocab.data = (function () {
 	      // so check the status
 	      if (req.status == 200) {
 	        // Resolve the promise with the response text
-	        resolve({ 'resp'	: req.response,
-	        					'etag'	: req.getResponseHeader('etag')
-	        				});
+	        resolve({
+						'data'	: JSON.parse(req.response),
+						'etag'	: req.getResponseHeader('etag')
+	        });
 	      }
 	      else {
 	        // Otherwise reject with the status text
@@ -48,85 +76,50 @@ vocab.data = (function () {
 	  });
 	};
 
-	getTerm = function ( url ) {
-  	return get( url ).then( function( respObj ) {
-  		data = JSON.parse(respObj.resp);
+	getServData = function ( url ) {
+		return get( url ).then( function( respObj ) {
+			data = JSON.parse(respObj.resp);
 			etag = respObj.etag;
 			term = makeTerm(data, etag);
 			return term;
-  	});
+		});
 	};
 
-	makeTerm = function ( resp, etag ) {
-		var
-			uri, data,
-			term = {};
-
-		if ( Object.keys(resp).length !== 1) {
-			return false;
-		}
-		uri = Object.keys(resp)[0];
-		data = resp[uri];
-		term.uri = uri;
-		term.rabid = term.uri.substring(configMap.resource_base.length);
-		term.label = data.label[0];
-		term.etag = etag;
-		if ('neighbors' in data) {
-			term.neighbors = data.neighbors;
-		}
-		term.data = {
-			'broader' : data.broader,
-			'narrower' : data.narrower,
-			'related' : data.related,
-			'hidden' : data.hidden,
-			'alternative' : data.alternative
-		};
-
-		return term
-	};
-
-	request = function ( params ) {
-		return $.ajax({
-			dataType: params.dataType,
-	        type: params.type,
-			url: params.url,
-			data: params.data,
-			headers: params.headers,
-			contentType: params.contentType
+	getTerm = function ( url ) {
+		return get( url ).then( function( respObj ) {
+			data = JSON.parse(respObj.resp);
+			etag = respObj.etag;
+			term = makeTerm(data, etag);
+			return term;
 		});
 	};
 
 	//Begin Solr interface
 	solr = (function () {
 		var
-			search, makeSearchObj;
-
-		makeSearchObj = function ( result ) {
-			var term = {};
-			term.uri = Object.keys(result)[0];
-			term.label = result[term.uri];
-			term.rabid = term.uri.substring(configMap.resource_base.length);
-			return term;
-		};
+			search;
 
 		search = function ( term, callback ) {
 			var
-				data,
-				search_url = configMap.search_base+"?query="+term+"&type=vocab",
-				params = {
-					dataType : "html text json",
-					type : "GET",
-					url : search_url
-				};
-			request( params )
-			.done( function ( resp ) {
+				i,
+				search_res, results,
+				data, servData,
+				endpoint = configMap.search_base,
+				query_url = endpoint + "?query=" + term + "&type=vocab";
+			
+			get( query_url )
+			.then( function ( resp ) {
+				results = resp.data;
 				data = [];
-				for (var i=0; i < resp.length; i++) {
-					search_res = resp[i];
-					searchObj = makeSearchObj(search_res);
-					data.push(searchObj);
+				for ( i = 0; i < results.length; i++ ) {
+					search_res = results[i];
+					servData = makeServiceData( search_res, resp.etag );
+					data.push(servData);
 				}
 
+				return data;
+			})
+			.then( function ( data ) {
 				callback(data);
 			});
 		};

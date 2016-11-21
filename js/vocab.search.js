@@ -177,8 +177,8 @@ vocab.search = (function () {
 		});		
 	};
 
-	updateSearchResults = function () {
-		stateMap.search_results = configMap.terms_model.get_items();
+	updateSearchResults = function ( results ) {
+		stateMap.search_results = results;
 		clearSearchResults();
 		showSearchResults();
 	};
@@ -203,7 +203,10 @@ vocab.search = (function () {
 		});
 	};
 
-	enableEditControls = function (termId) {
+	enableEditControls = function () {
+		var term;
+
+		term = terms_model.get_
 		jqueryMap.$results.each(function (idx) {
 			if ($(this).attr('data-rabid') !== termId) {
 				jqueryMap.$results.eq(idx)
@@ -271,6 +274,8 @@ vocab.search = (function () {
 
 	return {
 		configModule		: configModule,
-		initModule			: initModule
+		initModule			: initModule,
+		enableEditControls	: enableEditControls,
+		updateSearchResults : updateSearchResults
 	};
 }());

@@ -36,3 +36,19 @@
 .edit-mode {
 	margin: 0 50% 0 0;
 }
+
+.edit-button {
+	display: inline;
+}
+
+.edit-button.hide {
+	display: none;
+}
+
+.cancel-edits {
+	display: inline;
+}
+
+.cancel-edits.hide {
+	display: none;
+}
