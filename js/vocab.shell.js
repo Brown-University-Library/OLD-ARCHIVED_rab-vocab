@@ -73,11 +73,8 @@ vocab.shell = (function () {
   };
 
   onTermDescribed = function ( rabid ) {
-    var term;
-    term = vocab.model.terms.get_term( { rabid : rabid } );
-    console.log(term);
-    // vocab.details.loadTermDetails( term );
-    // jqueryMap.$details.toggleClass('hide');
+    vocab.details.loadTermDetails( rabid );
+    jqueryMap.$details.removeClass('hide');
   };
 
   engageEditMode = function () {

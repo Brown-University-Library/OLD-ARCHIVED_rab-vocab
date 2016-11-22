@@ -74,7 +74,9 @@ vocab.details = (function () {
 	};
 	// End DOM method /setJqueryMap/
 
-	loadTermDetails = function ( term ) {
+	loadTermDetails = function ( rabid ) {
+		var term;
+		term = configMap.terms_model.get_term( { rabid : rabid } );
 		stateMap.term_target = term;
 		load_target_term();
 	};
@@ -109,7 +111,7 @@ vocab.details = (function () {
 			} else {
 				results_map[key] = [];
 				for (var i = 0, len=data[key].length; i < len; i++) {
-					var nbor = configMap.terms_model.get_by_uri(data[key][i]);
+					var nbor = configMap.terms_model.get_term( { uri: data[key][i] });
 					results_map[key].push(nbor);
 				}
 			}

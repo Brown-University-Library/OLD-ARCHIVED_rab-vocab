@@ -147,7 +147,7 @@ vocab.model = (function () {
 		var
 			matches, results, term;
 
-		matches = search_db().get({ query : termQuery });
+		matches = search_db({ query : termQuery }).get();
 
 		results = [];
 		if ( matches.length > 0) {
@@ -194,6 +194,7 @@ vocab.model = (function () {
 		initModule : initModule,
 		terms : terms,
 		terms_db : terms_db,
+		search_db : search_db,
 		search_terms : search_terms,
 		describe_term : describe_term,
 		get_term_search_matches : get_term_search_matches
