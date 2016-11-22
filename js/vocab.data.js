@@ -16,11 +16,12 @@ vocab.data = (function () {
 	serviceDataProto = {
 		uri : null,
 		label : null,
+		links : [],
 		etag : null,
 		data : {}
 	};
 
-	makeServiceData = function ( resp, etag ) {
+	makeServiceData = function ( resp, linkedAttrs, etag ) {
 		var servData;
 
 		servData = Object.create( serviceDataProto );
@@ -34,6 +35,12 @@ vocab.data = (function () {
 		delete servData.data.uri
 		servData.label = servData.data.label[0];
 		servData.etag = etag;
+		servData.links = [];
+		linkedAttrs.forEach( function (linkedAttr) {
+			if (linkedAttr in servData.data) {
+				servData.links.push.apply(servData.links, servData.data[linkedAttr]);
+			}
+		});
 
 		return servData;
 	};
@@ -113,7 +120,7 @@ vocab.data = (function () {
 				data = [];
 				for ( i = 0; i < results.length; i++ ) {
 					search_res = results[i];
-					servData = makeServiceData( search_res, resp.etag );
+					servData = makeServiceData( search_res, [], resp.etag );
 					data.push(servData);
 				}
 
@@ -133,7 +140,46 @@ vocab.data = (function () {
 	//Begin REST interface
 	rest = (function () {
 		var
-			find, update;
+			find, update, describe;
+
+		describe = function ( rabid, links, callback ) {
+			var
+				out, linkedServData,
+				servData, res_links,
+				link_rabid, res_url,			
+				rest_url = configMap.rest_base + rabid;
+
+			out = [];
+
+			get( rest_url )
+			.then( function( resp ) {
+				servData = makeServiceData( resp.data, links, resp.etag );
+
+				res_links = [];
+				servData.links.forEach( function (link) {
+					link_rabid = link.substring(configMap.resource_base.length);
+					res_url = configMap.rest_base + link_rabid;
+					res_links.push(res_url);
+				});
+
+				out.push(servData);
+
+				return Promise.all(
+					res_links.map( get )
+				);
+			})
+			.then( function (resps) {
+				resps.forEach( function ( resp ) {
+					console.log(resp);
+					linkedServData = makeServiceData( resp.data, links, resp.etag );
+				});
+				out.push(linkedServData);
+			})
+			.then( function () {
+				console.log(out);
+				// callback( out );
+			});
+		};
 
 		find = function ( rabid, callback ) {
 			var
@@ -204,7 +250,8 @@ vocab.data = (function () {
 
 		return {
 			find 	: find,
-			update  : update
+			update  : update,
+			describe : describe
 		};
 	}());
 
