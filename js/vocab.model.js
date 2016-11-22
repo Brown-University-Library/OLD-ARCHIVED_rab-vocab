@@ -10,7 +10,9 @@ vocab.model = (function () {
 			editing			: false
 		},
 
-		terms, get_term,
+		terms, search_terms,
+		get_term_search_matches,
+		describe_term,
 
 		terms_db, termProto,
 		makeTerm, termDataUpdate,
@@ -133,46 +135,46 @@ vocab.model = (function () {
 		return true;
 	};
 
+	search_terms = function ( termQuery ) {
+		vocab.data.solr.search( termQuery, function ( resp ) {
+				var matches;
+				searchDataUpdate( resp, termQuery );
+				$( window ).trigger('searchComplete', termQuery );
+		});
+	};
+
+	get_term_search_matches = function ( termQuery ) {
+		var
+			matches, results, term;
+
+		matches = search_db().get({ query : termQuery });
+
+		results = [];
+		if ( matches.length > 0) {
+			matches.forEach( function( match ) {
+				term = terms_db({ uri : match.uri }).first();
+				results.push( term );
+			});
+			return results;
+		}
+		else {
+			return results;
+		}
+	};
+
+	describe_term = function ( rabid ) {
+		var linked_attributes;
+
+		linked_attributes = ['broader','narrower','related'];
+		vocab.data.rest.describe( rabid, linked_attributes, function( resp ) {
+			termDataUpdate( resp );
+			$( window ).trigger('termDescribed', rabid);
+		});
+	};
+
 	terms = (function () {
 		var
-			search;
-
-		search = function ( termQuery ) {
-			vocab.data.solr.search( termQuery, function ( resp ) {
-					var matches;
-					searchDataUpdate( resp, termQuery );
-					$( window ).trigger('searchComplete', termQuery );
-			});
-		};
-
-		get_search_matches = function ( termQuery ) {
-			var
-				matches, results, term;
-
-			matches = search_db().get({ query : termQuery });
-
-			results = [];
-			if ( matches.length > 0) {
-				matches.forEach( function( match ) {
-					term = terms_db({ uri : match.uri }).first();
-					results.push( term );
-				});
-				return results;
-			}
-			else {
-				return results;
-			}
-		};
-
-		describe = function ( rabid ) {
-			var linked_attributes;
-
-			linked_attributes = ['broader','narrower','related'];
-			vocab.data.rest.describe( rabid, linked_attributes, function( resp ) {
-				termDataUpdate( resp );
-				$( window ).trigger('termDescribed', rabid);
-			});
-		};
+			get_term;
 
 		get_term = function ( paramObj ) {
 			var term;
@@ -182,45 +184,18 @@ vocab.model = (function () {
 		};
 
 		return {
-			search : search,
-			get_search_matches : get_search_matches,
-			describe : describe,
 			get_term : get_term
 		}
 	}());
 
-	onModelUpdate = function ( evt ) {
-		$( window ).trigger(evt);
-	} ;
-
-	initModule = function () {
-  		// $( window ).on('termSearch', function(e, query) {
-  		// 	terms.clear();
-  		// 	vocab.data.solr.search(query, createMany);
-  		// });
-  		$( window ).on('inspectTerm', function(e, rabid) {
-  			stateMap.inspecting = true;
-  			terms.inspect(rabid);
-  		});
-  		$( window ).on('editTerm', function(e, rabid) {
-  			var term;
-  			stateMap.editing = true;
-  			vocab.data.rest.find(rabid, updateTerm)
-  			.then( function ( resp ) {
-  				makeEditable( resp );
-  			})
-  			.then (function ( resp ) {
-  				onModelUpdate('termEditable');
-  			});
-  		});
-	  	$( window ).on('submitTermUpdate', function(e, data){
-  			terms.overwrite(data);
-  		});
- 	 };
+	initModule = function () {};
 
 	return {
 		initModule : initModule,
 		terms : terms,
-		terms_db : terms_db
+		terms_db : terms_db,
+		search_terms : search_terms,
+		describe_term : describe_term,
+		get_term_search_matches : get_term_search_matches
 	};
 }());

@@ -59,17 +59,17 @@ vocab.shell = (function () {
   //------------------- BEGIN EVENT HANDLERS -------------------
 
   onTermSearch = function ( query ) {
-    vocab.model.terms.search( query );
+    vocab.model.search_terms( query );
   };
 
   onSearchCompleted = function ( query ) {
     var results;
-    results = vocab.model.terms.get_search_matches( query );
+    results = vocab.model.get_term_search_matches( query );
     vocab.search.updateSearchResults( results );
   };
 
   onGetTermDescription = function ( rabid ) {
-    vocab.model.terms.describe( rabid );
+    vocab.model.describe_term( rabid );
   };
 
   onTermDescribed = function ( rabid ) {
