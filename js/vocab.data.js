@@ -171,8 +171,8 @@ vocab.data = (function () {
 			.then( function (resps) {
 				resps.forEach( function ( resp ) {
 					linkedServData = makeServiceData( resp.data, links, resp.etag );
+					out.push(linkedServData);
 				});
-				out.push(linkedServData);
 			})
 			.then( function () {
 				callback( out );

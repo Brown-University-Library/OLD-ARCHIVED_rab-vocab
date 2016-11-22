@@ -35,7 +35,7 @@ vocab.shell = (function () {
 		
     jqueryMap = {},
 
-    onGetTermDetails,
+    onGetTermDescription, onTermDescribed,
     engageEditMode,
     onTermSearch, onSearchCompleted,
 		setJqueryMap, initModule
@@ -68,13 +68,16 @@ vocab.shell = (function () {
     vocab.search.updateSearchResults( results );
   };
 
-  onGetTermDetails = function ( rabid ) {
-    vocab.model.terms.getTermByRabid( rabid );
+  onGetTermDescription = function ( rabid ) {
+    vocab.model.terms.describe( rabid );
   };
 
-  onTermFound = function ( term ) {
-    vocab.details.loadTermDetails( term );
-    jqueryMap.$details.toggleClass('hide');
+  onTermDescribed = function ( rabid ) {
+    var term;
+    term = vocab.model.terms.get_term( { rabid : rabid } );
+    console.log(term);
+    // vocab.details.loadTermDetails( term );
+    // jqueryMap.$details.toggleClass('hide');
   };
 
   engageEditMode = function () {
@@ -116,11 +119,12 @@ vocab.shell = (function () {
       onSearchCompleted( query );
     });
 
-    $( window ).on('getTermDetails', function( e, rabid ) {
-      onGetTermDetails( rabid );
+    $( window ).on('describeTerm', function( e, rabid ) {
+      onGetTermDescription( rabid );
     });
-    $( window ).on('termFound', function( e, term ) {
-      onTermFound( term );
+
+    $( window ).on('termDescribed', function( e, rabid ) {
+      onTermDescribed( rabid );
     });
     $( window ).on('editingEnabled', function( e ) {
       engageEditMode();

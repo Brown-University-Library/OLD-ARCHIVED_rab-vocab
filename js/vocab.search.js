@@ -233,7 +233,7 @@ vocab.search = (function () {
 
 	onClickDetails = function () {
 		var rabid = $(this).parent('li').attr('data-rabid');
-		$( window ).trigger('getTermDetails', rabid);
+		$( window ).trigger('describeTerm', rabid);
 	}
 
 	onClickEdit = function () {
@@ -258,10 +258,6 @@ vocab.search = (function () {
 		jqueryMap.$reset.click(onClickReset);
 		jqueryMap.$details.click( onClickDetails );
 		jqueryMap.$edit.click( onClickEdit );
-
-		$( window ).on('termsCreated', function(e) {
-			updateSearchResults();
-		});
 
 		$( window ).on('termEditable', function(e, termId) {
 			// removeControls();

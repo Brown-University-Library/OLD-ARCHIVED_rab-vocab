@@ -10,7 +10,7 @@ vocab.model = (function () {
 			editing			: false
 		},
 
-		terms,
+		terms, get_term,
 
 		terms_db, termProto,
 		makeTerm, termDataUpdate,
@@ -73,7 +73,6 @@ vocab.model = (function () {
 			term_data.uri = serv_data.uri;
 			term_data.etag = serv_data.etag;
 			
-			console.log(term_data);
 			existing_term = terms_db({ uri : term_data.uri }).first();
 			if ( existing_term !== false ) {
 				if ( existing_term.editing === false ) {
@@ -175,10 +174,18 @@ vocab.model = (function () {
 			});
 		};
 
+		get_term = function ( paramObj ) {
+			var term;
+
+			term = terms_db( paramObj ).first();
+			return term;
+		};
+
 		return {
 			search : search,
 			get_search_matches : get_search_matches,
-			describe : describe
+			describe : describe,
+			get_term : get_term
 		}
 	}());
 
