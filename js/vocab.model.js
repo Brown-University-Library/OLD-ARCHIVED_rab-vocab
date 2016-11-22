@@ -11,8 +11,12 @@ vocab.model = (function () {
 		},
 
 		terms,
-		terms_db, termProto, makeTerm,
-		search_db, searchProto, makeSearchResult,
+
+		terms_db, termProto,
+		makeTerm, termDataUpdate,
+		
+		search_db, searchProto,
+		makeSearchResult, searchDataUpdate,
 		
 		initModule;
 
@@ -57,6 +61,32 @@ vocab.model = (function () {
 		
 		terms_db.insert( term );
 		return terms_db({ rabid: term.rabid }).first();
+	};
+
+	termDataUpdate = function ( dataArray ) {
+		var
+			term_data, term,
+			existing_term, key;
+
+		dataArray.forEach( function( serv_data ) {
+			term_data = serv_data.data;
+			term_data.uri = serv_data.uri;
+			term_data.etag = serv_data.etag;
+			
+			console.log(term_data);
+			existing_term = terms_db({ uri : term_data.uri }).first();
+			if ( existing_term !== false ) {
+				if ( existing_term.editing === false ) {
+					terms_db({ uri : existing_term.uri }).remove();
+				}
+				else {
+					return;
+				}
+			}
+			term = makeTerm(term_data);				
+		});
+
+		return true;
 	};
 
 	search_db = TAFFY();
@@ -104,7 +134,6 @@ vocab.model = (function () {
 		return true;
 	};
 
-
 	terms = (function () {
 		var
 			search;
@@ -136,9 +165,20 @@ vocab.model = (function () {
 			}
 		};
 
+		describe = function ( rabid ) {
+			var linked_attributes;
+
+			linked_attributes = ['broader','narrower','related'];
+			vocab.data.rest.describe( rabid, linked_attributes, function( resp ) {
+				termDataUpdate( resp );
+				$( window ).trigger('termDescribed', rabid);
+			});
+		};
+
 		return {
 			search : search,
-			get_search_matches : get_search_matches
+			get_search_matches : get_search_matches,
+			describe : describe
 		}
 	}());
 
@@ -173,6 +213,7 @@ vocab.model = (function () {
 
 	return {
 		initModule : initModule,
-		terms : terms
+		terms : terms,
+		terms_db : terms_db
 	};
 }());

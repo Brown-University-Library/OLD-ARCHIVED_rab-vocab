@@ -170,14 +170,12 @@ vocab.data = (function () {
 			})
 			.then( function (resps) {
 				resps.forEach( function ( resp ) {
-					console.log(resp);
 					linkedServData = makeServiceData( resp.data, links, resp.etag );
 				});
 				out.push(linkedServData);
 			})
 			.then( function () {
-				console.log(out);
-				// callback( out );
+				callback( out );
 			});
 		};
 
