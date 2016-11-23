@@ -9,7 +9,7 @@ vocab.details = (function () {
 						+ '<button type="button" class="ui-button edit-button">Edit</button>'
 						+ '<button type="button" class="ui-button cancel-edits hide">X</button>'
 					+ '</div>'
-					+ '<div class="ui-widget-content">'
+					+ '<div class="ui-widget-content term-inspector" data-rabid data-uri>'
 						+ '<h3 id="termLabel"></h3>'
 						+ '<input type="text" class="label-edit hide" />'
 						+ '<div class="details-col">'
@@ -65,6 +65,7 @@ vocab.details = (function () {
 		jqueryMap = {
 			$details : $details,
 			$details_head : $details.find( '#termLabel'),
+			$inspector : $details.find( '.term-inspector' ),
 			$details_groups : $details.find( '.details-group'),
 			$edit_mode : $details.find('.edit-mode'),
 			$edit_button : $details.find('.edit-button'),
@@ -76,8 +77,11 @@ vocab.details = (function () {
 
 	loadTermDetails = function ( rabid ) {
 		var term;
+		
 		term = configMap.terms_model.get_term( { rabid : rabid } );
 		stateMap.term_target = term;
+		jqueryMap.$inspector.attr('data-rabid', term.rabid);
+		jqueryMap.$inspector.attr('data-uri', term.uri);
 		load_target_term();
 	};
 
@@ -139,10 +143,11 @@ vocab.details = (function () {
 	//------------------- BEGIN EVENT HANDLERS -------------------
 	onClickEdit = function () {
 		stateMap.editing = true;
+		configMap.terms_model.set_term_editing( { rabid: stateMap.term_target.rabid } );
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$cancel_button.removeClass('hide');
-		load_target_term();
-		$( window ).trigger("editingEnabled", stateMap.term_target);
+		// load_target_term();
+		$( window ).trigger("editingEnabled", stateMap.term_target.rabid);
 	};
 	//-------------------- END EVENT HANDLERS --------------------
 
@@ -155,10 +160,6 @@ vocab.details = (function () {
 
 		stateMap.$append_target = $append_target;
 		setJqueryMap();
-
-		$( window ).on('termInspected', function(e) {
-			loadInspected();
-		});
 
 		jqueryMap.$edit_button.click( onClickEdit );
 

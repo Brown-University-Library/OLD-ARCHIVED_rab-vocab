@@ -77,6 +77,7 @@ vocab.shell = (function () {
 
   engageEditMode = function ( rabid ) {
     vocab.search.enableEditControls( rabid );
+    vocab.search.reloadSearchResults();
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------

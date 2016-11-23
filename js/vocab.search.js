@@ -22,7 +22,8 @@ vocab.search = (function () {
 
 		stateMap	= {
 			$append_target : null,
-			search_results : []
+			search_results : [],
+			current_query : null
 		},
 
 		jqueryMap = {},
@@ -36,6 +37,7 @@ vocab.search = (function () {
 
 		doSearch, showSearchResults,
 		clearSearchResults, updateSearchResults,
+		reloadSearchResults,
 		toggleSearchResultsInspect, toggleSearchResultsDrag,
 		setJqueryMap, initModule, configModule;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
@@ -149,21 +151,21 @@ vocab.search = (function () {
 	};
 
 	showSearchResults = function () {
-		var i, len, dataArray,
-			dataObj, $li;
+		var dataArray, $li, counter;
 
 		dataArray = stateMap.search_results;
 
-		for ( i = 0, len=dataArray.length; i < len; i++ ) {
-			dataObj = dataArray[ i ];
-			if ( i < jqueryMap.$results.length ) {
-				$li = jqueryMap.$results.eq( i );
-				bindDataToLi( dataObj, $li );
+		counter = 0;
+		dataArray.forEach( function ( dataObj ) {
+			if ( dataObj.editing === true ) {
+				return;
 			}
 			else {
-				console.log("Too many search results");
+				$li = jqueryMap.$results.eq( counter );
+				bindDataToLi( dataObj, $li );
+				counter++;
 			}
-		}
+		});
 	};
 
 	clearSearchResults = function () {
@@ -180,10 +182,18 @@ vocab.search = (function () {
 	updateSearchResults = function ( query ) {
 		var results;
 
+		stateMap.current_query = query;
 		results = configMap.terms_model.search_matches( query );
 		stateMap.search_results = results;
 		clearSearchResults();
 		showSearchResults();
+	};
+
+	reloadSearchResults = function () {
+		var query;
+
+		query = stateMap.current_query;
+		updateSearchResults( query );	
 	};
 
 	resetSearchResults = function () {
@@ -272,6 +282,7 @@ vocab.search = (function () {
 		configModule		: configModule,
 		initModule			: initModule,
 		enableEditControls	: enableEditControls,
-		updateSearchResults : updateSearchResults
+		updateSearchResults : updateSearchResults,
+		reloadSearchResults : reloadSearchResults
 	};
 }());

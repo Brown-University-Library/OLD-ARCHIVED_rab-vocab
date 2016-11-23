@@ -154,7 +154,8 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
-			get_term, search_matches;
+			get_term, search_matches,
+			set_term_editing;
 
 		get_term = function ( paramObj ) {
 			var term;
@@ -182,9 +183,14 @@ vocab.model = (function () {
 				}
 		};
 
+		set_term_editing = function ( paramObj ) {
+			term = terms_db( paramObj ).update( { editing : true } );
+		};
+
 		return {
 			get_term : get_term,
-			search_matches : search_matches
+			search_matches : search_matches,
+			set_term_editing : set_term_editing
 		}
 	}());
 
