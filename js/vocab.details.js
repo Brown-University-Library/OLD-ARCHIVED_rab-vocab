@@ -52,6 +52,7 @@ vocab.details = (function () {
 
 		jqueryMap = {},
 
+		makeDroppable, onClickEdit,
 		loadTermDetails, load_target_term;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -129,12 +130,23 @@ vocab.details = (function () {
 		}
 	};
 
+	makeDroppable = function () {
+		jqueryMap.$inspector.find('ul')
+			.addClass('ui-state-default')
+			.addClass('edit-sort')
+			.sortable({
+				revert: "true",
+				dropOnEmpty: true
+			});
+	};
+
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
 	onClickEdit = function () {
 		stateMap.editing = true;
 		configMap.terms_model.set_term_editing( { rabid: stateMap.term_target.rabid } );
+		makeDroppable();
 		jqueryMap.$edit_mode.text("Editing");
 		jqueryMap.$details_groups.each( function () {
 			$(this).addClass('editing');
