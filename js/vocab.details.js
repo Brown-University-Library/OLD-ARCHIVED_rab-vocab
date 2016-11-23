@@ -95,16 +95,7 @@ vocab.details = (function () {
 			key, vals,
 			$li, $result_list;
 
-		if ( stateMap.editing === true ) {
-			jqueryMap.$edit_mode.text("Editing");
-			jqueryMap.$details_groups.each( function () {
-				$(this).addClass('editing');
-			});
-		}
-		else {
-			jqueryMap.$edit_mode.text("Review");
-		}
-
+		jqueryMap.$edit_mode.text("Review");
 		jqueryMap.$details.find('li').remove();
 
 		inspected = stateMap.term_target;
@@ -144,6 +135,10 @@ vocab.details = (function () {
 	onClickEdit = function () {
 		stateMap.editing = true;
 		configMap.terms_model.set_term_editing( { rabid: stateMap.term_target.rabid } );
+		jqueryMap.$edit_mode.text("Editing");
+		jqueryMap.$details_groups.each( function () {
+			$(this).addClass('editing');
+		});
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$cancel_button.removeClass('hide');
 		// load_target_term();
