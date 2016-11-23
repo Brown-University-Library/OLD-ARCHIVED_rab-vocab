@@ -63,9 +63,7 @@ vocab.shell = (function () {
   };
 
   onSearchCompleted = function ( query ) {
-    var results;
-    results = vocab.model.get_term_search_matches( query );
-    vocab.search.updateSearchResults( results );
+    vocab.search.updateSearchResults( query );
   };
 
   onGetTermDescription = function ( rabid ) {
@@ -77,8 +75,8 @@ vocab.shell = (function () {
     jqueryMap.$details.removeClass('hide');
   };
 
-  engageEditMode = function () {
-    vocab.search.enableEditControls();
+  engageEditMode = function ( rabid ) {
+    vocab.search.enableEditControls( rabid );
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
@@ -123,8 +121,8 @@ vocab.shell = (function () {
     $( window ).on('termDescribed', function( e, rabid ) {
       onTermDescribed( rabid );
     });
-    $( window ).on('editingEnabled', function( e ) {
-      engageEditMode();
+    $( window ).on('editingEnabled', function( e, rabid ) {
+      engageEditMode( rabid );
     });
   };
 

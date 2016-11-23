@@ -142,7 +142,7 @@ vocab.details = (function () {
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$cancel_button.removeClass('hide');
 		load_target_term();
-		$( window ).trigger("editingEnabled");
+		$( window ).trigger("editingEnabled", stateMap.term_target);
 	};
 	//-------------------- END EVENT HANDLERS --------------------
 

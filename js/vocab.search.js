@@ -177,7 +177,10 @@ vocab.search = (function () {
 		});		
 	};
 
-	updateSearchResults = function ( results ) {
+	updateSearchResults = function ( query ) {
+		var results;
+
+		results = configMap.terms_model.search_matches( query );
 		stateMap.search_results = results;
 		clearSearchResults();
 		showSearchResults();
@@ -206,17 +209,14 @@ vocab.search = (function () {
 	enableEditControls = function () {
 		var term;
 
-		term = terms_model.get_
 		jqueryMap.$results.each(function (idx) {
-			if ($(this).attr('data-rabid') !== termId) {
-				jqueryMap.$results.eq(idx)
-					.draggable({
-					connectToSortable: ".edit-sort",
-					helper: "clone",
-					revert: "invalid"
-					})
-					.find('button').remove();
-			}
+			jqueryMap.$results.eq(idx)
+				.draggable({
+				connectToSortable: ".edit-sort",
+				helper: "clone",
+				revert: "invalid"
+				})
+				.find('button').remove();
 		});
 	};
 	//---------------------- END DOM METHODS ---------------------

@@ -11,7 +11,6 @@ vocab.model = (function () {
 		},
 
 		terms, search_terms,
-		get_term_search_matches,
 		describe_term,
 
 		terms_db, termProto,
@@ -143,25 +142,6 @@ vocab.model = (function () {
 		});
 	};
 
-	get_term_search_matches = function ( termQuery ) {
-		var
-			matches, results, term;
-
-		matches = search_db({ query : termQuery }).get();
-
-		results = [];
-		if ( matches.length > 0) {
-			matches.forEach( function( match ) {
-				term = terms_db({ uri : match.uri }).first();
-				results.push( term );
-			});
-			return results;
-		}
-		else {
-			return results;
-		}
-	};
-
 	describe_term = function ( rabid ) {
 		var linked_attributes;
 
@@ -174,7 +154,7 @@ vocab.model = (function () {
 
 	terms = (function () {
 		var
-			get_term;
+			get_term, search_matches;
 
 		get_term = function ( paramObj ) {
 			var term;
@@ -183,8 +163,28 @@ vocab.model = (function () {
 			return term;
 		};
 
+		search_matches = function ( termQuery ) {
+			var
+				matches, results, term;
+
+				matches = search_db({ query : termQuery }).get();
+
+				results = [];
+				if ( matches.length > 0) {
+					matches.forEach( function( match ) {
+						term = terms_db({ uri : match.uri }).first();
+						results.push( term );
+					});
+					return results;
+				}
+				else {
+					return results;
+				}
+		};
+
 		return {
-			get_term : get_term
+			get_term : get_term,
+			search_matches : search_matches
 		}
 	}());
 
@@ -196,7 +196,6 @@ vocab.model = (function () {
 		terms_db : terms_db,
 		search_db : search_db,
 		search_terms : search_terms,
-		describe_term : describe_term,
-		get_term_search_matches : get_term_search_matches
+		describe_term : describe_term
 	};
 }());
