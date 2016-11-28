@@ -227,6 +227,7 @@ vocab.search = (function () {
 				})
 				.find('button').removeClass('hide');
 		});
+		reloadSearchResults();
 	};
 	//---------------------- END DOM METHODS ---------------------
 
