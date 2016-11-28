@@ -36,7 +36,7 @@ vocab.shell = (function () {
     jqueryMap = {},
 
     onGetTermDescription, onTermDescribed,
-    engageEditMode,
+    engageEditMode, onResetDetails,
     onTermSearch, onSearchCompleted,
 		setJqueryMap, initModule
     ;
@@ -78,6 +78,11 @@ vocab.shell = (function () {
   engageEditMode = function ( rabid ) {
     vocab.search.enableEditControls( rabid );
     vocab.search.reloadSearchResults();
+  };
+
+  onResetDetails = function () {
+    jqueryMap.$details.addClass('hide');
+    vocab.search.disableEditControls();
   };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
@@ -124,6 +129,9 @@ vocab.shell = (function () {
     });
     $( window ).on('editingEnabled', function( e, rabid ) {
       engageEditMode( rabid );
+    });
+    $( window ).on('resetDetails', function() {
+      onResetDetails();
     });
   };
 

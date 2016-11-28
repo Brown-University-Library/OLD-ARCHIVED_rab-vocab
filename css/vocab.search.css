@@ -33,13 +33,9 @@
 	display: inline-block;
 }
 
-/*.inspect {
-	margin: 5px;
+.search-results-item-details.hide {
+	display: none
 }
-
-.edit {
-	margin: 5px;
-}*/
 
 .search-result-btn {
 	margin-top: 0.8em;

@@ -7,7 +7,7 @@ vocab.details = (function () {
 					+ '<div class="ui-widget-header">'
 						+ '<span class="edit-mode"></span>'
 						+ '<button type="button" class="ui-button edit-button">Edit</button>'
-						+ '<button type="button" class="ui-button cancel-edits hide">X</button>'
+						+ '<button type="button" class="ui-button reset-details">X</button>'
 					+ '</div>'
 					+ '<div class="ui-widget-content term-inspector" data-rabid data-uri>'
 						+ '<h3 id="termLabel"></h3>'
@@ -52,7 +52,8 @@ vocab.details = (function () {
 
 		jqueryMap = {},
 
-		makeDroppable, onClickEdit,
+		makeDroppable, revertDroppable,
+		onClickEdit, onClickReset,
 		loadTermDetails, load_target_term;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -70,7 +71,7 @@ vocab.details = (function () {
 			$details_groups : $details.find( '.details-group'),
 			$edit_mode : $details.find('.edit-mode'),
 			$edit_button : $details.find('.edit-button'),
-			$cancel_button : $details.find('.cancel-edits'),
+			$cancel_button : $details.find('.reset-details'),
 			$submit_button : $details.find('.submit-edits')
 		};
 	};
@@ -133,11 +134,13 @@ vocab.details = (function () {
 	makeDroppable = function () {
 		jqueryMap.$inspector.find('ul')
 			.addClass('ui-state-default')
-			.addClass('edit-sort')
-			.sortable({
-				revert: "true",
-				dropOnEmpty: true
-			});
+			.addClass('edit-sort');
+	};
+
+	revertDroppable = function () {
+		jqueryMap.$inspector.find('ul')
+			.removeClass('ui-state-default')
+			.removeClass('edit-sort');
 	};
 
 	//---------------------- END DOM METHODS ---------------------
@@ -152,10 +155,22 @@ vocab.details = (function () {
 			$(this).addClass('editing');
 		});
 		jqueryMap.$edit_button.addClass('hide');
-		jqueryMap.$cancel_button.removeClass('hide');
 		// load_target_term();
 		$( window ).trigger("editingEnabled", stateMap.term_target.rabid);
 	};
+
+	onClickReset = function () {
+		stateMap.editing = false;
+		stateMap.term_target = null;
+		configMap.terms_model.reset_term_editing();
+		revertDroppable();
+		jqueryMap.$details.find('li').remove();
+		jqueryMap.$details_groups.each( function () {
+			$(this).removeClass('editing');
+		});
+		jqueryMap.$edit_button.removeClass('hide');
+		$( window ).trigger("resetDetails");
+	}
 	//-------------------- END EVENT HANDLERS --------------------
 
 	configModule = function ( map ) {
@@ -168,7 +183,14 @@ vocab.details = (function () {
 		stateMap.$append_target = $append_target;
 		setJqueryMap();
 
+		jqueryMap.$inspector.find('ul')
+			.sortable({
+				revert: "true",
+				dropOnEmpty: true
+			});
+
 		jqueryMap.$edit_button.click( onClickEdit );
+		jqueryMap.$cancel_button.click( onClickReset );
 
 		return true;
 	};

@@ -202,31 +202,30 @@ vocab.search = (function () {
 		jqueryMap.$input.val("");
 	};
 
-	makeDraggable = function () {
-		var i;
-
-		jqueryMap.$results.each(function (idx) {
-			jqueryMap.$results.eq(idx)
-				.draggable({
-				connectToSortable: ".edit-sort",
-				helper: "clone",
-				revert: "invalid"
-				});
-			i++;
-		});
-	};
-
 	enableEditControls = function () {
 		var term;
 
 		jqueryMap.$results.each(function (idx) {
 			jqueryMap.$results.eq(idx)
 				.draggable({
+				disabled : false,
 				connectToSortable: ".edit-sort",
 				helper: "clone",
 				revert: "invalid"
 				})
-				.find('button').remove();
+				.find('button').addClass('hide');
+		});
+	};
+
+	disableEditControls = function () {
+		var term;
+
+		jqueryMap.$results.each(function (idx) {
+			jqueryMap.$results.eq(idx)
+				.draggable({
+					disabled : true
+				})
+				.find('button').removeClass('hide');
 		});
 	};
 	//---------------------- END DOM METHODS ---------------------
@@ -270,8 +269,6 @@ vocab.search = (function () {
 		jqueryMap.$edit.click( onClickEdit );
 
 		$( window ).on('termEditable', function(e, termId) {
-			// removeControls();
-			// makeDraggable();
 			enableEditControls(termId);
 		});
 
@@ -283,6 +280,7 @@ vocab.search = (function () {
 		initModule			: initModule,
 		enableEditControls	: enableEditControls,
 		updateSearchResults : updateSearchResults,
-		reloadSearchResults : reloadSearchResults
+		reloadSearchResults : reloadSearchResults,
+		disableEditControls : disableEditControls
 	};
 }());
