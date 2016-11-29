@@ -99,9 +99,14 @@ vocab.details = (function () {
 		$li = $('<li/>');
 		$label = $('<span/>');
 		$label.text(dataObj.label);
+		
 		$del_button = $('<button/>', {	'type': 'button',
 										'class' : 'ui-button remove-data-button hide'});
+		$del_button.click( function() {
+			onClickRemoveLi( $(this) );
+		});
 		$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
+		
 		$li.append($label);
 		$li.append($del_button);
 
@@ -252,6 +257,13 @@ vocab.details = (function () {
 		console.log(term);
 		console.log(data);
 	};
+
+	onClickRemoveLi = function ( button ) {
+		var $li;
+
+		$li = button.parent('li');
+		$li.remove();
+	}
 	//-------------------- END EVENT HANDLERS --------------------
 
 	configModule = function ( map ) {
@@ -273,6 +285,9 @@ vocab.details = (function () {
 					
 					$del_button = $('<button/>', {	'type': 'button',
 													'class' : 'ui-button remove-data-button'});
+					$del_button.click( function() {
+						onClickRemoveLi( $(this) );
+					});
 					$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
 
 					ui.item.append( $del_button );
