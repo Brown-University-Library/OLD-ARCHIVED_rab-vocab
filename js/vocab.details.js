@@ -231,7 +231,7 @@ vocab.details = (function () {
 		jqueryMap.$details_foot.removeClass('hide');
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$inspector.find('.remove-data-button').removeClass('hide');
-		// load_target_term();
+		jqueryMap.$inspector.find('li[data-uri=""]').remove();
 		$( window ).trigger("editingEnabled", stateMap.term_target.rabid);
 	};
 
