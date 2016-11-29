@@ -53,6 +53,14 @@
 	display: none;
 }
 
+.remove-data-button {
+	display: inline;
+}
+
+.remove-data-button.hide {
+	display: none;
+}
+
 .details-footer {
 	display: block;
 }

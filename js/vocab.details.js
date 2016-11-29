@@ -225,6 +225,7 @@ vocab.details = (function () {
 		});
 		jqueryMap.$details_foot.removeClass('hide');
 		jqueryMap.$edit_button.addClass('hide');
+		jqueryMap.$inspector.find('.remove-data-button').removeClass('hide');
 		// load_target_term();
 		$( window ).trigger("editingEnabled", stateMap.term_target.rabid);
 	};
@@ -267,7 +268,14 @@ vocab.details = (function () {
 			.sortable({
 				revert: "true",
 				dropOnEmpty: true,
-				over : function ( e, ui ) {
+				stop : function ( e, ui ) {
+					var $del_button;
+					
+					$del_button = $('<button/>', {	'type': 'button',
+													'class' : 'ui-button remove-data-button'});
+					$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
+
+					ui.item.append( $del_button );
 					ui.item.removeClass('search-results-item');
 				}
 			});
