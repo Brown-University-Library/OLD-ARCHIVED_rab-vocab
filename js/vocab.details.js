@@ -15,25 +15,25 @@ vocab.details = (function () {
 						+ '<div class="details-col">'
 							+ '<section class="details-group">'
 							+ '<h4>Broader</h4>'
-							+ '<ul class="details-broader"></ul>'
+							+ '<ul class="details-broader" data-attr="broader"></ul>'
 							+ '</section>'
 							+ '<section class="details-group">'
 							+ '<h4>Narrower</h4>'
-							+ '<ul class="details-narrower"></ul>'
+							+ '<ul class="details-narrower" data-attr="narrower"></ul>'
 							+ '</section>'
 							+ '<section class="details-group">'
 							+ '<h4>Related</h4>'
-							+ '<ul class="details-related"></ul>'
+							+ '<ul class="details-related" data-attr="related"></ul>'
 							+ '</section>'
 						+ '</div>'
 						+ '<div class="details-col">'
 							+ '<section class="details-group">'
 							+ '<h4>Alternative Labels</h4>'
-							+ '<ul class="details-alternative"></ul>'
+							+ '<ul class="details-alternative" data-attr="alternative"></ul>'
 							+ '</section>'
 							+ '<section class="details-group">'
 							+ '<h4>Hidden Labels</h4>'
-							+ '<ul class="details-hidden"></ul>'
+							+ '<ul class="details-hidden" data-attr="hidden"></ul>'
 							+ '</section>'
 						+ '</div>'
 						+ '<div class="details-footer hide">'
@@ -54,6 +54,7 @@ vocab.details = (function () {
 
 		makeDroppable, revertDroppable,
 		onClickEdit, onClickReset,
+		onClickSubmit, getTermData,
 		loadTermDetails, load_target_term;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
@@ -124,8 +125,11 @@ vocab.details = (function () {
 				$result_list = jqueryMap.$details.find( '.details-'+key );
 				for (var i = 0, len=vals.length; i < len; i++) {
 					$li = $('<li/>', {	'data-uri' : vals[i].uri,
-										'data-rabid' : vals[i].rabid});
-					$li.text(vals[i].label);
+										'data-rabid' : vals[i].rabid,
+										'data-label': vals[i].label
+									});
+					$label = $('<span/>');
+					$span.text(vals[i].label);
 					$result_list.append($li);
 				}
 			}
@@ -144,6 +148,45 @@ vocab.details = (function () {
 			.removeClass('edit-sort');
 	};
 
+	getTermData = function () {
+		var
+			data, label, 
+			$data_group, $data_vals,
+			uris, labels,
+			data_attr;
+
+		data = {
+			'broader' : [],
+			'narrower' : [],
+			'related' : [],
+			'hidden' : [],
+			'alternative': []
+		};
+
+		uris = ['broader', 'narrower', 'related'];
+		labels = ['hidden','alternative'];
+
+		jqueryMap.$details_groups.each( function () {
+			$data_group = $(this).find('ul');
+			$data_vals = $data_group.find('li');
+			data_attr = $data_group.attr('data-attr');
+			if (uris.indexOf(data_attr) !== -1) {
+				$data_vals.each( function () {
+					data[data_attr].push($(this).attr('data-uri'));
+				});
+			}
+			else if (labels.indexOf(data_attr) !== -1) {
+				$data_vals.each( function () {
+					label = $(this).find('span');
+					data[data_attr].push(label);
+				});
+			} else {
+				console.log('problem!');
+			}
+		})
+
+		return data;
+	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
@@ -174,6 +217,15 @@ vocab.details = (function () {
 		jqueryMap.$edit_button.removeClass('hide');
 		$( window ).trigger("resetDetails");
 	}
+
+	onClickSubmit = function () {
+		var term, data;
+
+		term = stateMap.term_target;
+		data = getTermData();
+		console.log(term);
+		console.log(data);
+	};
 	//-------------------- END EVENT HANDLERS --------------------
 
 	configModule = function ( map ) {
@@ -197,6 +249,7 @@ vocab.details = (function () {
 
 		jqueryMap.$edit_button.click( onClickEdit );
 		jqueryMap.$cancel_button.click( onClickReset );
+		jqueryMap.$submit_button.click( onClickSubmit );
 
 		return true;
 	};

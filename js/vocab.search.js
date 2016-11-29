@@ -79,7 +79,9 @@ vocab.search = (function () {
 			$li = $('<li/>', {	'class'		: 'search-results-item',
 								'data-index': li_count,
 								'data-rabid': '',
-								'data-uri'	: ''});
+								'data-uri'	: '',
+								'data-label': ''
+							});
 			$li.append('<span class="search-results-item-label"></span>')
 			$details_button = $('<button/>', {	'type': 'button',
 												'class' : 'search-results-item-details ui-button'
@@ -147,6 +149,7 @@ vocab.search = (function () {
 		
 		$li.attr('data-rabid', dataObj.rabid);
 		$li.attr('data-uri', dataObj.uri);
+		$li.attr('data-label', dataObj.label);
 		$label.text(dataObj.label);
 	};
 
