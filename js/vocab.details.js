@@ -47,6 +47,7 @@ vocab.details = (function () {
 		stateMap	= {
 			$append_target : null,
 			term_target : null,
+			neighbor_data : {},
 			editing : false
 		},
 
@@ -55,7 +56,7 @@ vocab.details = (function () {
 		makeDroppable, revertDroppable,
 		onClickEdit, onClickReset,
 		onClickSubmit, getTermData,
-		loadTermDetails, load_target_term;
+		loadTermDetails, buildDataList;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
 	//--------------------- BEGIN DOM METHODS --------------------
@@ -86,54 +87,79 @@ vocab.details = (function () {
 		stateMap.term_target = term;
 		jqueryMap.$inspector.attr('data-rabid', term.rabid);
 		jqueryMap.$inspector.attr('data-uri', term.uri);
-		load_target_term();
+		jqueryMap.$edit_mode.text('Review');
+		jqueryMap.$details_head.text( term.label );
+		jqueryMap.$details.find('li').remove();
+		buildDataList( stateMap.term_target );
 	};
 
-	load_target_term = function () {
-		var 
-			no_results = [{ 'label'	: 'None',
-							'uri'	: '',
-							'rabid'	: ''}],
-			results_map = {},
-			inspected, data,
-			key, vals,
-			$li, $result_list;
+	createLiforData = function( dataObj ) {
+		var $li, $label, $del_button;
 
-		jqueryMap.$edit_mode.text("Review");
-		jqueryMap.$details.find('li').remove();
+		$li = $('<li/>');
+		$label = $('<span/>');
+		$label.text(dataObj.label);
+		$del_button = $('<button/>', {	'type': 'button',
+										'class' : 'ui-button remove-data-button hide'});
+		$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
+		$li.append($label);
+		$li.append($del_button);
 
-		inspected = stateMap.term_target;
-		data = inspected.data;
-		for (key in data) {
-			if (data[key].length === 0) {
-				results_map[key] = no_results;
+		$li.attr('data-rabid', dataObj.rabid);
+		$li.attr('data-uri', dataObj.uri);
+		$li.attr('data-label', dataObj.label);
+
+		return $li;
+	};
+
+	buildDataList = function ( term ) {
+		var
+			uris, labels, no_results,
+			nbor, labelObj,
+			li, li_array,
+			data, data_attr, data_vals,
+			$li, $data_list;
+
+		uris = ['broader', 'narrower', 'related'];
+		labels = ['hidden','alternative'];
+
+		no_results = {	label	: 'None',
+						uri		: '',
+						rabid	: ''};
+		data = term.data;
+
+		for (data_attr in data) {
+			li_array = [];
+			$data_list = jqueryMap.$inspector.find('ul[data-attr='+data_attr+']');
+
+			if (data[data_attr].length === 0) {
+				$li = createLiforData( no_results );
+				li_array.push( $li );
 			} else {
-				results_map[key] = [];
-				for (var i = 0, len=data[key].length; i < len; i++) {
-					var nbor = configMap.terms_model.get_term( { uri: data[key][i] });
-					results_map[key].push(nbor);
+				data_vals = data[data_attr];
+				
+				if (uris.indexOf(data_attr) !== -1) {
+					data_vals.forEach( function( uri ) {
+						nbor = configMap.terms_model.get_term( { uri: uri });
+						$li = createLiforData( nbor );
+						li_array.push( $li );
+					});
+				}
+				else if (labels.indexOf(data_attr) !== -1) {
+					data_vals.forEach( function( label ) {
+						labelObj = { label 	: label,
+									uri 	: 'label',
+									rabid 	: 'label'};
+						$li = createLiforData( labelObj );
+						li_array.push( $li );
+					});					
 				}
 			}
+
+			li_array.forEach( function ( li ) {
+				$data_list.append( li );
+			});
 		};
-
-
-		jqueryMap.$details_head.text( inspected.label );
-
-		for (key in results_map) {
-			if (results_map.hasOwnProperty(key)) {
-				vals = results_map[key];
-				$result_list = jqueryMap.$details.find( '.details-'+key );
-				for (var i = 0, len=vals.length; i < len; i++) {
-					$li = $('<li/>', {	'data-uri' : vals[i].uri,
-										'data-rabid' : vals[i].rabid,
-										'data-label': vals[i].label
-									});
-					$label = $('<span/>');
-					$span.text(vals[i].label);
-					$result_list.append($li);
-				}
-			}
-		}
 	};
 
 	makeDroppable = function () {
@@ -177,8 +203,7 @@ vocab.details = (function () {
 			}
 			else if (labels.indexOf(data_attr) !== -1) {
 				$data_vals.each( function () {
-					label = $(this).find('span');
-					data[data_attr].push(label);
+					data[data_attr].push($(this).attr('data-label'));
 				});
 			} else {
 				console.log('problem!');
