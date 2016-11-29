@@ -36,8 +36,8 @@ vocab.details = (function () {
 							+ '<ul class="details-hidden"></ul>'
 							+ '</section>'
 						+ '</div>'
-						+ '<div>'
-							+ '<button type="button" class="ui-button submit-edits>Submit</button>'
+						+ '<div class="details-footer hide">'
+							+ '<button type="button" class="ui-button submit-edits">Submit</button>'
 						+ '</div>'
 					+ '</div>'
 				+ '</div>',
@@ -72,6 +72,7 @@ vocab.details = (function () {
 			$edit_mode : $details.find('.edit-mode'),
 			$edit_button : $details.find('.edit-button'),
 			$cancel_button : $details.find('.reset-details'),
+			$details_foot : $details.find('.details-footer'),
 			$submit_button : $details.find('.submit-edits')
 		};
 	};
@@ -154,6 +155,7 @@ vocab.details = (function () {
 		jqueryMap.$details_groups.each( function () {
 			$(this).addClass('editing');
 		});
+		jqueryMap.$details_foot.removeClass('hide');
 		jqueryMap.$edit_button.addClass('hide');
 		// load_target_term();
 		$( window ).trigger("editingEnabled", stateMap.term_target.rabid);
@@ -168,6 +170,7 @@ vocab.details = (function () {
 		jqueryMap.$details_groups.each( function () {
 			$(this).removeClass('editing');
 		});
+		jqueryMap.$details_foot.addClass('hide');
 		jqueryMap.$edit_button.removeClass('hide');
 		$( window ).trigger("resetDetails");
 	}
@@ -186,7 +189,10 @@ vocab.details = (function () {
 		jqueryMap.$inspector.find('ul')
 			.sortable({
 				revert: "true",
-				dropOnEmpty: true
+				dropOnEmpty: true,
+				over : function ( e, ui ) {
+					ui.item.removeClass('search-results-item');
+				}
 			});
 
 		jqueryMap.$edit_button.click( onClickEdit );
