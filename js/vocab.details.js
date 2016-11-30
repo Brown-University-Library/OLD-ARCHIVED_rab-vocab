@@ -231,6 +231,7 @@ vocab.details = (function () {
 		stateMap.editing = true;
 		configMap.terms_model.set_term_editing( { rabid: term.rabid } );
 		stateMap.term_target = configMap.terms_model.get_term( { rabid : term.rabid } );
+		makeDroppable();
 		jqueryMap.$edit_mode.text("Editing");
 		jqueryMap.$details_groups.each( function () {
 			$(this).addClass('editing');
