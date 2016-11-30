@@ -68,14 +68,15 @@ vocab.details = (function () {
 
 		jqueryMap = {
 			$details : $details,
-			$details_head : $details.find( '#termLabel'),
 			$inspector : $details.find( '.term-inspector' ),
 			$details_groups : $details.find( '.details-group'),
 			$edit_mode : $details.find('.edit-mode'),
 			$edit_button : $details.find('.edit-button'),
 			$cancel_button : $details.find('.reset-details'),
 			$details_foot : $details.find('.details-footer'),
-			$submit_button : $details.find('.submit-edits')
+			$submit_button : $details.find('.submit-edits'),
+			$label_display : $details.find('#termLabel'),
+			$label_editor : $details.find('.label-edit')
 		};
 	};
 	// End DOM method /setJqueryMap/
@@ -88,7 +89,7 @@ vocab.details = (function () {
 		jqueryMap.$inspector.attr('data-rabid', term.rabid);
 		jqueryMap.$inspector.attr('data-uri', term.uri);
 		jqueryMap.$edit_mode.text('Review');
-		jqueryMap.$details_head.text( term.label );
+		jqueryMap.$label_display.text( term.label );
 		jqueryMap.$details.find('li').remove();
 		buildDataList( stateMap.term_target );
 	};
@@ -228,6 +229,9 @@ vocab.details = (function () {
 		jqueryMap.$details_groups.each( function () {
 			$(this).addClass('editing');
 		});
+		jqueryMap.$label_editor.val( stateMap.term_target.label );
+		jqueryMap.$label_display.addClass('hide');
+		jqueryMap.$label_editor.removeClass('hide');
 		jqueryMap.$details_foot.removeClass('hide');
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$inspector.find('.remove-data-button').removeClass('hide');
@@ -244,6 +248,9 @@ vocab.details = (function () {
 		jqueryMap.$details_groups.each( function () {
 			$(this).removeClass('editing');
 		});
+		jqueryMap.$label_editor.val('');
+		jqueryMap.$label_display.removeClass('hide');
+		jqueryMap.$label_editor.addClass('hide');
 		jqueryMap.$details_foot.addClass('hide');
 		jqueryMap.$edit_button.removeClass('hide');
 		$( window ).trigger("resetDetails");

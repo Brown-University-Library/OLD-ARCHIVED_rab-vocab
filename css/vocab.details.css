@@ -25,6 +25,14 @@
 	list-style-type: none;
 }
 
+#termLabel {
+	display: block;
+}
+
+#termLabel.hide {
+	display: none;
+}
+
 .label-edit {
 	display: block;
 }
