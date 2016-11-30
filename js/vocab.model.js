@@ -109,26 +109,21 @@ vocab.model = (function () {
 	};
 
 	searchDataUpdate = function ( dataArray, searchTerm ) {
-		var term_data, term, existing_term,
-				search_result, existing_match;
+		var term_data, new_term, existing_term,
+				new_search_result, existing_match;
 
 		dataArray.forEach( function( serv_data ) {
 			term_data = serv_data.data;
 			term_data.uri = serv_data.uri;
 			
 			existing_term = terms_db({ uri : term_data.uri }).first();
-			if ( existing_term !== false ) {
-				return;
+			if ( existing_term === false ) {
+				new_term = makeTerm(term_data);
 			}
-			else {
-				term = makeTerm(term_data);				
-			}
-
 			existing_match = search_db({ query : searchTerm },{ uri : term_data.uri }).first();
-			if ( existing_match !== false ) {
-				return;
+			if ( existing_match === false ) {
+				new_search_result = makeSearchResult({ query: searchTerm, uri: term_data.uri });
 			}
-			search_result = makeSearchResult({ query: searchTerm, uri: term.uri });
 		});
 
 		return true;
