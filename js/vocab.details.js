@@ -182,11 +182,12 @@ vocab.details = (function () {
 
 	getTermData = function () {
 		var
-			data, label, 
+			data, label,
 			$data_group, $data_vals,
-			uris, labels,
+			uris, strings,
 			data_attr;
 
+		label = null;
 		data = {
 			'broader' : [],
 			'narrower' : [],
@@ -196,7 +197,9 @@ vocab.details = (function () {
 		};
 
 		uris = ['broader', 'narrower', 'related'];
-		labels = ['hidden','alternative'];
+		strings = ['hidden','alternative'];
+
+		label = jqueryMap.$label_editor.val();
 
 		jqueryMap.$details_groups.each( function () {
 			$data_group = $(this).find('ul');
@@ -207,7 +210,7 @@ vocab.details = (function () {
 					data[data_attr].push($(this).attr('data-uri'));
 				});
 			}
-			else if (labels.indexOf(data_attr) !== -1) {
+			else if (strings.indexOf(data_attr) !== -1) {
 				$data_vals.each( function () {
 					data[data_attr].push($(this).attr('data-label'));
 				});
@@ -216,15 +219,18 @@ vocab.details = (function () {
 			}
 		})
 
-		return data;
+		return { label : label, data : data };
 	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
 	onClickEdit = function () {
+		var term;
+
+		term = stateMap.term_target;
 		stateMap.editing = true;
-		configMap.terms_model.set_term_editing( { rabid: stateMap.term_target.rabid } );
-		makeDroppable();
+		configMap.terms_model.set_term_editing( { rabid: term.rabid } );
+		stateMap.term_target = configMap.terms_model.get_term( { rabid : term.rabid } );
 		jqueryMap.$edit_mode.text("Editing");
 		jqueryMap.$details_groups.each( function () {
 			$(this).addClass('editing');
@@ -257,12 +263,14 @@ vocab.details = (function () {
 	}
 
 	onClickSubmit = function () {
-		var term, data;
+		var term, data, edits;
 
 		term = stateMap.term_target;
 		data = getTermData();
-		console.log(term);
-		console.log(data);
+
+		edits = { rabid : term.rabid, update : data };
+
+		$( window ).trigger('submitTermEdits', edits);
 	};
 
 	onClickRemoveLi = function ( button ) {

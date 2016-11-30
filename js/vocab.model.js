@@ -11,7 +11,7 @@ vocab.model = (function () {
 		},
 
 		terms, search_terms,
-		describe_term,
+		describe_term, update_term,
 
 		terms_db, termProto,
 		makeTerm, termDataUpdate,
@@ -147,6 +147,21 @@ vocab.model = (function () {
 		});
 	};
 
+	update_term = function ( rabid, update ) {
+		var existing, attr;
+
+		existing = terms_db({ rabid : rabid }).first();
+
+		update.uri = existing.uri;
+		update.rabid = existing.rabid;
+		update.etag = existing.etag;
+
+		vocab.data.rest.update( update, function( resp ) {
+			termDataUpdate( resp );
+			$( window ).trigger('termUpdated', rabid);
+		});
+	};
+
 	terms = (function () {
 		var
 			get_term, search_matches,
@@ -203,6 +218,7 @@ vocab.model = (function () {
 		terms_db : terms_db,
 		search_db : search_db,
 		search_terms : search_terms,
-		describe_term : describe_term
+		describe_term : describe_term,
+		update_term : update_term
 	};
 }());

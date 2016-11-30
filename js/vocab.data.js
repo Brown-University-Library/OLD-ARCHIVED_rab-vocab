@@ -47,9 +47,7 @@ vocab.data = (function () {
 
 	get = function ( url ) {
 		//https://developers.google.com/web/fundamentals/getting-started/primers/promises
-	  // Return a new promise.
 	  return new Promise(function(resolve, reject) {
-	    // Do the usual XHR stuff
 	    var req = new XMLHttpRequest();
 	    // for CORS
 	    req.withCredentials = true;
@@ -57,29 +55,52 @@ vocab.data = (function () {
 	    req.open('GET', url);
 
 	    req.onload = function() {
-	      // This is called even on 404 etc
-	      // so check the status
 	      if (req.status == 200) {
-	        // Resolve the promise with the response text
 	        resolve({
 						'data'	: JSON.parse(req.response),
 						'etag'	: req.getResponseHeader('etag')
 	        });
 	      }
 	      else {
-	        // Otherwise reject with the status text
-	        // which will hopefully be a meaningful error
 	        reject(Error(req.statusText));
 	      }
 	    };
 
-	    // Handle network errors
 	    req.onerror = function() {
 	      reject(Error("Network Error"));
 	    };
 
-	    // Make the request
 	    req.send();
+	  });
+	};
+
+	put = function ( url, jsonData, etag ) {
+	  return new Promise(function(resolve, reject) {
+	    var req = new XMLHttpRequest();
+	    // for CORS
+			req.withCredentials = true;
+
+	    req.open('PUT', url);
+	    req.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+	    req.setRequestHeader('If-Match', etag);
+
+	    req.onload = function() {
+	      if (req.status == 200) {
+	        resolve({
+						'data'	: JSON.parse(req.response),
+						'etag'	: req.getResponseHeader('etag')
+	        });
+	      }
+	      else {
+	        reject(Error(req.statusText));
+	      }
+	    };
+
+	    req.onerror = function() {
+	      reject(Error("Network Error"));
+	    };
+
+	    req.send(jsonData);
 	  });
 	};
 
@@ -179,70 +200,32 @@ vocab.data = (function () {
 			});
 		};
 
-		find = function ( rabid, callback ) {
+		update = function ( termObj, callback ) {
 			var
-				i, len, key,
-				data, etag, term,
-				nbor, nbors,
-				n_rabid, n_url,
-				
-				rest_url = configMap.rest_base + rabid;
+				rest_url, etag,
+				data, uri, graph,
+				payload;
 
-			getTerm( rest_url ).then( function(term) {
-				vocab.model.updateTerm(term);
+			rest_url = configMap.rest_base + termObj.rabid;
+			etag = termObj.etag;
 
-				nbors = [];
-				for (key in term.data) {
-					if (term.data[key] !== []) {
-						for ( i=0, len=term.data[key].length; i < len; i++) {
-							nbor = term.data[ key ][ i ];
-							n_rabid = nbor.substring(configMap.resource_base.length);
-							n_url = configMap.rest_base + n_rabid;
-							nbors.push(n_url);
-						}
-					} 
-				}
-
-				return Promise.all(
-					nbors.map(getTerm)
-				);
-			})
-			.then( function (terms) {
-				terms.forEach( function ( term ) {
-					vocab.model.updateTerm( term );
-				});
-				term = vocab.model.terms.get_by_rabid( rabid );
-				callback( term );
-			});
-		};
-
-		update = function ( term, callback ) {
-			var
-				label, uri, rest_url,
-				data, params,
-				payload = {}, 
-				etag;
-
-			label = [term.label];
-			uri = term.uri;
-			rest_url = configMap.rest_base + term.id;
-			data = term.data;
-			data.label = label;
+			data = termObj.data;
+			data.label = [termObj.label];
 			data.class = ['http://www.w3.org/2004/02/skos/core#Concept'];
-			etag = term.etag;
-			payload[uri] = data ;
-			params = {
-				dataType : "json",
-				contentType: 'application/json; charset=UTF-8',
-				type: "PUT",
-				data: JSON.stringify(payload),
-				url : rest_url,
-				headers: {"If-Match": etag}
-			};
 
-			request( params )
-			.then( function(resp) {
-				callback(resp);
+			uri = termObj.uri;
+			graph = {};
+			graph[uri] = data;
+			payload = JSON.stringify(graph);
+
+			put( rest_url, payload, etag )
+			.then( function( resp ) {
+				servData = makeServiceData( resp.data, [], resp.etag );
+
+				return [servData];
+			})
+			.then( function ( out ) {
+				callback( out );
 			});
 		};
 

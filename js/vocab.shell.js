@@ -84,6 +84,10 @@ vocab.shell = (function () {
     jqueryMap.$details.addClass('hide');
     vocab.search.disableEditControls();
   };
+
+  onSubmitEdits = function ( edits ) {
+    vocab.model.update_term( edits.rabid, edits.update );
+  }
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
   //----------------------- END CALLBACKS ----------------------
@@ -127,12 +131,19 @@ vocab.shell = (function () {
     $( window ).on('termDescribed', function( e, rabid ) {
       onTermDescribed( rabid );
     });
+    $( window ).on('termUpdated', function( e, rabid) {
+      console.log( rabid );
+    });
+    
     $( window ).on('editingEnabled', function( e, rabid ) {
       engageEditMode( rabid );
     });
     $( window ).on('resetDetails', function() {
       onResetDetails();
     });
+    $( window ).on('submitTermEdits', function( e, edits ) {
+      onSubmitEdits( edits );
+    })
   };
 
   return { initModule : initModule };
