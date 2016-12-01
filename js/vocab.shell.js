@@ -87,7 +87,13 @@ vocab.shell = (function () {
 
   onSubmitEdits = function ( edits ) {
     vocab.model.update_term( edits.rabid, edits.update );
-  }
+  };
+
+  onTermUpdate = function () {
+    jqueryMap.$details.addClass('hide');
+    vocab.search.disableEditControls();
+    vocab.search.resetSearchResults();    
+  };
   //-------------------- END EVENT HANDLERS --------------------
   //---------------------- BEGIN CALLBACKS ---------------------
   //----------------------- END CALLBACKS ----------------------
@@ -132,9 +138,9 @@ vocab.shell = (function () {
       onTermDescribed( rabid );
     });
     $( window ).on('termUpdated', function( e, rabid) {
-      console.log( rabid );
+      onTermUpdate();
     });
-    
+
     $( window ).on('editingEnabled', function( e, rabid ) {
       engageEditMode( rabid );
     });

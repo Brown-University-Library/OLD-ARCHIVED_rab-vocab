@@ -285,6 +285,7 @@ vocab.search = (function () {
 		enableEditControls	: enableEditControls,
 		updateSearchResults : updateSearchResults,
 		reloadSearchResults : reloadSearchResults,
-		disableEditControls : disableEditControls
+		disableEditControls : disableEditControls,
+		resetSearchResults : resetSearchResults
 	};
 }());
