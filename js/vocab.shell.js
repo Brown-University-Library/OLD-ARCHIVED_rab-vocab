@@ -91,6 +91,7 @@ vocab.shell = (function () {
 
   onTermUpdate = function () {
     jqueryMap.$details.addClass('hide');
+    vocab.details.resetDetails();
     vocab.search.disableEditControls();
     vocab.search.resetSearchResults();    
   };

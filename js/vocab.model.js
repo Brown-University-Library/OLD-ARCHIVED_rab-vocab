@@ -156,6 +156,8 @@ vocab.model = (function () {
 		update.rabid = existing.rabid;
 		update.etag = existing.etag;
 
+		terms_db({ rabid : existing.rabid }).update({ editing : false});
+
 		vocab.data.rest.update( update, function( resp ) {
 			termDataUpdate( resp );
 			$( window ).trigger('termUpdated', rabid);

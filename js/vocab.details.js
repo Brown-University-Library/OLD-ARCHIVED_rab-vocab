@@ -56,7 +56,8 @@ vocab.details = (function () {
 		makeDroppable, revertDroppable,
 		onClickEdit, onClickReset,
 		onClickSubmit, getTermData,
-		loadTermDetails, buildDataList;
+		loadTermDetails, buildDataList,
+		resetDetails;
 	//----------------- END MODULE SCOPE VARIABLES ---------------
 
 	//--------------------- BEGIN DOM METHODS --------------------
@@ -221,6 +222,21 @@ vocab.details = (function () {
 
 		return { label : label, data : data };
 	};
+
+	resetDetails = function () {
+		stateMap.editing = false;
+		stateMap.term_target = null;
+		revertDroppable();
+		jqueryMap.$details.find('li').remove();
+		jqueryMap.$details_groups.each( function () {
+			$(this).removeClass('editing');
+		});
+		jqueryMap.$label_editor.val('');
+		jqueryMap.$label_display.removeClass('hide');
+		jqueryMap.$label_editor.addClass('hide');
+		jqueryMap.$details_foot.addClass('hide');
+		jqueryMap.$edit_button.removeClass('hide');
+	};
 	//---------------------- END DOM METHODS ---------------------
 
 	//------------------- BEGIN EVENT HANDLERS -------------------
@@ -247,19 +263,8 @@ vocab.details = (function () {
 	};
 
 	onClickReset = function () {
-		stateMap.editing = false;
-		stateMap.term_target = null;
+		resetDetails();
 		configMap.terms_model.reset_term_editing();
-		revertDroppable();
-		jqueryMap.$details.find('li').remove();
-		jqueryMap.$details_groups.each( function () {
-			$(this).removeClass('editing');
-		});
-		jqueryMap.$label_editor.val('');
-		jqueryMap.$label_display.removeClass('hide');
-		jqueryMap.$label_editor.addClass('hide');
-		jqueryMap.$details_foot.addClass('hide');
-		jqueryMap.$edit_button.removeClass('hide');
 		$( window ).trigger("resetDetails");
 	}
 
@@ -321,6 +326,7 @@ vocab.details = (function () {
 	return {
 		configModule		: configModule,
 		initModule			: initModule,
-		loadTermDetails		: loadTermDetails
+		loadTermDetails		: loadTermDetails,
+		resetDetails 		: resetDetails
 	};
 }());
