@@ -4,13 +4,15 @@ vocab.search = (function () {
 		configMap = {
 			main_html : String()
 				+ '<div class="search ui-widget">'
-			 		+ '<div class="search-ctrl ui-widget-header">'
-				 		+ '<input class="search-input ui-autocomplete-input" type="text" />'
-				 		+ '<button type="button" class="search-submit ui-button">Search</button>'
-				 		+ '<button type="button" class="search-reset ui-button">Reset</button>'
+			 		+ '<div class="search-ctrl ui-widget-header input-group">'
+				 		+ '<input class="search-input ui-autocomplete-input form-control" type="text" />'
+				 		+ '<span class="input-group-btn">'
+							+ '<button type="button" class="search-submit btn btn-info">Search</button>'
+				 			+ '<button type="button" class="search-reset btn btn-warning">Reset</button>'
+						+ '</span>'
 					+ '</div>'
 					+ '<div class="search-results">'
-						+ '<ul class="search-results-tabs">'
+						+ '<ul class="search-results-tabs nav nav-pills">'
 						+ '</ul>'
 					+ '</div>'
 				+ '</div>',
