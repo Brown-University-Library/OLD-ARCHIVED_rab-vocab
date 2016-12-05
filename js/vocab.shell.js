@@ -16,15 +16,15 @@ vocab.shell = (function () {
 	var
     configMap = {
 			main_html : String()
-				+	'<div class="vocab-shell-main">'
+				+	'<div class="vocab-shell-main container">'
           + '<div class="vocab-shell-head">'
             + '<div class="vocab-shell-head-logo">'
               + '<h1>Vocabulary Manager</h1>'
             + '</div>'
           + '</div>'
-          + '<div class="vocab-shell-ctl">'
-            + '<div class="vocab-shell-search"></div>'
-            + '<div class="vocab-shell-details hide"></div>'
+          + '<div class="vocab-shell-ctl row">'
+            + '<div class="vocab-shell-search col-sm-8"></div>'
+            + '<div class="vocab-shell-details col-sm-4 hide"></div>'
           + '</div>'
 				+	'</div>',
 		},
