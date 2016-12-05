@@ -19,14 +19,10 @@
 
 .search-results-item {
 	height: 60px;
-	background-color: #fff;
 	width: 300px;
 	overflow: hidden;
-	border: solid 1px gray;
-	margin-top: 1px;
-	list-style-type: none;
+	margin-top: 3px;
 }
-
 .search-results-item-label {
 	margin: 5px;
 	width: 190px;

@@ -3,15 +3,15 @@ vocab.search = (function () {
 	var
 		configMap = {
 			main_html : String()
-				+ '<div class="search ui-widget">'
-			 		+ '<div class="search-ctrl ui-widget-header input-group">'
+				+ '<div class="search">'
+			 		+ '<div class="search-ctrl input-group">'
 				 		+ '<input class="search-input ui-autocomplete-input form-control" type="text" />'
 				 		+ '<span class="input-group-btn">'
 							+ '<button type="button" class="search-submit btn btn-info">Search</button>'
 				 			+ '<button type="button" class="search-reset btn btn-warning">Reset</button>'
 						+ '</span>'
 					+ '</div>'
-					+ '<div class="search-results">'
+					+ '<div class="search-results panel panel-default">'
 						+ '<ul class="search-results-tabs nav nav-pills">'
 						+ '</ul>'
 					+ '</div>'
@@ -78,7 +78,7 @@ vocab.search = (function () {
 		li_array = [];
 		li_count = 0;
 		while ( li_count < configMap.results_total ) {
-			$li = $('<li/>', {	'class'		: 'search-results-item',
+			$li = $('<li/>', {	'class'		: 'search-results-item list-group-item',
 								'data-index': li_count,
 								'data-rabid': '',
 								'data-uri'	: '',
@@ -86,9 +86,9 @@ vocab.search = (function () {
 							});
 			$li.append('<span class="search-results-item-label"></span>')
 			$details_button = $('<button/>', {	'type': 'button',
-												'class' : 'search-results-item-details ui-button'
+								'class' : 'search-results-item-details btn pull-right'
 											});
-			$details_button.append('<span class="ui-icon ui-icon-search"></span>');
+			$details_button.append('<span class="glyphicon glyphicon-search"></span>');
 			$li.append($details_button);
 
 			li_array.push($li);
@@ -100,8 +100,8 @@ vocab.search = (function () {
 		col_array = [];
 		col_count = 0;
 		while ( col_count < col_total ) {
-			$col = $('<ul/>', {	'class': 'search-results-col',
-									'data-index': col_count });
+			$col = $('<ul/>', {	'class'		: 'search-results-col list-group',
+						'data-index'	: col_count });
 			$li_slice = li_array.slice(
 				(col_count * configMap.rows_for_col) ,
 				(( col_count + 1 ) * configMap.rows_for_col)
@@ -118,7 +118,7 @@ vocab.search = (function () {
 			configMap.results_total / ( configMap.cols_for_page * configMap.rows_for_col ));
 		page_count = 0;
 		while ( page_count < page_total ) {
-			$tab = $('<li/>');
+			$tab = $('<li/>', { 'class' : 'nav-item' });
 			$tab_link = $('<a/>', { 'href': '#results-page-' + page_count })
 			$tab_link.text( '' 
 				+ ( ( page_count * configMap.cols_for_page * configMap.rows_for_col ) + 1 )
