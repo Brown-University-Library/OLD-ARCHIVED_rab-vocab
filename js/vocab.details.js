@@ -3,7 +3,7 @@ vocab.details = (function () {
 	var
 		configMap = {
 			main_html : String()
-				+ '<div class="term-details panel panel-default">'
+				+ '<div class="term-details">'
 					+ '<div class="row term-details-ctrl">'
 						+ '<span class="edit-mode col-sm-9"></span>'
 						+ '<div class="term-details-ctrl-toolbar col-sm-3">'
@@ -16,33 +16,43 @@ vocab.details = (function () {
 						+ '</div>'
 					+ '</div>'
 					+ '<div class="term-inspector row" data-rabid data-uri>'
-						+ '<h3 id="termLabel"></h3>'
-						+ '<input type="text" class="label-edit hide" />'
-						+ '<div class="details-col">'
-							+ '<section class="details-group">'
-							+ '<h4>Broader</h4>'
-							+ '<ul class="details-broader" data-attr="broader"></ul>'
-							+ '</section>'
-							+ '<section class="details-group">'
-							+ '<h4>Narrower</h4>'
-							+ '<ul class="details-narrower" data-attr="narrower"></ul>'
-							+ '</section>'
-							+ '<section class="details-group">'
-							+ '<h4>Related</h4>'
-							+ '<ul class="details-related" data-attr="related"></ul>'
-							+ '</section>'
+						+ '<div class="col-sm-12">'
+							+ '<div class="row">'
+								+ '<div class="col-sm-12">'
+									+ '<h3 id="termLabel"></h3>'
+									+ '<input type="text" class="label-edit hide" />'
+								+ '</div>'
+							+ '</div>'
+							+ '<div class="row">'
+								+ '<div class="details-col col-sm-6">'
+									+ '<section class="details-group panel panel-default">'
+									+ '<div class="panel-heading">Broader</div>'
+									+ '<ul class="details-broader list-group" data-attr="broader"></ul>'
+									+ '</section>'
+									+ '<section class="details-group panel panel-default">'
+									+ '<div class="panel-heading">Narrower</div>'
+									+ '<ul class="details-narrower list-group" data-attr="narrower"></ul>'
+									+ '</section>'
+									+ '<section class="details-group panel panel-default">'
+									+ '<div class="panel-heading">Related</div>'
+									+ '<ul class="details-related list-group" data-attr="related"></ul>'
+									+ '</section>'
+								+ '</div>'
+								+ '<div class="details-col col-sm-6">'
+									+ '<section class="details-group panel panel-default">'
+									+ '<div class="panel-heading">Alternative Labels</div>'
+									+ '<ul class="details-alternative list-group" data-attr="alternative"></ul>'
+									+ '</section>'
+									+ '<section class="details-group panel panel-default">'
+									+ '<div class="panel-heading">Hidden Labels</div>'
+									+ '<ul class="details-hidden list-group" data-attr="hidden"></ul>'
+									+ '</section>'
+								+ '</div>'
+							+ '</div>'
 						+ '</div>'
-						+ '<div class="details-col">'
-							+ '<section class="details-group">'
-							+ '<h4>Alternative Labels</h4>'
-							+ '<ul class="details-alternative" data-attr="alternative"></ul>'
-							+ '</section>'
-							+ '<section class="details-group">'
-							+ '<h4>Hidden Labels</h4>'
-							+ '<ul class="details-hidden" data-attr="hidden"></ul>'
-							+ '</section>'
-						+ '</div>'
-						+ '<div class="details-footer row hide">'
+					+ '</div>'
+					+ '<div class="details-footer row hide">'
+						+ '<div class="col-sm-12">'
 							+ '<button type="button" class="ui-button submit-edits">Submit</button>'
 						+ '</div>'
 					+ '</div>'
@@ -104,16 +114,16 @@ vocab.details = (function () {
 	createLiforData = function( dataObj ) {
 		var $li, $label, $del_button;
 
-		$li = $('<li/>');
+		$li = $('<li/>', {'class': 'list-group-item'});
 		$label = $('<span/>');
 		$label.text(dataObj.label);
 		
 		$del_button = $('<button/>', {	'type': 'button',
-										'class' : 'ui-button remove-data-button hide'});
+										'class' : 'btn btn-danger remove-data-button hide'});
 		$del_button.click( function() {
 			onClickRemoveLi( $(this) );
 		});
-		$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
+		$del_button.append('<span class="glyphicon glyphicon-remove"></span>');
 		
 		$li.append($label);
 		$li.append($del_button);
@@ -311,11 +321,11 @@ vocab.details = (function () {
 					var $del_button;
 					
 					$del_button = $('<button/>', {	'type': 'button',
-													'class' : 'ui-button remove-data-button'});
+													'class' : 'btn btn-danger remove-data-button'});
 					$del_button.click( function() {
 						onClickRemoveLi( $(this) );
 					});
-					$del_button.append('<span class="ui-icon ui-icon-closethick"></span>');
+					$del_button.append('<span class="glyphicon glyphicon-remove"></span>');
 
 					ui.item.append( $del_button );
 					ui.item.removeClass('search-results-item');

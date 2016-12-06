@@ -8,8 +8,8 @@
 .vocab-shell-modal {
 }
 
-.vocab-shell-head {
-	display: table-row;
+/*.vocab-shell-head {
+	//display: table-row;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -20,8 +20,8 @@
 	top: 4px;
 	left: 8px;
 	height: 32px;
-}
-
+}*/
+/*
 .vocab-shell-main {
 	display: table;
 	border-spacing: 10px;
@@ -38,7 +38,7 @@
 .vocab-shell-details {
 	display: table-cell;
 }
-
+*/
 .vocab-shell-details.hide {
 	display: none;
 }
