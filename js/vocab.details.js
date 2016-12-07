@@ -332,6 +332,7 @@ vocab.details = (function () {
 					$ctrl = ui.item.find('.rab-ctrl');
 					$ctrl.append( $del_button );
 					ui.item.removeClass('search-results-item');
+					ui.item.removeAttr('style');
 				}
 			});
 
