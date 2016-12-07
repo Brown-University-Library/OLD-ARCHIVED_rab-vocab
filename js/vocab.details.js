@@ -53,7 +53,9 @@ vocab.details = (function () {
 					+ '</div>'
 					+ '<div class="details-footer row hide">'
 						+ '<div class="col-sm-12">'
-							+ '<button type="button" class="ui-button submit-edits">Submit</button>'
+							+ '<button type="button" class="btn btn-success submit-edits pull-right">'
+								+ '<span class="glyphicon glyphicon-ok"></span>'
+							+ '</button>'
 						+ '</div>'
 					+ '</div>'
 				+ '</div>',
