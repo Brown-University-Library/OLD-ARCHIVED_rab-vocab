@@ -41,4 +41,14 @@ strong {
 	min-width: 35em;
 	overflow: hidden;
 }
+
+li.rab-obj > .rab-label {
+	display: inline-block;
+	width: 80%;
+}
+
+li.rab-obj > .rab-ctrl {
+	display: inline-block;
+	width: 20%;
+}
 /** End spa namespace selectors */

@@ -66,7 +66,7 @@ vocab.search = (function () {
 		var $results,
 			li_count, li_array,
 			$li, $li_slice,
-			$details_button,
+			$details_button, $ctrl,
 			col_total, col_count,
 			col_array, $col, $col_slice,
 			page_total, page_count, $page,
@@ -78,18 +78,20 @@ vocab.search = (function () {
 		li_array = [];
 		li_count = 0;
 		while ( li_count < configMap.results_total ) {
-			$li = $('<li/>', {	'class'		: 'search-results-item list-group-item',
+			$li = $('<li/>', {	'class'		: 'search-results-item list-group-item rab-obj',
 								'data-index': li_count,
 								'data-rabid': '',
 								'data-uri'	: '',
 								'data-label': ''
 							});
-			$li.append('<span class="search-results-item-label"></span>')
+			$li.append('<span class="rab-label"></span>');
+
+			$ctrl = $('<span/>', {'class': 'rab-ctrl'});
 			$details_button = $('<button/>', {	'type': 'button',
-								'class' : 'search-results-item-details btn pull-right'
-											});
+								'class' : 'search-results-item-details btn'});
 			$details_button.append('<span class="glyphicon glyphicon-search"></span>');
-			$li.append($details_button);
+			$ctrl.append($details_button);
+			$li.append($ctrl);
 
 			li_array.push($li);
 			li_count++;
@@ -147,7 +149,7 @@ vocab.search = (function () {
 	bindDataToLi = function ( dataObj, $li ) {
 		var $label;
 
-		$label = $li.find('.search-results-item-label');
+		$label = $li.find('.rab-label');
 		
 		$li.attr('data-rabid', dataObj.rabid);
 		$li.attr('data-uri', dataObj.uri);
@@ -176,7 +178,7 @@ vocab.search = (function () {
 	clearSearchResults = function () {
 		var $label;
 		jqueryMap.$results.each( function (idx) {
-			$label = $(this).find('.search-results-item-label');
+			$label = $(this).find('.rab-label');
 
 			$label.text('');
 			$(this).attr('data-rabid', '');
@@ -247,7 +249,7 @@ vocab.search = (function () {
 	};
 
 	onClickDetails = function () {
-		var rabid = $(this).parent('li').attr('data-rabid');
+		var rabid = $(this).closest('li').attr('data-rabid');
 		$( window ).trigger('describeTerm', rabid);
 	}
 

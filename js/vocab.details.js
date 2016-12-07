@@ -25,15 +25,15 @@ vocab.details = (function () {
 							+ '</div>'
 							+ '<div class="row">'
 								+ '<div class="details-col col-sm-6">'
-									+ '<section class="details-group panel panel-default">'
+									+ '<section class="details-group panel panel-primary">'
 									+ '<div class="panel-heading">Broader</div>'
 									+ '<ul class="details-broader list-group" data-attr="broader"></ul>'
 									+ '</section>'
-									+ '<section class="details-group panel panel-default">'
+									+ '<section class="details-group panel panel-primary">'
 									+ '<div class="panel-heading">Narrower</div>'
 									+ '<ul class="details-narrower list-group" data-attr="narrower"></ul>'
 									+ '</section>'
-									+ '<section class="details-group panel panel-default">'
+									+ '<section class="details-group panel panel-primary">'
 									+ '<div class="panel-heading">Related</div>'
 									+ '<ul class="details-related list-group" data-attr="related"></ul>'
 									+ '</section>'
@@ -112,21 +112,23 @@ vocab.details = (function () {
 	};
 
 	createLiforData = function( dataObj ) {
-		var $li, $label, $del_button;
+		var $li, $label, $ctrl, $del_button;
 
-		$li = $('<li/>', {'class': 'list-group-item'});
-		$label = $('<span/>');
+		$li = $('<li/>', {'class': 'list-group-item rab-obj'});
+		$label = $('<span/>', {'class' : 'rab-label'});
 		$label.text(dataObj.label);
-		
+
+		$ctrl = $('<span/>', {'class' : 'rab-ctrl'});	
 		$del_button = $('<button/>', {	'type': 'button',
-										'class' : 'btn btn-danger remove-data-button hide'});
+						'class' : 'btn btn-danger remove-data-button hide'});
 		$del_button.click( function() {
 			onClickRemoveLi( $(this) );
 		});
 		$del_button.append('<span class="glyphicon glyphicon-remove"></span>');
-		
+
 		$li.append($label);
-		$li.append($del_button);
+		$ctrl.append($del_button);
+		$li.append($ctrl);
 
 		$li.attr('data-rabid', dataObj.rabid);
 		$li.attr('data-uri', dataObj.uri);
@@ -298,7 +300,7 @@ vocab.details = (function () {
 	onClickRemoveLi = function ( button ) {
 		var $li;
 
-		$li = button.parent('li');
+		$li = button.closest('li');
 		$li.remove();
 	}
 	//-------------------- END EVENT HANDLERS --------------------
@@ -318,16 +320,17 @@ vocab.details = (function () {
 				revert: "true",
 				dropOnEmpty: true,
 				stop : function ( e, ui ) {
-					var $del_button;
+					var $del_button, $ctrl;
 					
 					$del_button = $('<button/>', {	'type': 'button',
-													'class' : 'btn btn-danger remove-data-button'});
+									'class' : 'btn btn-danger remove-data-button'});
 					$del_button.click( function() {
 						onClickRemoveLi( $(this) );
 					});
 					$del_button.append('<span class="glyphicon glyphicon-remove"></span>');
-
-					ui.item.append( $del_button );
+					
+					$ctrl = ui.item.find('.rab-ctrl');
+					$ctrl.append( $del_button );
 					ui.item.removeClass('search-results-item');
 				}
 			});
@@ -341,7 +344,7 @@ vocab.details = (function () {
 
 	return {
 		configModule		: configModule,
-		initModule			: initModule,
+		initModule		: initModule,
 		loadTermDetails		: loadTermDetails,
 		resetDetails 		: resetDetails
 	};
