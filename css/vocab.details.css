@@ -107,3 +107,6 @@
 	border-top-width: 0;
 }
 
+.details-group > ul:empty {
+	height: 55px;
+}
