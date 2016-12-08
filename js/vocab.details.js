@@ -20,7 +20,10 @@ vocab.details = (function () {
 							+ '<div class="row">'
 								+ '<div class="col-sm-12">'
 									+ '<h3 id="termLabel"></h3>'
-									+ '<input type="text" class="label-edit hide" />'
+									+ '<div class="form-group label-edit-display hidden">'
+										+ '<label for="labelEditor">Term Label</label>'
+										+ '<input id="labelEditor" type="text" class="label-edit form-control" />'
+									+ '</div>'
 								+ '</div>'
 							+ '</div>'
 							+ '<div class="row">'
@@ -95,6 +98,7 @@ vocab.details = (function () {
 			$details_foot : $details.find('.details-footer'),
 			$submit_button : $details.find('.submit-edits'),
 			$label_display : $details.find('#termLabel'),
+			$label_editor_display : $details.find('.label-edit-display'),
 			$label_editor : $details.find('.label-edit')
 		};
 	};
@@ -253,7 +257,7 @@ vocab.details = (function () {
 		});
 		jqueryMap.$label_editor.val('');
 		jqueryMap.$label_display.removeClass('hide');
-		jqueryMap.$label_editor.addClass('hide');
+		jqueryMap.$label_editor_display.addClass('hidden');
 		jqueryMap.$details_foot.addClass('hide');
 		jqueryMap.$edit_button.removeClass('hide');
 	};
@@ -274,7 +278,7 @@ vocab.details = (function () {
 		});
 		jqueryMap.$label_editor.val( stateMap.term_target.label );
 		jqueryMap.$label_display.addClass('hide');
-		jqueryMap.$label_editor.removeClass('hide');
+		jqueryMap.$label_editor_display.removeClass('hidden');
 		jqueryMap.$details_foot.removeClass('hide');
 		jqueryMap.$edit_button.addClass('hide');
 		jqueryMap.$inspector.find('.remove-data-button').removeClass('hide');
