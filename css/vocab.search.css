@@ -11,6 +11,36 @@
 	padding: 5px 0;
 }*/
 
+.search {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.search-ctrl {
+  width: 80%;
+  padding: 10px 15px;
+}
+
+.search-ctrl > .btn {
+  margin-left: 5px;
+}
+
+.search-input {
+  height: 34px;
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  width: 60%;
+}
+
+.search-results {
+  padding: 15px;
+  width: 650px;
+  margin: auto;
+}
+
 .search-results-col {
 	display: inline-block;
 	vertical-align: top;

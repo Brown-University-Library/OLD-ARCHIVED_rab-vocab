@@ -4,23 +4,19 @@ vocab.search = (function () {
 		configMap = {
 			main_html : String()
 				+ '<div class="search">'
-					+ '<div class="row">'
-						+ '<div class="search-ctrl input-group col-sm-6">'
-							+ '<input class="search-input ui-autocomplete-input form-control" type="text" />'
-							+ '<span class="input-group-btn">'
-								+ '<button type="button" class="search-submit btn btn-success">Search</button>'
-								+ '<button type="button" class="search-reset btn btn-warning">Reset</button>'
-							+ '</span>'
-						+ '</div>'
+					+ '<div class="search-ctrl">'
+						+ '<input class="search-input ui-autocomplete-input" type="text" />'
+						+ '<button type="button" class="search-submit btn btn-success">Search</button>'
+						+ '<button type="button" class="search-reset btn btn-warning">Reset</button>'
 					+ '</div>'
-					+ '<div class="search-results panel panel-default row">'
+					+ '<div class="search-results">'
 						+ '<ul class="search-results-tabs nav nav-pills">'
 						+ '</ul>'
 					+ '</div>'
 				+ '</div>',
 			terms_model : null,
 			results_total : 72,
-			cols_for_page : 3,
+			cols_for_page : 2,
 			rows_for_col : 8
 		},
 
@@ -218,6 +214,7 @@ vocab.search = (function () {
 			jqueryMap.$results.eq(idx)
 				.draggable({
 				disabled : false,
+				//stack: ".rab-obj",
 				connectToSortable: ".edit-sort",
 				helper: "clone",
 				revert: "invalid"

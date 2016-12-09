@@ -110,3 +110,16 @@
 .details-group > ul:empty {
 	height: 55px;
 }
+
+.term-details {
+	border: 1px solid #ddd;
+        border-radius: 4px;
+}
+
+.term-details-ctrl {
+	padding: 10px 15px;
+}
+
+.term-inspector {
+	padding: 15px;
+}

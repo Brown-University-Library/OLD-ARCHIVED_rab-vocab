@@ -42,3 +42,25 @@
 .vocab-shell-details.hide {
 	display: none;
 }
+
+.vocab-shell-details {
+	display: inline-block;
+	width: 750px;
+	vertical-align: top;
+	padding: 10px 50px;
+}
+.vocab-shell-search {
+	vertical-align: top;
+	display: inline-block;
+	width: 780px;
+	padding: 10px 50px;
+}
+
+@media (max-width: 1366px) {
+	.vocab-shell-details {
+		display: block;
+	}
+	.vocab-shell-search {
+		display: block;
+	}
+}
