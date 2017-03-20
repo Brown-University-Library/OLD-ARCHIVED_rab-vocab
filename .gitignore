@@ -1,2 +1,4 @@
 *.pyc
 app/static/lib/*
+config/
+!config/template.py

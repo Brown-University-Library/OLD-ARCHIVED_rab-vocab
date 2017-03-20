@@ -4,10 +4,10 @@ import requests
 
 from flask import request, render_template, jsonify
 from app import app
-# from app.models import local, rab
+from app.models import rab
 
 
-# app_base = app.config['APP_BASE']
+solr_url = app.config['SOLR_URL']
 
 @app.route('/')
 def main():
