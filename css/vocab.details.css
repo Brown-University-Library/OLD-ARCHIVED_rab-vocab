@@ -1,11 +1,12 @@
 .term-details-ctrl-btn {
 	border-radius: 4px;
 }
-/*
+
 .term-details-ctrl-toolbar {
+	width: 150px;
 	display: inline-block;
 }
-*/
+
 .term-details-ctrl-toolbar>.term-details-ctrl-btn:last-child:not(:first-child) {
 	margin-left: 5px;
 }
@@ -122,4 +123,9 @@
 
 .term-inspector {
 	padding: 15px;
+}
+
+.edit-mode {
+	font-size: 21px;
+	font-weight: 200;
 }
