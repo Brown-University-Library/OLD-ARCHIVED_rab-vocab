@@ -128,27 +128,12 @@ vocab.data = (function () {
 			search;
 
 		search = function ( term, callback ) {
-			var
-				i,
-				search_res, results,
-				data, servData,
-				endpoint = configMap.search_base,
-				query_url = endpoint + "?query=" + term + "&type=vocab";
-			
-			get( query_url )
-			.then( function ( resp ) {
-				results = resp.data;
-				data = [];
-				for ( i = 0; i < results.length; i++ ) {
-					search_res = results[i];
-					servData = makeServiceData( search_res, [], resp.etag );
-					data.push(servData);
+			$.ajax({
+				dataType: "json",
+				url: configMap.search_base + "?query=" + term + "&type=vocab",
+				success: function( data ) {
+					callback( data );
 				}
-
-				return data;
-			})
-			.then( function ( data ) {
-				callback(data);
 			});
 		};
 
