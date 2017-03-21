@@ -163,40 +163,13 @@ vocab.data = (function () {
 		var
 			find, update, describe;
 
-		describe = function ( rabid, links, callback ) {
-			var
-				out, linkedServData,
-				servData, res_links,
-				link_rabid, res_url,			
-				rest_url = configMap.rest_base + rabid;
-
-			out = [];
-
-			get( rest_url )
-			.then( function( resp ) {
-				servData = makeServiceData( resp.data, links, resp.etag );
-
-				res_links = [];
-				servData.links.forEach( function (link) {
-					link_rabid = link.substring(configMap.resource_base.length);
-					res_url = configMap.rest_base + link_rabid;
-					res_links.push(res_url);
-				});
-
-				out.push(servData);
-
-				return Promise.all(
-					res_links.map( get )
-				);
-			})
-			.then( function (resps) {
-				resps.forEach( function ( resp ) {
-					linkedServData = makeServiceData( resp.data, links, resp.etag );
-					out.push(linkedServData);
-				});
-			})
-			.then( function () {
-				callback( out );
+		describe = function ( rabid, callback ) {
+			$.ajax({
+				dataType: "json",
+				url: configMap.rest_base + '/describe/' + rabid,
+				success: function( data ) {
+					callback( data );
+				}
 			});
 		};
 

@@ -25,7 +25,6 @@ vocab.model = (function () {
 	termProto = {
 		editing : false,
 		uri : null,
-		etag : null,
 		rabid : null,
 		label : null,
 		data : {
@@ -43,9 +42,8 @@ vocab.model = (function () {
 		term = Object.create( termProto );
 
 		term.uri = term_data.uri;
-		term.rabid = term.uri.substring(configMap.resource_base.length);
-		term.label = term_data.label[0];
-		term.etag = term_data.etag;
+		term.rabid = term_data.id;
+		term.label = term_data.display;
 		term.editing = false;
 		term.data = {
 			broader : [],
@@ -65,15 +63,10 @@ vocab.model = (function () {
 	};
 
 	termDataUpdate = function ( dataArray ) {
-		var
-			term_data, term,
-			existing_term, key;
 
-		dataArray.forEach( function( serv_data ) {
-			term_data = serv_data.data;
-			term_data.uri = serv_data.uri;
-			term_data.etag = serv_data.etag;
-			
+		dataArray.forEach( function( term_data ) {
+			var term, existing_term;
+
 			existing_term = terms_db({ uri : term_data.uri }).first();
 			if ( existing_term !== false ) {
 				if ( existing_term.editing === false ) {
@@ -109,12 +102,10 @@ vocab.model = (function () {
 	};
 
 	searchDataUpdate = function ( dataArray, searchTerm ) {
-		var term_data, new_term, existing_term,
-				new_search_result, existing_match;
 
-		dataArray.forEach( function( serv_data ) {
-			term_data = serv_data.data;
-			term_data.uri = serv_data.uri;
+		dataArray.forEach( function( term_data ) {
+			var new_term, existing_term,
+				new_search_result, existing_match;
 			
 			existing_term = terms_db({ uri : term_data.uri }).first();
 			if ( existing_term === false ) {
@@ -138,10 +129,7 @@ vocab.model = (function () {
 	};
 
 	describe_term = function ( rabid ) {
-		var linked_attributes;
-
-		linked_attributes = ['broader','narrower','related'];
-		vocab.data.rest.describe( rabid, linked_attributes, function( resp ) {
+		vocab.data.rest.describe( rabid, function( resp ) {
 			termDataUpdate( resp );
 			$( window ).trigger('termDescribed', rabid);
 		});

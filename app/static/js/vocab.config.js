@@ -5,7 +5,7 @@ vocab.config = (function () {
 	dev = (function () {
 		var
 			search_base = 'https://dvivocit1.services.brown.edu/rabvocab/search/',
-			rest_base = 'https://dvivocit1.services.brown.edu/rabdata/vocab/'
+			rest_base = 'https://dvivocit1.services.brown.edu/rabvocab/'
 
 		return {
 			search_base : search_base,
