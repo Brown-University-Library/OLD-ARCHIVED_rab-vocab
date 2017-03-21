@@ -29,7 +29,7 @@ class RABObject(object):
 			self.retrieve()
 
 	def publish(self):
-		return dict(id=self.id, rabid=self.uri, display=self.label, data=self.data)
+		return dict(id=self.id, uri=self.uri, display=self.label, data=self.data)
 
 	def retrieve(self):
 		resp = requests.get(self.rab_api + self.id)

@@ -38,7 +38,11 @@ def solr_search():
 	reply = []
 	if solr_data['response']['numFound'] > 0:
 		for doc in solr_data['response']['docs']:
-			res = { 'uri': doc['URI'], 'display': [ doc['nameRaw'][0] ], 'id': doc['URI'][33:] }
+			res = { 'uri': doc['URI'],
+				'display': doc['nameRaw'][0],
+				'id': doc['URI'][33:],
+				'data': {}
+				}
 			reply.append(res)
 	resp = make_response(
 				json.dumps(reply))

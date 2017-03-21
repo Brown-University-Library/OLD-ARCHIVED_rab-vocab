@@ -53,8 +53,8 @@ vocab.model = (function () {
 			alternative : []
 		};
 		for ( key in term.data ) {
-			if ( key in term_data ) {
-				term.data[key] = term_data[key];
+			if ( key in term_data.data ) {
+				term.data[key] = term_data.data[key];
 			}
 		}
 		
