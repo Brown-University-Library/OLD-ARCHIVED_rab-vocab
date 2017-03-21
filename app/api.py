@@ -45,24 +45,16 @@ def solr_search():
 				json.dumps(reply))
 	return resp
 
-
-# ## API for R@B Vocabulary data
-# from resources.vocab import Terms
-
-# @app.route('/vocab/', methods=['GET'])
-# def index_vocab_terms():
-# 	# Working for single strings
-# 	# problems for dates, multival?
-# 	params = { k: [v] for k, v in request.args.items() }
-# 	try:
-# 		allTerms = Terms.search(params=params)
-# 	except AliasError as e:
-# 		raise RESTError('Bad parameter',
-# 			status_code=400, payload=e.msg)
-# 	except:
-# 		raise RESTError('Resource not found', status_code=404)
-# 	return json.dumps([ term.to_dict()
-# 							for term in allTerms])
+@app.route('/describe/<rabid>', methods=['GET'])
+def describe_term(rabid):
+	term = rab.ResearchArea(id=rabid)
+	linked_attrs = ['broader','narrower','related']
+	neighbor_uris = []
+	for attr in linked_attrs:
+		neighbor_uris.extend( term.data[attr] )
+	out = [ rab.ResearchArea(uri=uri) for uri in neighbor_uris ]
+	out.append(term)
+	return jsonify( [ ra.publish() for ra in out ] )
 
 # @app.route('/vocab/<rabid>', methods=['GET'])
 # def retrieve_vocab_term(rabid):
