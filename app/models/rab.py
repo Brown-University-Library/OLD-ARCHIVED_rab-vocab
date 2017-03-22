@@ -104,8 +104,9 @@ class ResearchArea(RABObject):
 	def update(self, updated_data):
 		updated_data['class'] = self.rdf_type
 		self.data = updated_data
-		headers = { 'ETag': self.etag }
-		resp = requests.put(self.rab_api, data=self.data, headers=headers)
+                payload = { self.uri: self.data }
+		headers = { 'If-Match': self.etag, "Content-Type": "application/json; charset=utf-8" }
+		resp = requests.put(self.rab_api + self.id, data=payload, headers=headers)
 		if resp.status_code == 200:
 			self.etag = resp.headers.get('ETag')
 			data = resp.json()
@@ -113,7 +114,7 @@ class ResearchArea(RABObject):
 			assert rab_uri == self.uri
 			self.load_data(data)
 		else:
-			raise "Bad update"
+			raise Exception(resp.text)
 
 	def __init__(self, uri=None, id=None, existing=True):
 		super(ResearchArea, self).__init__(uri=uri, id=id, existing=existing)
