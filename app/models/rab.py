@@ -98,8 +98,22 @@ class RABObject(object):
 
 class ResearchArea(RABObject):
 
-	rdf_type = [ namespaces.BLOCAL+ "ResearchArea" ]
+	rdf_type = [ namespaces.SKOS + "Concept" ]
 	rab_api = os.path.join(rest_base, 'vocab/')
+
+	def update(self, updated_data):
+		updated_data['class'] = self.rdf_type
+		self.data = updated_data
+		headers = { 'ETag': self.etag }
+		resp = requests.put(self.rab_api, data=self.data, headers=headers)
+		if resp.status_code == 200:
+			self.etag = resp.headers.get('ETag')
+			data = resp.json()
+			rab_uri = data.keys()[0]
+			assert rab_uri == self.uri
+			self.load_data(data)
+		else:
+			raise "Bad update"
 
 	def __init__(self, uri=None, id=None, existing=True):
 		super(ResearchArea, self).__init__(uri=uri, id=id, existing=existing)

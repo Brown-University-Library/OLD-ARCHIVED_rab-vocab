@@ -59,16 +59,15 @@ def describe_term(rabid):
 	out.append(term)
 	return jsonify( [ ra.publish() for ra in out ] )
 
-# @app.route('/vocab/<rabid>', methods=['GET'])
-# def retrieve_vocab_term(rabid):
-# 	try:
-# 		term = Terms.find(rabid=rabid)
-# 	except:
-# 		raise RESTError('Resource not found', status_code=404)
-# 	resp = make_response(
-# 				json.dumps(term.to_dict()))
-# 	resp.headers['ETag'] = term.etag
-# 	return resp
+@app.route('/update/', methods=['PUT'])
+def update_terms():
+	data = request.get_json()
+	existing = [ rab.ResearchArea(uri=obj['uri']) for obj in data ]
+	for term in existing:
+		for obj in data:
+			if term.uri == obj['uri']:
+				term.update(obj['data'])
+	return jsonify([ ex.publish() for ex in exitsing ])
 
 # @app.route('/vocab/', methods=['POST'])
 # def create_vocab_term():

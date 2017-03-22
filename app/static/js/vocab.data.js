@@ -151,39 +151,22 @@ vocab.data = (function () {
 		describe = function ( rabid, callback ) {
 			$.ajax({
 				dataType: "json",
-				url: configMap.rest_base + '/describe/' + rabid,
+				url: configMap.rest_base + 'describe/' + rabid,
 				success: function( data ) {
 					callback( data );
 				}
 			});
 		};
 
-		update = function ( termObj, callback ) {
-			var
-				rest_url, etag,
-				data, uri, graph,
-				payload;
-
-			rest_url = configMap.rest_base + termObj.rabid;
-			etag = termObj.etag;
-
-			data = termObj.data;
-			data.label = [termObj.label];
-			data.class = ['http://www.w3.org/2004/02/skos/core#Concept'];
-
-			uri = termObj.uri;
-			graph = {};
-			graph[uri] = data;
-			payload = JSON.stringify(graph);
-
-			put( rest_url, payload, etag )
-			.then( function( resp ) {
-				servData = makeServiceData( resp.data, [], resp.etag );
-
-				return [servData];
-			})
-			.then( function ( out ) {
-				callback( out );
+		update = function ( updateArray, callback ) {
+			$.ajax({
+				data: JSON.stringify(updateArray),
+				method: 'PUT',
+				contentType: 'application/json',
+				url: configMap.rest_base + 'update/',
+				success: function( data ) {
+					callback( data );
+				}
 			});
 		};
 
