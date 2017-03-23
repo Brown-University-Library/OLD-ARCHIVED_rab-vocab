@@ -21,6 +21,7 @@ vocab.model = (function () {
 		
 		dataDifference,
 		addInverseAttrs, removeInverseAttrs,
+		resetData,
 
 		initModule;
 
@@ -147,6 +148,11 @@ vocab.model = (function () {
 		return out;
 	};
 
+	resetData = function () {
+		terms_db = TAFFY();
+		search_db = TAFFY();
+	};
+
 	makeTerm = function ( term_data ) {
 		var term, key, existing;
 
@@ -268,8 +274,7 @@ vocab.model = (function () {
 		terms_db({ rabid : existing.rabid }).update({ editing : false});
 
 		vocab.data.rest.update( out, function( resp ) {
-			// resetData();
-			termDataUpdate( resp );
+			resetData();
 			$( window ).trigger('termUpdated', rabid);
 		});
 	};
