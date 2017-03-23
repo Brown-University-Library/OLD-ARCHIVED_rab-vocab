@@ -67,7 +67,7 @@ def update_terms():
 		for obj in data:
 			if term.uri == obj['uri']:
 				term.update(obj['data'])
-	return jsonify([ ex.publish() for ex in exitsing ])
+	return jsonify([ ex.publish() for ex in existing ])
 
 # @app.route('/vocab/', methods=['POST'])
 # def create_vocab_term():

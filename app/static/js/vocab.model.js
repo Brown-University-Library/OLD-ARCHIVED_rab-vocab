@@ -255,8 +255,8 @@ vocab.model = (function () {
 
 		diff = dataDifference( update.data, existing.data );
 
-		add_inverse = addInverseAttrs( diff.add, rabid );
-		del_inverse = removeInverseAttrs( diff.remove, rabid );
+		add_inverse = addInverseAttrs( diff.add, existing.uri );
+		del_inverse = removeInverseAttrs( diff.remove, existing.uri );
 
 		update.uri = existing.uri;
 		update.rabid = existing.rabid;

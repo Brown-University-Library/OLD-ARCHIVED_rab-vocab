@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 
 from app import app
 from app.utils import namespaces
@@ -105,8 +106,8 @@ class ResearchArea(RABObject):
 		updated_data['class'] = self.rdf_type
 		self.data = updated_data
                 payload = { self.uri: self.data }
-		headers = { 'If-Match': self.etag, "Content-Type": "application/json; charset=utf-8" }
-		resp = requests.put(self.rab_api + self.id, data=payload, headers=headers)
+		headers = { 'If-Match': self.etag, 'Content-Type': 'application/json' }
+		resp = requests.put(self.rab_api + self.id, data=json.dumps(payload), headers=headers)
 		if resp.status_code == 200:
 			self.etag = resp.headers.get('ETag')
 			data = resp.json()
