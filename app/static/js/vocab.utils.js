@@ -53,7 +53,7 @@ vocab.utils = (function () {
 	};
 
 	arrayMapDiff = function ( first, second ) {
-		var out = {};
+		var out = [];
 
 		for ( var key in first ) {
 			if ( second.hasOwnProperty(key) ) {
@@ -68,43 +68,24 @@ vocab.utils = (function () {
 			}
 		}
 	};
-				var newArr = newData[key];
-				var oldArr = oldData[key];
-
-				newArr.forEach( function( uri ) {
-					if (oldArr.indexOf( uri ) < 0) {
-						addData.push( { 'attr': key, 'uri': uri } );
-					}
-				});
-
-				oldArr.forEach( function( uri ) {
-					if (newArr.indexOf( uri ) < 0) {
-						removeData.push( { 'attr': key, 'uri': uri } );
-					}
-				});
-			}
-		}
-
-		return { 'add': addData, 'remove': removeData };
-	};
 
 	arrayDiff = function ( first, second ) {
-		var out = { 'add': [], 'remove': []};
+		var add, remove, copy;
 
-		first.forEach( function( data ) {
-			if (second.indexOf( data ) < 0) {
-				out['remove'].push( data );
-			}
+		remove = first.filter( function(val) {
+			return second.indexOf(val) < 0;
 		});
 
-		second.forEach( function( data ) {
-			if (first.indexOf( data ) < 0) {
-				out['add'].push( data );
-			}
+		add = second.filter( function(val) {
+			return first.indexOf(val) < 0;
 		});
 
-		return out;
-	}
+		copy = first.filter( function(val) {
+			return !(second.indexOf(val) < 0);
+		});
+
+		return { 'add': add, 'remove': remove, 'copy': copy };
+	};
 
 	return {
 		mergeMaps : mergeMaps,

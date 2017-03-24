@@ -10,6 +10,8 @@ QUnit.test( "arrayDiff should return an object \
 			diff['add'], [ 1, 2 ], "Added data in obj['add']");
 		assert.deepEqual(
 			diff['remove'], [ 'foo', 'bar' ], "Removed data in obj['remove']");
+		assert.deepEqual(
+			diff['copy'], [ 3 ], "Copied data in obj['copy']");
 });
 
 QUnit.test( "arrayMapDiff should return an object \
