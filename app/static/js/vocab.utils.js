@@ -1,5 +1,8 @@
 vocab.utils = (function () {
-	var makeError, merge;
+	var
+		makeError, merge,
+
+		dataDifference, arrayDiff;
 
 	makeError = function ( name_text, msg_text, data ) {
 		var error 		= new Error();
@@ -49,7 +52,54 @@ vocab.utils = (function () {
 		return map_to_update;
 	};
 
+	dataDifference = function ( newData, oldData ) {
+		var 
+			addData = [],
+			removeData = [];
+
+		for ( var key in newData ) {
+			if ( key in oldData ) {
+				var newArr = newData[key];
+				var oldArr = oldData[key];
+
+				newArr.forEach( function( uri ) {
+					if (oldArr.indexOf( uri ) < 0) {
+						addData.push( { 'attr': key, 'uri': uri } );
+					}
+				});
+
+				oldArr.forEach( function( uri ) {
+					if (newArr.indexOf( uri ) < 0) {
+						removeData.push( { 'attr': key, 'uri': uri } );
+					}
+				});
+			}
+		}
+
+		return { 'add': addData, 'remove': removeData };
+	};
+
+	arrayDiff = function ( first, second ) {
+		var out = { 'add': [], 'remove': []};
+
+		first.forEach( function( data ) {
+			if (second.indexOf( data ) < 0) {
+				out['remove'].push( data );
+			}
+		});
+
+		second.forEach( function( data ) {
+			if (first.indexOf( data ) < 0) {
+				out['add'].push( data );
+			}
+		});
+
+		return out;
+	}
+
 	return {
-		mergeMaps : mergeMaps
+		mergeMaps : mergeMaps,
+		arrayDiff : arrayDiff,
+		dataDifference : dataDifference
 	};
 }());
