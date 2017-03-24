@@ -62,62 +62,13 @@ def describe_term(rabid):
 @app.route('/update/', methods=['PUT'])
 def update_terms():
 	data = request.get_json()
-	existing = [ rab.ResearchArea(uri=obj['uri']) for obj in data ]
-	for term in existing:
-		for obj in data:
-			if term.uri == obj['uri']:
-				term.update(obj['data'])
-	return jsonify([ ex.publish() for ex in existing ])
-
-# @app.route('/vocab/', methods=['POST'])
-# def create_vocab_term():
-# 	try:
-# 		term = Terms.create(
-# 					data=request.get_json())
-# 	except (AliasError, ValidationError) as e:
-# 		raise RESTError('Bad data',
-# 					status_code=400, payload=e.msg) 
-# 	resp = make_response(
-# 				json.dumps(term.to_dict()))
-# 	resp.headers['ETag'] = term.etag
-# 	return resp
-
-# @app.route('/vocab/<rabid>', methods=['PUT'])
-# def replace_vocab_term(rabid):
-# 	try:
-# 		term = Terms.find(rabid=rabid)
-# 	except:
-# 		raise RESTError('Resource not found', status_code=404)
-# 	if term.etag == request.headers.get("If-Match"):
-# 		try:
-# 			updated = Terms.overwrite(
-# 						term, request.get_json())
-# 		except (AliasError, ValidationError) as e:
-# 			raise RESTError('Validation',
-# 				status_code=400, payload=e.msg)
-# 		resp = make_response(
-# 				json.dumps(updated.to_dict()))
-# 		resp.headers['ETag'] = updated.etag
-# 		return resp
-# 	else:
-# 		raise RESTError('Data modified on server',
-# 						status_code=409, payload=term.to_dict())
-
-# @app.route('/vocab/<rabid>', methods=['DELETE'])
-# def destroy_vocab_term(rabid):
-# 	try:
-# 		term = Terms.find(rabid=rabid)
-# 	except:
-# 		raise RESTError('No resource to delete', status_code=410)
-# 	if term.etag == request.headers.get("If-Match"):
-# 		try:
-# 			Terms.remove(term)
-# 			resp = make_response('', 204)
-# 			return resp
-# 		except (AliasError, ValidationError) as e:
-# 			raise RESTError('Validation',
-# 				status_code=400, payload=e.msg)
-# 	else:
-# 		raise RESTError('Data modified on server',
-# 						status_code=409,
-# 						payload=term.to_dict())
+	to_be_updated = [ (obj['data'], rab.ResearchArea(uri=obj['uri'])) for obj in data ]
+	success = []
+	for new_data, existing in to_be_updated:
+		resp = existing.update(new_data)
+		if resp.status_code == 200:
+			success.append(existing.uri)
+		else:
+			print "Failure: " + existing.uri
+			print resp.text
+	return jsonify(success)

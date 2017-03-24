@@ -102,10 +102,27 @@ class ResearchArea(RABObject):
 	rdf_type = [ namespaces.SKOS + "Concept" ]
 	rab_api = os.path.join(rest_base, 'vocab/')
 
-	def update(self, updated_data):
-		updated_data['class'] = self.rdf_type
-		self.data = updated_data
-                payload = { self.uri: self.data }
+	def _validate(self, data):
+		attrs = [ 'class', 'label', 'narrower', 'broader', 'related',
+					'hidden', 'alternative' ]
+		required = [ 'class', 'label' ]
+		optional = [ 'narrower', 'broader', 'related',
+						'hidden', 'alternative' ]
+		obj_props = [ 'narrower', 'broader', 'related' ]
+		data['class'] = self.rdf_type
+		for opt in optional:
+			if opt not in data:
+				data[opt] = []
+		for req in required:
+			assert data[req]
+		for prop in obj_props:
+			for d in data[prop]:
+				assert d.startswith('http://')
+		return data
+
+	def update(self, new_data):
+		valid = self._validate(new_data)
+        payload = { self.uri: valid }
 		headers = { 'If-Match': self.etag, 'Content-Type': 'application/json' }
 		resp = requests.put(self.rab_api + self.id, data=json.dumps(payload), headers=headers)
 		if resp.status_code == 200:
