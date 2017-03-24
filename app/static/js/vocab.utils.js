@@ -52,13 +52,22 @@ vocab.utils = (function () {
 		return map_to_update;
 	};
 
-	dataDifference = function ( newData, oldData ) {
-		var 
-			addData = [],
-			removeData = [];
+	arrayMapDiff = function ( first, second ) {
+		var out = {};
 
-		for ( var key in newData ) {
-			if ( key in oldData ) {
+		for ( var key in first ) {
+			if ( second.hasOwnProperty(key) ) {
+				if ( first.hasOwnProperty(key) ) {
+					var firstArr = first[key],
+						secondArr = second[key],
+						out;
+					out = arrayDiff(firstArr, secondArr);
+
+
+				}
+			}
+		}
+	};
 				var newArr = newData[key];
 				var oldArr = oldData[key];
 
@@ -100,6 +109,6 @@ vocab.utils = (function () {
 	return {
 		mergeMaps : mergeMaps,
 		arrayDiff : arrayDiff,
-		dataDifference : dataDifference
+		arrayMapDiff : arrayMapDiff
 	};
 }());
