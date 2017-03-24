@@ -122,7 +122,7 @@ class ResearchArea(RABObject):
 
 	def update(self, new_data):
 		valid = self._validate(new_data)
-        payload = { self.uri: valid }
+		payload = { self.uri: valid }
 		headers = { 'If-Match': self.etag, 'Content-Type': 'application/json' }
 		resp = requests.put(self.rab_api + self.id, data=json.dumps(payload), headers=headers)
 		if resp.status_code == 200:
@@ -131,8 +131,7 @@ class ResearchArea(RABObject):
 			rab_uri = data.keys()[0]
 			assert rab_uri == self.uri
 			self.load_data(data)
-		else:
-			raise Exception(resp.text)
+		return resp
 
 	def __init__(self, uri=None, id=None, existing=True):
 		super(ResearchArea, self).__init__(uri=uri, id=id, existing=existing)
