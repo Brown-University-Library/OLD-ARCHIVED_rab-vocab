@@ -17,24 +17,35 @@ def main():
 	return render_template('vocab.html')
 
 
-@app.route('/stats/')
-def stats():
+@app.route('/counts/')
+def counts():
 	resp = requests.get('http://dvivocit1.services.brown.edu/rabdata/vocab/')
 	data = resp.json()
 	terms = [ (d[obj]['label'][0], obj)for d in data for obj in d ]
 	atoms = [ (re.split('\W+', t[0].lower()), t[0], t[1]) for t in terms ]
 	freqs = collections.Counter()
+	for atom in atoms:
+		for a in atom[0]:
+			freqs[a] += 1
+	sort_freqs = freqs.most_common()
+	merge = [ { 'particle': a[0], 'count': a[1] } for a in sort_freqs ]
+	return render_template('stats.html', data=merge)
+
+@app.route('/particles/<particle>')
+def particles(particle):
+	resp = requests.get('http://dvivocit1.services.brown.edu/rabdata/vocab/')
+	data = resp.json()
+	terms = [ (d[obj]['label'][0], obj)for d in data for obj in d ]
+	atoms = [ (re.split('\W+', t[0].lower()), t[0], t[1]) for t in terms ]
 	rev = collections.defaultdict(list)
 	for atom in atoms:
 		for a in atom[0]:
 			rev[a].append(atom[2])
-			freqs[a] += 1
 	labels = { a[2]: a[1] for a in atoms }
-	sort_freqs = freqs.most_common()
-	merge = [ { 'particle': a[0] 'count': a[1],
-				'uri': rev[a[0]], 'full': labels[rev[a[0]]] } for a in sort_freqs ]
-	return render_template('stats.html', data=merge)
-
+	uris = rev[particle]
+	merge = [ { 'uri': uri, 'label': labels[uri] } for uri in uris ]
+	return render_template('particles.html', data=merge)
+	
 
 @app.route('/search/', methods=['GET'])
 def solr_search():
