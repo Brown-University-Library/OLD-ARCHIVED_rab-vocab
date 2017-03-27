@@ -2,6 +2,8 @@ import os
 import datetime
 import requests
 import json
+import re
+import collections
 
 from flask import request, render_template, jsonify, make_response
 from app import app
@@ -13,6 +15,25 @@ solr_url = app.config['SOLR_URL']
 @app.route('/')
 def main():
 	return render_template('vocab.html')
+
+
+@app.route('/stats/')
+def stats():
+	resp = requests.get('http://dvivocit1.services.brown.edu/rabdata/vocab/')
+	data = resp.json()
+	terms = [ (d[obj]['label'][0], obj)for d in data for obj in d ]
+	atoms = [ (re.split('\W+', t[0].lower()), t[0], t[1]) for t in terms ]
+	freqs = collections.Counter()
+	rev = collections.defaultdict(list)
+	for atom in atoms:
+		for a in atom[0]:
+			rev[a].append(atom[2])
+			freqs[a] += 1
+	labels = { a[2]: a[1] for a in atoms }
+	sort_freqs = freqs.most_common()
+	merge = [ { 'particle': a[0] 'count': a[1],
+				'uri': rev[a[0]], 'full': labels[rev[a[0]]] } for a in sort_freqs ]
+	return render_template('stats.html', data=merge)
 
 
 @app.route('/search/', methods=['GET'])

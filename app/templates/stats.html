@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>R@B Vocabulary Management</title>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+</head>
+<body>
+	<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
+	<table>
+		{% for row in data %}
+			<tr>
+				<td>
+					<span>{{ row.particle }}</span>
+				</td>
+				<td>
+					<span>{{row.count }}</span>
+				</td>
+				<td>
+					<span>{{row.particle.full }}</span>
+				</td>
+				<td>
+					<a href="{{ row.uri }}">{{ row.uri }}</span>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+</body>
+</html>
