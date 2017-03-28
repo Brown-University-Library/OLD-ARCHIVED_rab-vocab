@@ -7,7 +7,7 @@ import collections
 
 from flask import request, render_template, jsonify, make_response
 from app import app
-from app.models import rab
+from app.models import rab, queries
 
 
 solr_url = app.config['SOLR_URL']
@@ -17,19 +17,29 @@ def main():
 	return render_template('vocab.html')
 
 
-@app.route('/counts/')
-def counts():
+@app.route('/dashboard/')
+def dashboard():
 	resp = requests.get('http://dvivocit1.services.brown.edu/rabdata/vocab/')
 	data = resp.json()
 	terms = [ (d[obj]['label'][0], obj)for d in data for obj in d ]
 	atoms = [ (re.split('\W+', t[0].lower()), t[0], t[1]) for t in terms ]
+	faculty_counts = queries.vocabulary_faculty_counts()
+	rev = collections.defaultdict(list)
 	freqs = collections.Counter()
+	labels = {}
 	for atom in atoms:
+		labels[atom[2]] = atom[1]
 		for a in atom[0]:
+			rev[a].append(atom[2])
 			freqs[a] += 1
+			if atom[2] not in faculty_counts:
+				faculty_counts[atom[2]] = 0
 	sort_freqs = freqs.most_common()
-	merge = [ { 'particle': a[0], 'count': a[1] } for a in sort_freqs ]
-	return render_template('stats.html', data=merge)
+	merge = [ { 'particle': a[0], 'count': a[1],
+			'terms': [ {'uri': uri, 'label': labels[uri],
+					'count':faculty_counts[uri] }
+						for uri in rev[a[0]] ] } for a in sort_freqs ]
+	return render_template('dashboard.html', data=merge)
 
 @app.route('/particles/<particle>')
 def particles(particle):
