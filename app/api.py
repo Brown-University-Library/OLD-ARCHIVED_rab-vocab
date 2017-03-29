@@ -2,12 +2,11 @@ import os
 import datetime
 import requests
 import json
-import re
-import collections
+
 
 from flask import request, render_template, jsonify, make_response
 from app import app
-from app.models import rab, queries
+from app.models import rab, vocab
 
 
 solr_url = app.config['SOLR_URL']
