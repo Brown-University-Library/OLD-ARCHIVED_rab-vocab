@@ -151,6 +151,11 @@ class Data(object):
                         dept_faccount, on='dept_uri', how='left') \
                         .merge(dept_termcount, on='dept_uri', how='left')
         dept_summ.columns = [ 'dept_uri', 'dept_label', 'fac_count', 'term_count' ]
+        dept_summ['dept_avg'] = dept_summ.apply(
+                                    lambda row: round(
+                                        float(row['term_count']) / row['fac_count'],
+                                        2),
+                                    axis=1)
         return dept_summ.to_dict('records')
 
     def faculty_summary(self):

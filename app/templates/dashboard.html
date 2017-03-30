@@ -8,33 +8,6 @@
 	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
 	<!--<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>-->
 	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
-	<style>
-	.count {
-		  display: inline-block;
-		  min-width: 10px;
-		  padding: 3px 7px;
-		  font-size: 12px;
-		  font-weight: bold;
-		  line-height: 1;
-		  color: #fff;
-		  text-align: center;
-		  white-space: nowrap;
-		  vertical-align: middle;
-		  background-color: #777;
-		  border-radius: 10px;
-		  margin-left: 5px;
-		}
-	.count:empty {
-	  display: none;
-	}
-
-	.sort1 {
-		z-index: 1;
-	}
-	.sort2 {
-		z-index: 1;
-	}
-	</style>
 </head>
 <body>
 	<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
@@ -47,14 +20,16 @@
 						<td>Department</td>
 						<td><button class='dept-fac-sort' data-order='asc'>Faculty</button></td>
 						<td><button class='dept-term-sort' data-order='asc'>Terms</button></td>
+						<td><button class='dept-term-avg-sort' data-order='asc'>Avg</button></td>
 					</tr>
 				</thead>
 				<tbody class="dept-sort-list">
 				{% for row in data.depts %}
-					<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.term_count }}">
+					<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.term_count }}" data-dept-term-avg-cnt="{{ row.dept_avg }}">
 						<td><a href=" {{ row.dept_uri }} ">{{ row.dept_label }}</a></td>
-						<td>{{row.fac_count }}</td>
-						<td>{{row.term_count }}</td>
+						<td>{{ row.fac_count }}</td>
+						<td>{{ row.term_count }}</td>
+						<td>{{ row.dept_avg }}</td>
 					</tr>
 				{% endfor %}
 				</tbody>
@@ -111,13 +86,18 @@
 			    });
 			 });
 
-			function sortCount(arg, sel, elem, order) {
+			function sortCount(arg, sel, elem, order, float=false) {
 			    var $selector = $(sel),
 			        $element = $selector.children(elem);
 
 			    $element.sort(function(a, b) {
-			        var an = parseInt(a.getAttribute(arg)),
-			        bn = parseInt(b.getAttribute(arg));
+			    	if (float) {
+			    		var an = parseFloat(a.getAttribute(arg)),
+			        	bn = parseFloat(b.getAttribute(arg));
+			    	} else {
+				        var an = parseInt(a.getAttribute(arg)),
+				        bn = parseInt(b.getAttribute(arg));
+				    }
 
 			        if (order == 'asc') {
 			            if (an > bn)
@@ -144,6 +124,11 @@
 			$(document).on('click', '.dept-term-sort', function() {
 				var order = $(this).attr('data-order');
 			    sortCount('data-dept-term-cnt', '.dept-sort-list', 'tr', order);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.dept-term-avg-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-term-avg-cnt', '.dept-sort-list', 'tr', order, true);
 			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
 			});
 			$(document).on('click', '.fac-term-sort', function() {
