@@ -10,6 +10,10 @@ query_endpoint = app.config['VIVO_ENDPOINT']
 sparql = SPARQLWrapper(query_endpoint)
 sparql.setReturnFormat(JSON)
 
+##Need to add validity checks;
+##Discrepancies appear in affiliation counts
+##See dept_summary vs SPARQL query for Pediatrics
+
 def faculty_terms_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -130,18 +134,19 @@ class Data(object):
             data=faculty_data(), columns=['fac_uri', 'fac_label'])
         self.departments = pd.DataFrame(
             data=department_data(), columns=['dept_uri', 'dept_label'])
-        self.interests = pd.DataFrame(
+        self.faculty_terms = pd.DataFrame(
             data=faculty_terms_data(), columns=['fac_uri', 'term_uri'])
-        self.affiliations = pd.DataFrame(
+        self.faculty_departments = pd.DataFrame(
             data=faculty_affiliations_data(), columns=['fac_uri', 'dept_uri'])
+        self.department_terms = self.faculty_departments.merge(
+                                    self.faculty_terms, on='fac_uri', how='left' ) \
+                                    .drop('fac_uri', 1)
 
-    def summary(self):
-        dept_aff = self.departments.merge(
-                                self.affiliations, on='dept_uri', how='left')
-        dept_faccount = dept_aff.groupby('dept_uri').size().reset_index()
-        dept_termcount = dept_aff.merge(
-                                self.interests, on='fac_uri', how='left') \
-                             .groupby('dept_uri').size().reset_index()
+    def department_summary(self):
+        dept_faccount = self.faculty_departments.groupby('dept_uri') \
+                            .size().reset_index()
+        dept_termcount = self.department_terms.drop_duplicates() \
+                            .groupby('dept_uri').size().reset_index()
         dept_summ = self.departments.merge(
                         dept_faccount, on='dept_uri', how='left') \
                         .merge(dept_termcount, on='dept_uri', how='left')
