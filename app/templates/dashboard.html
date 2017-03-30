@@ -4,19 +4,32 @@
 	<title>R@B Vocabulary Management</title>
 	<meta charset="utf-8">
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
+	<!--<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>-->
+	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
 </head>
 <body>
 	<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
-	<ul>
-		{% for row in data %}
-			<li><a href="http://dvivocit1.services.brown.edu/rabvocab/particles/{{row.particle}}">{{ row.particle }}</a><span>{{row.count }}</span>
-				<ul>
-				{% for term in row.terms %}
-					<li><a href="{{ term.uri }}">{{ term.label }}</a><span>{{ term.count }}</span></li>
-				{% endfor %}
-				</ul>
+		<h3>Departments</h3>
+		<ul>
+		{% for row in data.depts %}
+			<li><a href=" {{row.dept_uri}} ">{{ row.dept_label }}</a><span>{{row.fac_count }}</span><span>{{row.fac_count }}</span>
 			</li>
 		{% endfor %}
-	</ul>
+		</ul>
+		<h3>Faculty</h3>
+		<ul>
+		{% for row in data.faculty %}
+			<li><a href=" {{row.fac_uri}} ">{{ row.fac_label }}</a><span>{{row.term_count }}</span>
+			</li>
+		{% endfor %}
+		</ul>
+		<h3>Terms</h3>
+		<ul>
+		{% for row in data.terms %}
+			<li><a href=" {{row.term_uri}} ">{{ row.term_label }}</a><span>{{row.fac_count }}</span>
+			</li>
+		{% endfor %}
+		</ul>
 </body>
 </html>

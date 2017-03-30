@@ -150,5 +150,22 @@ class Data(object):
         dept_summ = self.departments.merge(
                         dept_faccount, on='dept_uri', how='left') \
                         .merge(dept_termcount, on='dept_uri', how='left')
-        dept_summ.columns = [ 'dept_uri', 'dept_label', 'fac_cnt', 'term_cnt' ]
+        dept_summ.columns = [ 'dept_uri', 'dept_label', 'fac_count', 'term_count' ]
         return dept_summ.to_dict('records')
+
+    def faculty_summary(self):
+        fac_termcount = self.faculty_terms.groupby('fac_uri') \
+                            .size().reset_index()
+        fac_summ = self.faculty.merge(
+                        fac_termcount, on='fac_uri', how='left')
+        fac_summ.columns = [ 'fac_uri', 'fac_label', 'term_count' ]
+        fac_summ['term_count'] = fac_summ['term_count'].fillna(0).astype(int)
+        return fac_summ.to_dict('records')
+
+    def term_summary(self):
+        term_faccount = self.faculty_terms.groupby('term_uri') \
+                            .size().reset_index()
+        term_summ = self.terms.merge(term_faccount, on='term_uri', how='left')
+        term_summ.columns = ['term_uri', 'term_label', 'fac_count']
+        term_summ['fac_count'] = term_summ['fac_count'].fillna(0).astype(int)
+        return term_summ.to_dict('records')
