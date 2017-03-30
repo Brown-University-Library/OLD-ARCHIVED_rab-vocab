@@ -4,16 +4,18 @@
 	<title>R@B Vocabulary Management</title>
 	<meta charset="utf-8">
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" href="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.css') }}">
 	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
 	<!--<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>-->
 	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
 </head>
 <body>
 	<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
+	<div class="top-accordion">
 		<h3>Departments</h3>
 		<ul>
 		{% for row in data.depts %}
-			<li><a href=" {{row.dept_uri}} ">{{ row.dept_label }}</a><span>{{row.fac_count }}</span><span>{{row.fac_count }}</span>
+			<li><a href=" {{row.dept_uri}} ">{{ row.dept_label }}</a><span>{{row.fac_count }}</span><span>{{row.term_count }}</span>
 			</li>
 		{% endfor %}
 		</ul>
@@ -31,5 +33,18 @@
 			</li>
 		{% endfor %}
 		</ul>
+	</div>
+
+		<script>
+			$(document).ready(function(){
+			    $(function(){
+			        $(".top-accordion").accordion({
+			            header: 'h3',
+			            heightStyle: 'content',
+			            collapsible: true
+			        });
+			    });
+			 });
+		</script>
 </body>
 </html>
