@@ -139,23 +139,36 @@ class Data(object):
         self.faculty_departments = pd.DataFrame(
             data=faculty_affiliations_data(), columns=['fac_uri', 'dept_uri'])
         self.department_terms = self.faculty_departments.merge(
-                                    self.faculty_terms, on='fac_uri', how='left' ) \
-                                    .drop('fac_uri', 1)
+                                    self.faculty_terms, on='fac_uri', how='inner' ) \
+                                    .drop('fac_uri', 1).drop_duplicates()
 
     def department_summary(self):
         dept_faccount = self.faculty_departments.groupby('dept_uri') \
                             .size().reset_index()
-        dept_termcount = self.department_terms.drop_duplicates() \
-                            .groupby('dept_uri').size().reset_index()
+        dept_uniqueterms = self.department_terms.groupby('dept_uri') \
+                            .size().reset_index()
+        fac_termcount = self.faculty_terms.groupby('fac_uri') \
+                            .size().reset_index()
+        dept_termcount = self.faculty_departments.merge(
+                            fac_termcount, on='fac_uri', how='left') \
+                            .fillna(0).drop('fac_uri',axis=1)
+        dept_mean = dept_termcount.groupby('dept_uri') \
+                        .mean().round(1).reset_index()
+        dept_median = dept_termcount.groupby('dept_uri') \
+                        .median().reset_index()
         dept_summ = self.departments.merge(
                         dept_faccount, on='dept_uri', how='left') \
-                        .merge(dept_termcount, on='dept_uri', how='left')
-        dept_summ.columns = [ 'dept_uri', 'dept_label', 'fac_count', 'term_count' ]
-        dept_summ['dept_avg'] = dept_summ.apply(
-                                    lambda row: round(
-                                        float(row['term_count']) / row['fac_count'],
-                                        2),
-                                    axis=1)
+                        .merge(dept_uniqueterms, on='dept_uri', how='left') \
+                        .merge(dept_mean, on='dept_uri', how='left') \
+                        .merge(dept_median, on='dept_uri', how='left')
+        dept_summ.columns = [   'dept_uri', 'dept_label',
+                                'fac_count', 'unique_terms',
+                                'mean', 'median']
+        # dept_summ['reusage'] = dept_summ.apply(
+        #                             lambda row: round(
+        #                                 float(row['term_count']) / row['unique_terms'],
+        #                                 2),
+        #                             axis=1)
         return dept_summ.to_dict('records')
 
     def faculty_summary(self):
