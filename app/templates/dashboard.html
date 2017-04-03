@@ -20,16 +20,19 @@
 						<td>Department</td>
 						<td><button class='dept-fac-sort' data-order='asc'>Faculty</button></td>
 						<td><button class='dept-term-sort' data-order='asc'>Terms</button></td>
-						<td><button class='dept-term-avg-sort' data-order='asc'>Avg</button></td>
+						<td><button class='dept-term-mean-sort' data-order='asc'>Mean</button></td>
+						<td><button class='dept-term-median-sort' data-order='asc'>Median</button></td>
 					</tr>
 				</thead>
 				<tbody class="dept-sort-list">
 				{% for row in data.depts %}
-					<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.term_count }}" data-dept-term-avg-cnt="{{ row.dept_avg }}">
+					<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.unique_terms }}" data-dept-term-mean="{{ row.mean }}"
+					data-dept-term-median="{{ row.median }}">
 						<td><a href=" {{ row.dept_uri }} ">{{ row.dept_label }}</a></td>
 						<td>{{ row.fac_count }}</td>
-						<td>{{ row.term_count }}</td>
-						<td>{{ row.dept_avg }}</td>
+						<td>{{ row.unique_terms }}</td>
+						<td>{{ row.mean }}</td>
+						<td>{{ row.median }}</td>
 					</tr>
 				{% endfor %}
 				</tbody>
@@ -126,9 +129,14 @@
 			    sortCount('data-dept-term-cnt', '.dept-sort-list', 'tr', order);
 			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
 			});
-			$(document).on('click', '.dept-term-avg-sort', function() {
+			$(document).on('click', '.dept-term-mean-sort', function() {
 				var order = $(this).attr('data-order');
-			    sortCount('data-dept-term-avg-cnt', '.dept-sort-list', 'tr', order, true);
+			    sortCount('data-dept-term-mean', '.dept-sort-list', 'tr', order, true);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.dept-term-median-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-term-median', '.dept-sort-list', 'tr', order, true);
 			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
 			});
 			$(document).on('click', '.fac-term-sort', function() {
