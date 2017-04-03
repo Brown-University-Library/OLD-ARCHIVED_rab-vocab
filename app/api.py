@@ -21,14 +21,20 @@ def main():
 def dashboard():
 	dash = stats.dashboard
 	dept_data = dash.department_summary()
-	fac_data = dash.faculty_summary()
-	term_data = dash.term_summary()
-	data = { 'depts': dept_data, 'faculty': fac_data, 'terms': term_data }
+	# fac_data = dash.faculty_summary()
+	# term_data = dash.term_summary()
+	# data = { 'depts': dept_data, 'faculty': fac_data, 'terms': term_data }
+	data = { 'depts': dept_data }
 	return render_template('dashboard.html', data=data)
 
 @app.route('/dashboard/reload/')
 def reload_dashboard():
 	stats.dashboard.load_data()
+
+@app.route('/dashboard/dept/<dept_id>')
+def department_details(dept_id):
+	dept_data = stats.dashboard.department_details(dept_id)
+	return render_template('department_detail.html', data=dept_data)
 
 @app.route('/particles/<particle>')
 def particles(particle):

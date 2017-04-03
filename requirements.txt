@@ -1,10 +1,13 @@
 appdirs==1.4.3
 click==6.7
+cycler==0.10.0
 Flask==0.12
+functools32==3.2.3.post2
 isodate==0.5.4
 itsdangerous==0.24
 Jinja2==2.9.5
 MarkupSafe==1.0
+matplotlib==2.0.0
 numpy==1.12.1
 packaging==16.8
 pandas==0.19.2
@@ -15,4 +18,5 @@ rdflib==4.2.2
 requests==2.13.0
 six==1.10.0
 SPARQLWrapper==1.8.0
+subprocess32==3.2.7
 Werkzeug==0.12.1
