@@ -158,6 +158,7 @@ class Stats(object):
         dept_summ = self.departments.merge(
                         dept_faccount, on='dept_uri', how='left') \
                         .merge(dept_uniqueterms, on='dept_uri', how='left') \
+                            .fillna(0) \
                         .merge(dept_mean, on='dept_uri', how='left') \
                         .merge(dept_median, on='dept_uri', how='left')
         dept_summ.columns = [   'dept_uri', 'dept_label',
