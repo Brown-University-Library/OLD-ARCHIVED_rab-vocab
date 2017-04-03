@@ -2,3 +2,4 @@
 venv/
 config/
 !config/template.py
+app/static/images/
