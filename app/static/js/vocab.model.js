@@ -19,13 +19,16 @@ vocab.model = (function () {
 		search_db, searchProto,
 		makeSearchResult, searchDataUpdate,
 		
+		dataDifference,
+		addInverseAttrs, removeInverseAttrs,
+		resetData,
+
 		initModule;
 
 	terms_db = TAFFY();
 	termProto = {
 		editing : false,
 		uri : null,
-		etag : null,
 		rabid : null,
 		label : null,
 		data : {
@@ -37,15 +40,127 @@ vocab.model = (function () {
 		}
 	};
 
+	dataDifference = function ( newData, oldData ) {
+		var 
+			addData = [],
+			removeData = [];
+
+		for ( var key in newData ) {
+			if ( key in oldData ) {
+				var newArr = newData[key];
+				var oldArr = oldData[key];
+
+				newArr.forEach( function( uri ) {
+					if (oldArr.indexOf( uri ) < 0) {
+						addData.push( { 'attr': key, 'uri': uri } );
+					}
+				});
+
+				oldArr.forEach( function( uri ) {
+					if (newArr.indexOf( uri ) < 0) {
+						removeData.push( { 'attr': key, 'uri': uri } );
+					}
+				});
+			}
+		}
+
+		return { 'add': addData, 'remove': removeData };
+	};
+
+	addInverseAttrs = function ( addData, rabid ) {
+
+		var
+		  out = [],
+		  editing = {};
+
+		addData.forEach( function( obj ) {
+			var inv;
+
+			if ( !( obj.uri in editing ) ) {
+				inv = terms_db({ uri : obj.uri }).first();
+				inv.data['label'] = [ inv.label ];
+				editing[ obj.uri ] = inv;
+			} else {
+				inv = editing[ obj.uri ];
+			}
+			
+
+			if ( obj.attr === 'broader' ) {
+				inv.data['narrower'].push(rabid);
+			} else if ( obj.attr === 'narrower' ) {
+				inv.data['broader'].push(rabid);
+			} else if ( obj.attr === 'related' ) {
+				inv.data['related'].push(rabid);
+			} else {
+				console.log( 'trouble', obj );
+				return;
+			}
+		});
+
+		for ( var uri in editing ) {
+			if ( 'rabid' in editing[uri] ) {
+				out.push( editing[uri] );
+			}
+		}
+
+		return out;
+	};
+
+	removeInverseAttrs = function ( rmvData, rabid ) {
+
+		var
+		  out = [],
+		  editing = {};
+
+		rmvData.forEach( function( obj ) {
+			var inv;
+
+			if ( !( obj.uri in editing ) ) {
+				inv = terms_db({ uri : obj.uri }).first();
+				inv.data['label'] = [ inv.label ];
+				editing[ obj.uri ] = inv;
+			} else {
+				inv = editing[ obj.uri ];
+			}
+			
+
+			if ( obj.attr === 'broader' ) {
+				var idx = inv.data['narrower'].indexOf(rabid);
+				inv.data['narrower'].splice(idx, 1);
+			} else if ( obj.attr === 'narrower' ) {
+				var idx = inv.data['broader'].indexOf(rabid);
+				inv.data['broader'].splice(idx, 1);
+			} else if ( obj.attr === 'related' ) {
+				var idx = inv.data['related'].indexOf(rabid);
+				inv.data['related'].splice(idx, 1);
+			} else {
+				console.log( 'trouble', obj );
+				return;
+			}
+		});
+
+		for ( var uri in editing ) {
+			if ( 'rabid' in editing[uri] ) {
+				out.push( editing[uri] );
+			}
+		}
+
+		return out;
+	};
+
+	resetData = function () {
+		terms_db = TAFFY();
+		search_db = TAFFY();
+	};
+
 	makeTerm = function ( term_data ) {
 		var term, key, existing;
 
 		term = Object.create( termProto );
 
 		term.uri = term_data.uri;
-		term.rabid = term.uri.substring(configMap.resource_base.length);
-		term.label = term_data.label[0];
-		term.etag = term_data.etag;
+		term.rabid = term_data.id;
+		term.label = term_data.display;
 		term.editing = false;
 		term.data = {
 			broader : [],
@@ -55,8 +170,8 @@ vocab.model = (function () {
 			alternative : []
 		};
 		for ( key in term.data ) {
-			if ( key in term_data ) {
-				term.data[key] = term_data[key];
+			if ( key in term_data.data ) {
+				term.data[key] = term_data.data[key];
 			}
 		}
 		
@@ -65,15 +180,10 @@ vocab.model = (function () {
 	};
 
 	termDataUpdate = function ( dataArray ) {
-		var
-			term_data, term,
-			existing_term, key;
 
-		dataArray.forEach( function( serv_data ) {
-			term_data = serv_data.data;
-			term_data.uri = serv_data.uri;
-			term_data.etag = serv_data.etag;
-			
+		dataArray.forEach( function( term_data ) {
+			var term, existing_term;
+
 			existing_term = terms_db({ uri : term_data.uri }).first();
 			if ( existing_term !== false ) {
 				if ( existing_term.editing === false ) {
@@ -109,12 +219,10 @@ vocab.model = (function () {
 	};
 
 	searchDataUpdate = function ( dataArray, searchTerm ) {
-		var term_data, new_term, existing_term,
-				new_search_result, existing_match;
 
-		dataArray.forEach( function( serv_data ) {
-			term_data = serv_data.data;
-			term_data.uri = serv_data.uri;
+		dataArray.forEach( function( term_data ) {
+			var new_term, existing_term,
+				new_search_result, existing_match;
 			
 			existing_term = terms_db({ uri : term_data.uri }).first();
 			if ( existing_term === false ) {
@@ -131,35 +239,42 @@ vocab.model = (function () {
 
 	search_terms = function ( termQuery ) {
 		vocab.data.solr.search( termQuery, function ( resp ) {
-				var matches;
 				searchDataUpdate( resp, termQuery );
 				$( window ).trigger('searchComplete', termQuery );
 		});
 	};
 
 	describe_term = function ( rabid ) {
-		var linked_attributes;
-
-		linked_attributes = ['broader','narrower','related'];
-		vocab.data.rest.describe( rabid, linked_attributes, function( resp ) {
+		vocab.data.rest.describe( rabid, function( resp ) {
 			termDataUpdate( resp );
 			$( window ).trigger('termDescribed', rabid);
 		});
 	};
 
 	update_term = function ( rabid, update ) {
-		var existing, attr;
+		var
+		  existing, diff,
+		  add_inverse, del_inverse,
+		  out;
 
 		existing = terms_db({ rabid : rabid }).first();
 
+		diff = dataDifference( update.data, existing.data );
+
+		add_inverse = addInverseAttrs( diff.add, existing.uri );
+		del_inverse = removeInverseAttrs( diff.remove, existing.uri );
+
 		update.uri = existing.uri;
 		update.rabid = existing.rabid;
-		update.etag = existing.etag;
+		update.data['label'] = [ update.label ];
+
+		out = add_inverse.concat(del_inverse)
+		out.push(update);
 
 		terms_db({ rabid : existing.rabid }).update({ editing : false});
 
-		vocab.data.rest.update( update, function( resp ) {
-			termDataUpdate( resp );
+		vocab.data.rest.update( out, function( resp ) {
+			resetData();
 			$( window ).trigger('termUpdated', rabid);
 		});
 	};

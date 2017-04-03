@@ -6,7 +6,7 @@ vocab.search = (function () {
 				+ '<div class="search">'
 					+ '<div class="search-ctrl">'
 						+ '<input class="search-input ui-autocomplete-input" type="text" />'
-						+ '<button type="button" class="search-submit btn btn-success">Search</button>'
+						+ '<button type="button" class="search-submit btn btn-primary">Search</button>'
 						+ '<button type="button" class="search-reset btn btn-warning">Reset</button>'
 					+ '</div>'
 					+ '<div class="search-results">'

@@ -128,27 +128,12 @@ vocab.data = (function () {
 			search;
 
 		search = function ( term, callback ) {
-			var
-				i,
-				search_res, results,
-				data, servData,
-				endpoint = configMap.search_base,
-				query_url = endpoint + "?query=" + term + "&type=vocab";
-			
-			get( query_url )
-			.then( function ( resp ) {
-				results = resp.data;
-				data = [];
-				for ( i = 0; i < results.length; i++ ) {
-					search_res = results[i];
-					servData = makeServiceData( search_res, [], resp.etag );
-					data.push(servData);
+			$.ajax({
+				dataType: "json",
+				url: configMap.search_base + "?query=" + term + "&type=vocab",
+				success: function( data ) {
+					callback( data );
 				}
-
-				return data;
-			})
-			.then( function ( data ) {
-				callback(data);
 			});
 		};
 
@@ -163,69 +148,25 @@ vocab.data = (function () {
 		var
 			find, update, describe;
 
-		describe = function ( rabid, links, callback ) {
-			var
-				out, linkedServData,
-				servData, res_links,
-				link_rabid, res_url,			
-				rest_url = configMap.rest_base + rabid;
-
-			out = [];
-
-			get( rest_url )
-			.then( function( resp ) {
-				servData = makeServiceData( resp.data, links, resp.etag );
-
-				res_links = [];
-				servData.links.forEach( function (link) {
-					link_rabid = link.substring(configMap.resource_base.length);
-					res_url = configMap.rest_base + link_rabid;
-					res_links.push(res_url);
-				});
-
-				out.push(servData);
-
-				return Promise.all(
-					res_links.map( get )
-				);
-			})
-			.then( function (resps) {
-				resps.forEach( function ( resp ) {
-					linkedServData = makeServiceData( resp.data, links, resp.etag );
-					out.push(linkedServData);
-				});
-			})
-			.then( function () {
-				callback( out );
+		describe = function ( rabid, callback ) {
+			$.ajax({
+				dataType: "json",
+				url: configMap.rest_base + 'describe/' + rabid,
+				success: function( data ) {
+					callback( data );
+				}
 			});
 		};
 
-		update = function ( termObj, callback ) {
-			var
-				rest_url, etag,
-				data, uri, graph,
-				payload;
-
-			rest_url = configMap.rest_base + termObj.rabid;
-			etag = termObj.etag;
-
-			data = termObj.data;
-			data.label = [termObj.label];
-			data.class = ['http://www.w3.org/2004/02/skos/core#Concept'];
-
-			uri = termObj.uri;
-			graph = {};
-			graph[uri] = data;
-			payload = JSON.stringify(graph);
-
-			put( rest_url, payload, etag )
-			.then( function( resp ) {
-				servData = makeServiceData( resp.data, [], resp.etag );
-
-				return [servData];
-			})
-			.then( function ( out ) {
-				callback( out );
+		update = function ( updateArray, callback ) {
+			$.ajax({
+				data: JSON.stringify(updateArray),
+				method: 'PUT',
+				contentType: 'application/json',
+				url: configMap.rest_base + 'update/',
+				success: function( data ) {
+					callback( data );
+				}
 			});
 		};
 

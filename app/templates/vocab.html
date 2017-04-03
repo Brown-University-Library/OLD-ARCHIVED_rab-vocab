@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>R@B Vocabulary Management</title>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<!-- 	<link rel="stylesheet" href="lib/jquery-ui-1.12.1/jquery-ui.min.css">
+	<link rel="stylesheet" href="lib/jquery-ui-1.12.1/jquery-ui.structure.min.css">
+	<link rel="stylesheet" href="lib/jquery-ui-1.12.1/jquery-ui.theme.min.css"> -->
+	<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-3.3.7-dist/css/bootstrap.min.css') }}">
+	<!--<link rel="stylesheet" href="lib/jquery-ui-bootstrap/jquery-ui-1.10.0.custom.css">-->
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.shell.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.search.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.details.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.edit.css') }}">
+	
+	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
+	<!--<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>-->
+	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='lib/taffydb/taffy.js') }}"></script>
+
+	<script src="{{ url_for('static', filename='js/vocab.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.config.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.utils.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.data.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.model.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.shell.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.search.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.details.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/vocab.edit.js') }}"></script>
+	<script>
+		$(function () { vocab.initModule( $('.vocab') ); });
+	</script>
+</head>
+<body>
+	<div class="vocab"></div>
+</body>
+</html>

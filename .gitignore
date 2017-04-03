@@ -1,2 +1,4 @@
 *.pyc
-
+venv/
+config/
+!config/template.py
