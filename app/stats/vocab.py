@@ -117,7 +117,7 @@ def department_data():
                 for result in results["results"]["bindings"] })
     return out
 
-class Data(object):
+class Stats(object):
 
     def __init__(self):
         self.faculty = None
@@ -125,9 +125,8 @@ class Data(object):
         self.terms = None
         self.affiliations = None
         self.interests = None
-        self.load()
 
-    def load(self):
+    def load_data(self):
         self.terms = pd.DataFrame(
             data=term_data(), columns=['term_uri', 'term_label'])
         self.faculty = pd.DataFrame(

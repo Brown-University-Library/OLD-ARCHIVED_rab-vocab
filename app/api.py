@@ -6,7 +6,8 @@ import json
 
 from flask import request, render_template, jsonify, make_response
 from app import app
-from app.models import rab, vocab
+from app.models import rab
+from app import stats
 
 
 solr_url = app.config['SOLR_URL']
@@ -18,12 +19,16 @@ def main():
 
 @app.route('/dashboard/')
 def dashboard():
-	df = vocab.Data()
-	dept_data = df.department_summary()
-	fac_data = df.faculty_summary()
-	term_data = df.term_summary()
+	dash = stats.dashboard
+	dept_data = dash.department_summary()
+	fac_data = dash.faculty_summary()
+	term_data = dash.term_summary()
 	data = { 'depts': dept_data, 'faculty': fac_data, 'terms': term_data }
 	return render_template('dashboard.html', data=data)
+
+@app.route('/dashboard/reload/')
+def reload_dashboard():
+	stats.dashboard.load_data()
 
 @app.route('/particles/<particle>')
 def particles(particle):
