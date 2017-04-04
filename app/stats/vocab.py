@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')
+
 from SPARQLWrapper import SPARQLWrapper, JSON
 import re
 import collections
