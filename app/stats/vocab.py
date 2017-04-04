@@ -3,11 +3,13 @@ import re
 import collections
 import pandas as pd
 import os
+import csv
 
 from app import app
 
 query_endpoint = app.config['VIVO_ENDPOINT']
 viz_dir = app.config['VISUALS_DIR']
+data_dir = app.config['STATS_DATA_DIR']
 
 sparql = SPARQLWrapper(query_endpoint)
 sparql.setReturnFormat(JSON)
@@ -17,7 +19,7 @@ sparql.setReturnFormat(JSON)
 ##Discrepancies appear in affiliation counts
 ##See dept_summary vs SPARQL query for Pediatrics
 
-def faculty_terms_data():
+def query_faculty_terms_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX vivo: <http://vivoweb.org/ontology/core#>
@@ -40,7 +42,7 @@ def faculty_terms_data():
                 for result in results["results"]["bindings"] ]
     return out
 
-def faculty_affiliations_data():
+def query_faculty_affiliations_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX vivo: <http://vivoweb.org/ontology/core#>
@@ -59,7 +61,7 @@ def faculty_affiliations_data():
                 for result in results["results"]["bindings"] ]
     return out
 
-def term_data():
+def query_term_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX vivo: <http://vivoweb.org/ontology/core#>
@@ -82,7 +84,7 @@ def term_data():
                     for result in results["results"]["bindings"] })
     return out
 
-def faculty_data():
+def query_faculty_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX vivo: <http://vivoweb.org/ontology/core#>
@@ -105,7 +107,7 @@ def faculty_data():
                     for result in results["results"]["bindings"] })
     return out
 
-def department_data():
+def query_department_data():
     sparql.setQuery("""
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
         PREFIX vivo: <http://vivoweb.org/ontology/core#>
@@ -129,6 +131,32 @@ def department_data():
                     for result in results["results"]["bindings"] })
     return out
 
+def write_query_results_csv(func, fName):
+    tuple_data = func()
+    with open( os.path.join(data_dir, fName + '.csv'), 'w+') as f:
+        wrtr = csv.writer(f)
+        for row in tuple_data:
+            wrtr.writerow( [ r.encode('utf-8') for r in row ] )
+
+def load_csv_data(fName):
+    out = []
+    with open( os.path.join(data_dir, fName + '.csv'), 'rb') as f:
+        rdr = csv.reader(f)
+        for row in rdr:
+            out.append(row)
+    return out
+
+def download_data():
+    jobs = [    (query_term_data, 'terms'),
+                (query_faculty_data, 'faculty'),
+                (query_department_data, 'departments'),
+                (query_faculty_terms_data, 'fac_terms'),
+                (query_faculty_affiliations_data, 'fac_depts')
+            ]
+    for job in jobs:
+        write_query_results_csv(job[0], job[1])
+
+
 class Stats(object):
 
     def __init__(self):
@@ -139,16 +167,21 @@ class Stats(object):
         self.interests = None
 
     def load_data(self):
+        term_data = load_csv_data('terms')
+        faculty_data = load_csv_data('faculty')
+        department_data = load_csv_data('departments')
+        faculty_terms_data = load_csv_data('fac_terms')
+        faculty_departments_data = load_csv_data('fac_depts')
         self.terms = pd.DataFrame(
-            data=term_data(), columns=['term_uri', 'term_label', 'term_id'])
+            data=term_data, columns=['term_uri', 'term_label', 'term_id'])
         self.faculty = pd.DataFrame(
-            data=faculty_data(), columns=['fac_uri', 'fac_label', 'fac_id'])
+            data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id'])
         self.departments = pd.DataFrame(
-            data=department_data(), columns=['dept_uri', 'dept_label', 'dept_id'])
+            data=department_data, columns=['dept_uri', 'dept_label', 'dept_id'])
         self.faculty_terms = pd.DataFrame(
-            data=faculty_terms_data(), columns=['fac_uri', 'term_uri'])
+            data=faculty_terms_data, columns=['fac_uri', 'term_uri'])
         self.faculty_departments = pd.DataFrame(
-            data=faculty_affiliations_data(), columns=['fac_uri', 'dept_uri'])
+            data=faculty_departments_data, columns=['fac_uri', 'dept_uri'])
         self.department_terms = self.faculty_departments.merge(
                                     self.faculty_terms, on='fac_uri', how='inner' ) \
                                     .drop('fac_uri', 1).drop_duplicates()
@@ -209,7 +242,6 @@ class Stats(object):
         figure.savefig(os.path.join(viz_dir, 'dept_viz_'+dept_row[2]+'.png'))
         figure.clear()
         return { 'uri': dept_row[0], 'label': dept_row[1], 'id': dept_row[2] }
-
 
     def faculty_summary(self):
         fac_termcount = self.faculty_terms.groupby('fac_uri') \
