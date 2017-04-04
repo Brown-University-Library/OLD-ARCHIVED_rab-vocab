@@ -238,6 +238,7 @@ class Stats(object):
                             labels=['0','1-3','4-8','9-14','15+'])
         hrz_bar = fac_summ['bins'].value_counts() \
                 .reindex(['0','1-3','4-8','9-14','15+']).plot(kind='barh')
+        hrz_bar.set(xlabel='# of Faculty Members', ylabel='# of Terms')
         figure = hrz_bar.get_figure()
         figure.savefig(os.path.join(viz_dir, 'dept_viz_'+dept_row[2]+'.png'))
         figure.clear()
