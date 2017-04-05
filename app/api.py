@@ -4,7 +4,7 @@ import requests
 import json
 
 
-from flask import request, render_template, jsonify, make_response
+from flask import request, render_template, jsonify, make_response, url_for
 from app import app
 from app.models import rab
 from app.stats import vocab
@@ -14,17 +14,18 @@ vdash = vocab.Stats()
 
 @app.route('/')
 def main():
-	return render_template('vocab.html')
+	config = {
+				'search_base': url_for('solr_search'),
+				'rest_base': url_for('main')
+			}
+	return render_template('home.html', config=config)
 
-@app.route('/dashboard/')
-def dashboard():
+@app.route('/depts/')
+def dept_dashboard():
 	vdash.load_data()
 	dept_data = vdash.department_summary()
-	# fac_data = dash.faculty_summary()
-	# term_data = dash.term_summary()
-	# data = { 'depts': dept_data, 'faculty': fac_data, 'terms': term_data }
 	data = { 'depts': dept_data }
-	return render_template('dashboard.html', data=data)
+	return render_template('dashboard_depts.html', data=data)
 
 @app.route('/dashboard/reload/')
 def reload_dashboard():

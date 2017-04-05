@@ -1,43 +1,33 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<title>R@B Vocabulary Management</title>
-	<meta charset="utf-8">
-	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-	<link rel="stylesheet" href="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.css') }}">
-	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
-	<!--<script src="lib/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>-->
-	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
-</head>
-<body>
-	<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
-	<div class="top-accordion">
-		<h3>Departments</h3>
-		<div>
-			<table>
-				<thead>
-					<tr>
-						<td>Department</td>
-						<td><button class='dept-fac-sort' data-order='asc'>Faculty</button></td>
-						<td><button class='dept-term-sort' data-order='asc'>Terms</button></td>
-						<td><button class='dept-term-mean-sort' data-order='asc'>Mean</button></td>
-						<td><button class='dept-term-median-sort' data-order='asc'>Median</button></td>
-					</tr>
-				</thead>
-				<tbody class="dept-sort-list">
-				{% for row in data.depts %}
-					<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.unique_terms }}" data-dept-term-mean="{{ row.mean }}"
-					data-dept-term-median="{{ row.median }}">
-						<td><a href="{{ url_for( 'department_details', dept_id=row.dept_id) }}">{{ row.dept_label }}</a></td>
-						<td>{{ row.fac_count }}</td>
-						<td>{{ row.unique_terms }}</td>
-						<td>{{ row.mean }}</td>
-						<td>{{ row.median }}</td>
-					</tr>
-				{% endfor %}
-				</tbody>
-			</table>
-		</div>
+{% extends "base.html" %}
+{% blcok body %}
+<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
+<div class="top-accordion">
+	<h3>Departments</h3>
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<td>Department</td>
+					<td><button class='dept-fac-sort' data-order='asc'>Faculty</button></td>
+					<td><button class='dept-term-sort' data-order='asc'>Terms</button></td>
+					<td><button class='dept-term-mean-sort' data-order='asc'>Mean</button></td>
+					<td><button class='dept-term-median-sort' data-order='asc'>Median</button></td>
+				</tr>
+			</thead>
+			<tbody class="dept-sort-list">
+			{% for row in data.depts %}
+				<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.unique_terms }}" data-dept-term-mean="{{ row.mean }}"
+				data-dept-term-median="{{ row.median }}">
+					<td><a href="{{ url_for( 'department_details', dept_id=row.dept_id) }}">{{ row.dept_label }}</a></td>
+					<td>{{ row.fac_count }}</td>
+					<td>{{ row.unique_terms }}</td>
+					<td>{{ row.mean }}</td>
+					<td>{{ row.median }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
 <!-- 		<h3>Faculty</h3>
 		<div>
 			<table>
@@ -76,7 +66,7 @@
 				</tbody>
 			</table>
 		</div> -->
-	</div>
+</div>
 
 		<script>
 			$(document).ready(function(){

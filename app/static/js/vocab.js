@@ -1,7 +1,7 @@
 var vocab = (function () {
 	'use strict';
-	var initModule = function ( $container ) {
-		vocab.data.configModule( vocab.config.dev );
+	var initModule = function ( $container, config ) {
+		vocab.data.configModule( config );
 
 		vocab.data.initModule();
 		vocab.model.initModule();

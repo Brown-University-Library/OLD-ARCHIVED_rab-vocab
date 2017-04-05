@@ -15,8 +15,8 @@ vocab.config = (function () {
 
 	local = (function () {
 		var
-			search_base = 'http://localhost:8000/search/',
-			rest_base = 'http://localhost:8000/vocab/'
+			search_base = 'http://localhost:5000/search/',
+			rest_base = 'http://localhost:5000/vocab/'
 
 		return {
 			search_base : search_base,

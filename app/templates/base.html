@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% block head %}
+	<title>R@B Vocabulary Management</title>
+	<meta charset="utf-8">
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	{% block styles %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='lib/bootstrap-3.3.7-dist/css/bootstrap.min.css') }}">
+	{% endblock %}
+	
+	{% block scripts %}	
+	<script src="{{ url_for('static', filename='lib/jquery/jquery-3.1.1.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='lib/jquery-ui-1.12.1/jquery-ui.min.js') }}"></script>
+	{% endblock %}
+	{% endblock %}
+</head>
+<body>
+	{% block body %}
+	{% endblock %}
+</body>
+</html>
