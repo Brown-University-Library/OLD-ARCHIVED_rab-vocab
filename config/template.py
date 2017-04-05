@@ -1,6 +1,12 @@
 import os
-app_root = os.path.abspath(__file__ + "/../../")
 
+#APP DIRS
+APP_ROOT = os.path.abspath(__file__ + "/../../")
+VISUALS_DIR = os.path.join(APP_ROOT, 'app/static/images')
+STATS_DATA_DIR = os.path.join(APP_ROOT, 'app/stats/data')
+
+#API ENDPOINTS
 APP_BASE = ''
 REST_BASE = ''
 SOLR_URL = ''
+VIVO_ENDPOINT = ''
