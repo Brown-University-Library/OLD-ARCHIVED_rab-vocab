@@ -27,6 +27,11 @@
 {% endblock %}
 
 {% block body %}
+<div class="dashboard">
+<h3>Statistics</h3>
+<a href="{{ url_for('dept_dashboard') }}">Departments</a>
+<a href="{{ url_for('terms_dashboard') }}">Terms</a>
+</div>
 <div class="vocab"></div>
 <script>
 	$(function () { vocab.initModule( $('.vocab'), {{ config|tojson }} ); });

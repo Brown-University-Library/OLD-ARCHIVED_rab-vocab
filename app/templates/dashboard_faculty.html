@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% blcok body %}
+<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
+<div class="top-accordion">
+	<h3>Departments</h3>
+	<div>
+		<table>
+			<thead>
+				<tr>
+					<td>Department</td>
+					<td><button class='dept-fac-sort' data-order='asc'>Faculty</button></td>
+					<td><button class='dept-term-sort' data-order='asc'>Terms</button></td>
+					<td><button class='dept-term-mean-sort' data-order='asc'>Mean</button></td>
+					<td><button class='dept-term-median-sort' data-order='asc'>Median</button></td>
+				</tr>
+			</thead>
+			<tbody class="dept-sort-list">
+			{% for row in data.depts %}
+				<tr data-dept-fac-cnt="{{ row.fac_count }}" data-dept-term-cnt="{{row.unique_terms }}" data-dept-term-mean="{{ row.mean }}"
+				data-dept-term-median="{{ row.median }}">
+					<td><a href="{{ url_for( 'department_details', dept_id=row.dept_id) }}">{{ row.dept_label }}</a></td>
+					<td>{{ row.fac_count }}</td>
+					<td>{{ row.unique_terms }}</td>
+					<td>{{ row.mean }}</td>
+					<td>{{ row.median }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+<!-- 		<h3>Faculty</h3>
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<td>Faculty</td>
+						<td><button class='fac-term-sort' data-order='asc'>Terms</button></td>
+					</tr>
+				</thead>
+				<tbody class="fac-sort-list">
+				{% for row in data.faculty %}
+					<tr data-fac-term-cnt="{{ row.term_count }}">
+						<td><a href=" {{row.fac_uri}} ">{{ row.fac_label }}</a></td>
+						<td>{{row.term_count }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<h3>Terms</h3>
+		<div>
+			<table>
+				<thead>
+					<tr>
+						<td>Terms</td>
+						<td><button class='term-fac-sort' data-order='asc'>Faculty</button></td>
+					</tr>
+				</thead>
+				<tbody class="term-sort-list">
+				{% for row in data.terms %}
+					<tr data-term-fac-cnt="{{ row.fac_count }}">
+						<td><a href=" {{row.term_uri}} ">{{ row.term_label }}</a></td>
+						<td>{{row.fac_count }}</td>
+					</tr>
+				{% endfor %}
+				</tbody>
+			</table>
+		</div> -->
+</div>
+
+		<script>
+			$(document).ready(function(){
+			    $(function(){
+			        $(".top-accordion").accordion({
+			            header: 'h3',
+			            heightStyle: 'content',
+			            collapsible: true
+			        });
+			    });
+			 });
+
+			function sortCount(arg, sel, elem, order, float=false) {
+			    var $selector = $(sel),
+			        $element = $selector.children(elem);
+
+			    $element.sort(function(a, b) {
+			    	if (float) {
+			    		var an = parseFloat(a.getAttribute(arg)),
+			        	bn = parseFloat(b.getAttribute(arg));
+			    	} else {
+				        var an = parseInt(a.getAttribute(arg)),
+				        bn = parseInt(b.getAttribute(arg));
+				    }
+
+			        if (order == 'asc') {
+			            if (an > bn)
+			                return 1;
+			            if (an < bn)
+			                return -1;
+			        } else if (order == 'desc') {
+			            if (an < bn)
+			                return 1;
+			            if (an > bn)
+			                return -1;
+			        }
+			        return 0;
+			    });
+
+			    $element.detach().appendTo($selector);
+			}
+
+			$(document).on('click', '.dept-fac-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-fac-cnt', '.dept-sort-list', 'tr', order);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.dept-term-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-term-cnt', '.dept-sort-list', 'tr', order);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.dept-term-mean-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-term-mean', '.dept-sort-list', 'tr', order, true);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.dept-term-median-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-dept-term-median', '.dept-sort-list', 'tr', order, true);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.fac-term-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-fac-term-cnt', '.fac-sort-list', 'tr', order);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+			$(document).on('click', '.term-fac-sort', function() {
+				var order = $(this).attr('data-order');
+			    sortCount('data-term-fac-cnt', '.term-sort-list', 'tr', order);
+			    $(this).attr('data-order', order === 'asc' ? 'desc' : 'asc');
+			});
+		</script>
+</body>
+</html>

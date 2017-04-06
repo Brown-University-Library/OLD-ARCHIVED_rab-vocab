@@ -146,7 +146,7 @@ def load_csv_data(fName):
     with open( os.path.join(data_dir, fName + '.csv'), 'rb') as f:
         rdr = csv.reader(f)
         for row in rdr:
-            out.append(row)
+            out.append([ r.decode('utf-8') for r in row ])
     return out
 
 def download_data():
@@ -259,7 +259,13 @@ class Stats(object):
     def term_summary(self):
         term_faccount = self.faculty_terms.groupby('term_uri') \
                             .size().reset_index()
-        term_summ = self.terms.merge(term_faccount, on='term_uri', how='left')
-        term_summ.columns = ['term_uri', 'term_label', 'fac_count']
+        term_deptcount = self.department_terms.groupby('term_uri') \
+                            .size().reset_index()
+        term_summ = self.terms \
+                        .merge(term_faccount, on='term_uri', how='left') \
+                        .merge(term_deptcount, on='term_uri', how='left') 
+        term_summ.columns = [   'term_uri', 'term_label', 'term_id',
+                                'fac_count', 'dept_count']
         term_summ['fac_count'] = term_summ['fac_count'].fillna(0).astype(int)
+        term_summ['dept_count'] = term_summ['dept_count'].fillna(0).astype(int)
         return term_summ.to_dict('records')

@@ -11,6 +11,7 @@ from app.stats import vocab
 
 solr_url = app.config['SOLR_URL']
 vdash = vocab.Stats()
+vdash.load_data()
 
 @app.route('/')
 def main():
@@ -20,21 +21,31 @@ def main():
 			}
 	return render_template('home.html', config=config)
 
-@app.route('/depts/')
-def dept_dashboard():
-	vdash.load_data()
-	dept_data = vdash.department_summary()
-	data = { 'depts': dept_data }
-	return render_template('dashboard_depts.html', data=data)
-
 @app.route('/dashboard/reload/')
 def reload_dashboard():
 	vdash.load_data()
 
-@app.route('/dashboard/dept/<dept_id>')
+@app.route('/depts/')
+def dept_dashboard():
+	dept_data = vdash.department_summary()
+	data = { 'depts': dept_data }
+	return render_template('dashboard_depts.html', data=data)
+
+@app.route('/terms/')
+def terms_dashboard():
+	term_data = vdash.term_summary()
+	data = { 'terms': term_data }
+	return render_template('dashboard_terms.html', data=data)
+
+@app.route('/depts/<dept_id>')
 def department_details(dept_id):
 	dept_data = vdash.department_details(dept_id)
 	return render_template('department_detail.html', data=dept_data)
+
+@app.route('/terms/<term_id>')
+def term_details(term_id):
+	term_data = vdash.term_details(term_id)
+	return render_template('term_detail.html', data=term_data)
 
 @app.route('/particles/<particle>')
 def particles(particle):
