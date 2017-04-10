@@ -30,7 +30,9 @@
 <div class="dashboard">
 <h3>Statistics</h3>
 <a href="{{ url_for('dept_dashboard') }}">Departments</a>
-<a href="{{ url_for('terms_dashboard') }}">Terms</a>
+<a href="{{ url_for('terms_dashboard', term_group='withand' ) }}">Terms with "and"</a>
+<a href="{{ url_for('terms_dashboard', term_group='nonalpha' ) }}">Terms with non-alpha chars</a>
+<a href="{{ url_for('terms_dashboard', term_group='titlecase' ) }}">Uppercased terms</a>
 </div>
 <div class="vocab"></div>
 <script>

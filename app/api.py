@@ -31,9 +31,9 @@ def dept_dashboard():
 	data = { 'depts': dept_data }
 	return render_template('dashboard_depts.html', data=data)
 
-@app.route('/terms/')
-def terms_dashboard():
-	term_data = vdash.term_summary()
+@app.route('/terms/<term_group>')
+def terms_dashboard(term_group):
+	term_data = vdash.term_summary(term_group)
 	data = { 'terms': term_data }
 	return render_template('dashboard_terms.html', data=data)
 

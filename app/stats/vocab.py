@@ -160,6 +160,21 @@ def download_data():
         write_query_results_csv(job[0], job[1])
 
 
+## FILTERS
+def contains_nonalpha(d):
+    ptn = re.compile('[^a-zA-Z ]')
+    if re.search(ptn, d):
+        return True
+    else:
+        return False
+
+def contains_and(d):
+    if re.search(' and ', d):
+        return True
+    else:
+        return False
+
+
 class Stats(object):
 
     def __init__(self):
@@ -176,11 +191,14 @@ class Stats(object):
         faculty_terms_data = load_csv_data('fac_terms')
         faculty_departments_data = load_csv_data('fac_depts')
         self.terms = pd.DataFrame(
-            data=term_data, columns=['term_uri', 'term_label', 'term_id'])
+            data=term_data, columns=['term_uri', 'term_label', 'term_id']) \
+            .sort_values(by='term_label')
         self.faculty = pd.DataFrame(
-            data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id'])
+            data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id']) \
+            .sort_values(by='fac_label')
         self.departments = pd.DataFrame(
-            data=department_data, columns=['dept_uri', 'dept_label', 'dept_id'])
+            data=department_data, columns=['dept_uri', 'dept_label', 'dept_id']) \
+            .sort_values(by='dept_label')
         self.faculty_terms = pd.DataFrame(
             data=faculty_terms_data, columns=['fac_uri', 'term_uri'])
         self.faculty_departments = pd.DataFrame(
@@ -256,12 +274,19 @@ class Stats(object):
         fac_summ['term_count'] = fac_summ['term_count'].fillna(0).astype(int)
         return fac_summ.to_dict('records')
 
-    def term_summary(self):
+    def term_summary(self, term_group=None):
+        if term_group == 'titlecase':
+            func = unicode.istitle
+        elif term_group == 'withand':
+            func = contains_and
+        elif term_group == 'nonalpha':
+            func = contains_nonalpha
+        filtered = self.terms[ self.terms['term_label'].map(func) ]
         term_faccount = self.faculty_terms.groupby('term_uri') \
                             .size().reset_index()
         term_deptcount = self.department_terms.groupby('term_uri') \
                             .size().reset_index()
-        term_summ = self.terms \
+        term_summ = filtered \
                         .merge(term_faccount, on='term_uri', how='left') \
                         .merge(term_deptcount, on='term_uri', how='left') 
         term_summ.columns = [   'term_uri', 'term_label', 'term_id',
