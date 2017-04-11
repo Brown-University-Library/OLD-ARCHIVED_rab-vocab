@@ -174,8 +174,16 @@ def contains_and(d):
     else:
         return False
 
+def contains_in(d):
+    if re.search(' in ', d):
+        return True
+    else:
+        return False
+
 def contains_4_or_more_words(d):
-    if len(re.split('\W+', d)) > 3:
+    ptn = re.compile('[ -()/]')
+    ps = [ p for p in re.split(ptn, d) if p != '' ]
+    if len(ps) > 3:
         return True
     else:
         return False
@@ -290,6 +298,8 @@ class Stats(object):
             func = unicode.istitle
         elif term_group == 'withand':
             func = contains_and
+	elif term_group == 'within':
+	    func = contains_in
         elif term_group == 'nonalpha':
             func = contains_nonalpha
         elif term_group == 'manywords':

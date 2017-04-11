@@ -29,12 +29,15 @@
 {% block body %}
 <div class="dashboard">
 <h3>Statistics</h3>
-<a href="{{ url_for('dept_dashboard') }}">Departments</a>
-<a href="{{ url_for('terms_dashboard', term_group='withand' ) }}">Terms with "and"</a>
-<a href="{{ url_for('terms_dashboard', term_group='nonalpha' ) }}">Terms with non-alpha chars</a>
-<a href="{{ url_for('terms_dashboard', term_group='titlecase' ) }}">Uppercased terms</a>
-<a href="{{ url_for('terms_dashboard', term_group='manywords' ) }}">4 or more word units</a>
-<a href="{{ url_for('terms_dashboard', term_group='toolong' ) }}">Longer than 40 chars</a>
+<h4><a href="{{ url_for('dept_dashboard') }}">Departments</a></h4>
+<h4>Terms</h4>
+<ul>
+<li><a href="{{ url_for('terms_dashboard', term_group='withand' ) }}">Terms with "and"</a></li>
+<li><a href="{{ url_for('terms_dashboard', term_group='within' ) }}">Terms with "in"</a></li>
+<li><a href="{{ url_for('terms_dashboard', term_group='nonalpha' ) }}">Terms with non-alpha chars</a></li>
+<li><a href="{{ url_for('terms_dashboard', term_group='titlecase' ) }}">Uppercased terms</a>
+<li><a href="{{ url_for('terms_dashboard', term_group='manywords' ) }}">4 or more word units</a></li>
+<li><a href="{{ url_for('terms_dashboard', term_group='toolong' ) }}">Longer than 40 chars</a></li>
 </div>
 <div class="vocab"></div>
 <script>

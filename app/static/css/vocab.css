@@ -31,6 +31,11 @@ strong {
 }
 /** End standard selectors */
 /** Begin spa namespace selectors */
+.dashboard {
+	background: #fff;
+	font-size : 1.4em;
+}
+
 .vocab {
 	top: 0;
 	left: 0;
