@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block body %}
+<a href="http://dvivocit1.services.brown.edu/rabvocab/">&lt;&lt; Back</a>
+<div class="top-accordion">
+	<h3>{{ data.label }}</h3>
+	<div>
+		{% for group in data.neighbors %}
+			<h4>{{ group.keys()[0] }}</h4>
+			<ul>
+				{% for row in group.values()[0] %}
+					<li>
+						<a href="{{ url_for('term_details', term_id=row.term_id) }}">
+							{{ row.term_label }}
+						</a>
+					</li>
+				{% endfor %}
+			</ul>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

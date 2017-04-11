@@ -200,8 +200,9 @@ class Stats(object):
         self.faculty = None
         self.departments = None
         self.terms = None
-        self.affiliations = None
-        self.interests = None
+        self.faculty_departments = None
+        self.faculty_terms = None
+        self.particles = None
 
     def load_data(self):
         term_data = load_csv_data('terms')
@@ -212,6 +213,15 @@ class Stats(object):
         self.terms = pd.DataFrame(
             data=term_data, columns=['term_uri', 'term_label', 'term_id']) \
             .sort_values(by='term_label')
+        self.terms['particles'] = self.terms['term_label'] \
+                                .str.replace('\W+',' ') \
+                                .str.replace(' and | in | of | s ', ' ') \
+                                .str.split(' ')
+        self.particles = self.terms.groupby('term_id').particles \
+                            .apply(lambda x: pd.DataFrame(x.values[0])) \
+                            .reset_index().drop('level_1',1)
+        self.particles.columns = [ 'term_id', 'particle' ]
+        self.terms = self.terms.drop('particles', 1)
         self.faculty = pd.DataFrame(
             data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id']) \
             .sort_values(by='fac_label')
@@ -298,8 +308,8 @@ class Stats(object):
             func = unicode.istitle
         elif term_group == 'withand':
             func = contains_and
-	elif term_group == 'within':
-	    func = contains_in
+    	elif term_group == 'within':
+            func = contains_in
         elif term_group == 'nonalpha':
             func = contains_nonalpha
         elif term_group == 'manywords':
@@ -319,3 +329,16 @@ class Stats(object):
         term_summ['fac_count'] = term_summ['fac_count'].fillna(0).astype(int)
         term_summ['dept_count'] = term_summ['dept_count'].fillna(0).astype(int)
         return term_summ.to_dict('records')
+
+    def term_details(self, term_id):
+        term_data = self.terms[ self.terms['term_id'] == term_id ] \
+                        .to_dict('records')[0]
+        term_parts = self.particles[ self.particles['term_id'] == term_id ]
+        matched_parts = self.particles[ self.particles['particle'] \
+                            .isin(term_parts['particle'])] \
+                            .merge(self.terms, on='term_id', how='inner') \
+                            .groupby('particle')
+        nbors = [ { group: matched_parts.get_group(group).to_dict('records') }
+                    for group in matched_parts.groups ]
+        return { 'id': term_data['term_id'], 'label': term_data['term_label'],
+                    'uri': term_data['term_uri'], 'neighbors': nbors }
