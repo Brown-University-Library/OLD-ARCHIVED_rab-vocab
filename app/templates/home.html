@@ -33,6 +33,8 @@
 <a href="{{ url_for('terms_dashboard', term_group='withand' ) }}">Terms with "and"</a>
 <a href="{{ url_for('terms_dashboard', term_group='nonalpha' ) }}">Terms with non-alpha chars</a>
 <a href="{{ url_for('terms_dashboard', term_group='titlecase' ) }}">Uppercased terms</a>
+<a href="{{ url_for('terms_dashboard', term_group='manywords' ) }}">4 or more word units</a>
+<a href="{{ url_for('terms_dashboard', term_group='toolong' ) }}">Longer than 40 chars</a>
 </div>
 <div class="vocab"></div>
 <script>

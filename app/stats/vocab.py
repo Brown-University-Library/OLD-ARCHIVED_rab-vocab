@@ -174,6 +174,17 @@ def contains_and(d):
     else:
         return False
 
+def contains_4_or_more_words(d):
+    if len(re.split('\W+', d)) > 3:
+        return True
+    else:
+        return False
+
+def longer_than_40_chars(d):
+    if len(d) > 40:
+        return True
+    else:
+        return False
 
 class Stats(object):
 
@@ -281,6 +292,10 @@ class Stats(object):
             func = contains_and
         elif term_group == 'nonalpha':
             func = contains_nonalpha
+        elif term_group == 'manywords':
+            func = contains_4_or_more_words
+        elif term_group == 'toolong':
+            func = longer_than_40_chars
         filtered = self.terms[ self.terms['term_label'].map(func) ]
         term_faccount = self.faculty_terms.groupby('term_uri') \
                             .size().reset_index()
