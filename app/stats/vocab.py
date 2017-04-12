@@ -214,6 +214,7 @@ class Stats(object):
             data=term_data, columns=['term_uri', 'term_label', 'term_id']) \
             .sort_values(by='term_label')
         self.terms['particles'] = self.terms['term_label'] \
+                                .str.lower() \
                                 .str.replace('\W+',' ') \
                                 .str.replace(' and | in | of | s ', ' ') \
                                 .str.split(' ')
