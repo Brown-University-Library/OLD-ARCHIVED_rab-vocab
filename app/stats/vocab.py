@@ -231,6 +231,11 @@ class Stats(object):
             .sort_values(by='dept_label')
         self.faculty_terms = pd.DataFrame(
             data=faculty_terms_data, columns=['fac_uri', 'term_uri'])
+        counts = pd.DataFrame(self.faculty_terms \
+                    .groupby('term_uri').size() \
+                    .rename('count').reset_index())
+        self.terms = self.terms.merge(counts, on='term_uri', how='left')
+        self.terms['count'] = self.terms[ 'count' ].fillna(0).astype(int)
         self.faculty_departments = pd.DataFrame(
             data=faculty_departments_data, columns=['fac_uri', 'dept_uri'])
         self.department_terms = self.faculty_departments.merge(
@@ -318,16 +323,12 @@ class Stats(object):
         elif term_group == 'toolong':
             func = longer_than_40_chars
         filtered = self.terms[ self.terms['term_label'].map(func) ]
-        term_faccount = self.faculty_terms.groupby('term_uri') \
-                            .size().reset_index()
         term_deptcount = self.department_terms.groupby('term_uri') \
                             .size().reset_index()
         term_summ = filtered \
-                        .merge(term_faccount, on='term_uri', how='left') \
                         .merge(term_deptcount, on='term_uri', how='left') 
-        term_summ.columns = [   'term_uri', 'term_label', 'term_id',
+        term_summ.columns = [   'term_uri', 'term_label', 'term_id', 
                                 'fac_count', 'dept_count']
-        term_summ['fac_count'] = term_summ['fac_count'].fillna(0).astype(int)
         term_summ['dept_count'] = term_summ['dept_count'].fillna(0).astype(int)
         return term_summ.to_dict('records')
 
@@ -340,7 +341,17 @@ class Stats(object):
                             .isin(term_parts['particle'])] \
                             .merge(self.terms, on='term_uri', how='inner') \
                             .groupby('particle')
-        nbors = [ { group: matched_parts.get_group(group).to_dict('records') }
+        faculty = self.faculty_terms[ \
+                        self.faculty_terms['term_uri'] == term_data['term_uri'] ]
+        by_faculty = self.faculty_terms[ \
+                        self.faculty_terms['fac_uri'].isin(faculty['fac_uri']) ]
+        steps = self.terms[ \
+                    self.terms['term_uri'].isin(by_faculty['term_uri']) ] \
+                    .to_dict('records')
+        cousins = [ {   'particle': group,
+                        'rows': matched_parts \
+                            .get_group(group).to_dict('records') }
                     for group in matched_parts.groups ]
         return { 'id': term_data['term_id'], 'label': term_data['term_label'],
-                    'uri': term_data['term_uri'], 'neighbors': nbors }
+                    'uri': term_data['term_uri'], 'cousins': cousins,
+                    'steps': steps }

@@ -3,11 +3,11 @@
 <a href="{{ url_for( 'main' ) }}">&lt;&lt; Back</a>
 <div class="top-accordion">
 	<h3>{{ data.label }}</h3>
-	<div>
-		{% for group in data.neighbors %}
-			<h4>{{ group.keys()[0] }}</h4>
+	<div style="float:left">
+		{% for cuz in data.cousins %}
+			<h4>{{ cuz.particle }}</h4>
 			<ul>
-				{% for row in group.values()[0] %}
+				{% for row in cuz.rows %}
 					<li>
 						<a href="{{ url_for('term_details', term_id=row.term_id) }}">
 							{{ row.term_label }}
@@ -16,6 +16,18 @@
 				{% endfor %}
 			</ul>
 		{% endfor %}
+	</div>
+	<div>
+		<h4>Relatives</h4>
+		<ul>
+		{% for row in data.steps %}
+			<li>
+				<a href="{{ url_for('term_details', term_id=row.term_id) }}">
+					{{ row.term_label }}
+				</a>
+			</li>
+		{% endfor %}
+		</ul>
 	</div>
 </div>
 {% endblock %}
