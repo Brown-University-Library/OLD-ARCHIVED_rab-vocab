@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block body %}
+<a href="{{ url_for( 'main' ) }}">&lt;&lt; Back</a>
 <h2>{{ data.label }}</h2>
 <img src="{{ url_for('static', filename='images/dept_viz_' + data.id + '.png') }}">
 {% endblock %}

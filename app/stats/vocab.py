@@ -218,10 +218,10 @@ class Stats(object):
                                 .str.replace('\W+',' ') \
                                 .str.replace(' and | in | of | s ', ' ') \
                                 .str.split(' ')
-        self.particles = self.terms.groupby('term_id').particles \
+        self.particles = self.terms.groupby('term_uri').particles \
                             .apply(lambda x: pd.DataFrame(x.values[0])) \
                             .reset_index().drop('level_1',1)
-        self.particles.columns = [ 'term_id', 'particle' ]
+        self.particles.columns = [ 'term_uri', 'particle' ]
         self.terms = self.terms.drop('particles', 1)
         self.faculty = pd.DataFrame(
             data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id']) \
@@ -334,10 +334,11 @@ class Stats(object):
     def term_details(self, term_id):
         term_data = self.terms[ self.terms['term_id'] == term_id ] \
                         .to_dict('records')[0]
-        term_parts = self.particles[ self.particles['term_id'] == term_id ]
+        term_parts = self.particles[ \
+                        self.particles['term_uri'] == term_data['term_uri'] ]
         matched_parts = self.particles[ self.particles['particle'] \
                             .isin(term_parts['particle'])] \
-                            .merge(self.terms, on='term_id', how='inner') \
+                            .merge(self.terms, on='term_uri', how='inner') \
                             .groupby('particle')
         nbors = [ { group: matched_parts.get_group(group).to_dict('records') }
                     for group in matched_parts.groups ]

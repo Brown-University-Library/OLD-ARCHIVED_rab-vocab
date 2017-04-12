@@ -47,22 +47,6 @@ def term_details(term_id):
 	term_data = vdash.term_details(term_id)
 	return render_template('term_detail.html', data=term_data)
 
-@app.route('/particles/<particle>')
-def particles(particle):
-	resp = requests.get('http://dvivocit1.services.brown.edu/rabdata/vocab/')
-	data = resp.json()
-	terms = [ (d[obj]['label'][0], obj)for d in data for obj in d ]
-	atoms = [ (re.split('\W+', t[0].lower()), t[0], t[1]) for t in terms ]
-	rev = collections.defaultdict(list)
-	for atom in atoms:
-		for a in atom[0]:
-			rev[a].append(atom[2])
-	labels = { a[2]: a[1] for a in atoms }
-	uris = rev[particle]
-	merge = [ { 'uri': uri, 'label': labels[uri] } for uri in uris ]
-	return render_template('particles.html', data=merge)
-	
-
 @app.route('/search/', methods=['GET'])
 def solr_search():
 	solr_endpoint = solr_url + 'select/'
