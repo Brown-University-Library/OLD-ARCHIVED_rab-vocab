@@ -215,8 +215,10 @@ class Stats(object):
             .sort_values(by='term_label')
         self.terms['particles'] = self.terms['term_label'] \
                                 .str.lower() \
+                                .str.replace('\.', '') \
                                 .str.replace('\W+',' ') \
-                                .str.replace(' and | in | of | s ', ' ') \
+                                .str.replace(' +(and|in|to|of|s|the|with| ) +', ' ') \
+                                .str.strip() \
                                 .str.split(' ')
         self.particles = self.terms.groupby('term_uri').particles \
                             .apply(lambda x: pd.DataFrame(x.values[0])) \

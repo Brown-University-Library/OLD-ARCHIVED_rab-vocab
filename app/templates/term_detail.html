@@ -1,9 +1,13 @@
 {% extends "base.html" %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.dashboard.css') }}">
+{% endblock %}
 {% block body %}
 <a href="{{ url_for( 'main' ) }}">&lt;&lt; Back</a>
-<div class="top-accordion">
-	<h3>{{ data.label }}</h3>
-	<div style="float:left">
+<h3>{{ data.label }}</h3>
+<div class="term-details-box">
+	<div class="term-details-col term-details-cousins">
 		{% for cuz in data.cousins %}
 			<h4>{{ cuz.particle }}</h4>
 			<ul>
@@ -17,7 +21,7 @@
 			</ul>
 		{% endfor %}
 	</div>
-	<div>
+	<div class="term-details-col term-details-siblings">
 		<h4>Relatives</h4>
 		<ul>
 		{% for row in data.steps %}

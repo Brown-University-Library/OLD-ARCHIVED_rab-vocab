@@ -1,0 +1,7 @@
+.term-details-box {
+	display: flex;
+}
+
+.term-details-col {
+	flex: 1 1 30%;
+}
