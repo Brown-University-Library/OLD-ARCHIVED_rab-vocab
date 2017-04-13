@@ -217,7 +217,8 @@ class Stats(object):
                                 .str.lower() \
                                 .str.replace('\.', '') \
                                 .str.replace('\W+',' ') \
-                                .str.replace(' +(and|in|to|of|s|the|with| ) +', ' ') \
+                                .str.replace(' +(and|in|to|of|s|the|with) +', ' ') \
+                                .str.replace(' +(and|in|to|of|s|the|with) +', ' ') \
                                 .str.strip() \
                                 .str.split(' ')
         self.particles = self.terms.groupby('term_uri').particles \
@@ -347,13 +348,29 @@ class Stats(object):
                         self.faculty_terms['term_uri'] == term_data['term_uri'] ]
         by_faculty = self.faculty_terms[ \
                         self.faculty_terms['fac_uri'].isin(faculty['fac_uri']) ]
-        steps = self.terms[ \
-                    self.terms['term_uri'].isin(by_faculty['term_uri']) ] \
-                    .to_dict('records')
+        # by_dept = self.terms[ \
+        #             self.terms['term_uri'].isin(by_faculty['term_uri']) ] \
+        #             .merge(self.department_terms, on='term_uri', how='inner') \
+        #             .merge(self.departments, on='dept_uri', how='inner') \
+        #             .groupby('dept_label')
+        by_dept = by_faculty \
+                    .merge(self.terms, on="term_uri", how='inner') \
+                    .merge(self.faculty_departments, on='fac_uri', how='inner') \
+                    .merge(self.departments, on='dept_uri', how='inner') \
+                    .merge(self.faculty, on='fac_uri', how='inner') \
+                    .groupby('dept_label')
         cousins = [ {   'particle': group,
                         'rows': matched_parts \
                             .get_group(group).to_dict('records') }
                     for group in matched_parts.groups ]
-        return { 'id': term_data['term_id'], 'label': term_data['term_label'],
-                    'uri': term_data['term_uri'], 'cousins': cousins,
-                    'steps': steps }
+        siblings = [ {  'dept': dept,
+                        'faculty': by_dept \
+                            .get_group(dept)[['fac_uri','fac_label']] \
+                            .drop_duplicates().to_dict('records'),
+                        'rows': by_dept \
+                            .get_group(dept).to_dict('records') }
+                    for dept in by_dept.groups ]
+        return {
+                'id': term_data['term_id'], 'label': term_data['term_label'],
+                'uri': term_data['term_uri'], 'count': term_data['count'],
+                'cousins': cousins, 'siblings': siblings }
