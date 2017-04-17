@@ -348,11 +348,6 @@ class Stats(object):
                         self.faculty_terms['term_uri'] == term_data['term_uri'] ]
         by_faculty = self.faculty_terms[ \
                         self.faculty_terms['fac_uri'].isin(faculty['fac_uri']) ]
-        # by_dept = self.terms[ \
-        #             self.terms['term_uri'].isin(by_faculty['term_uri']) ] \
-        #             .merge(self.department_terms, on='term_uri', how='inner') \
-        #             .merge(self.departments, on='dept_uri', how='inner') \
-        #             .groupby('dept_label')
         by_dept = by_faculty \
                     .merge(self.terms, on="term_uri", how='inner') \
                     .merge(self.faculty_departments, on='fac_uri', how='inner') \
@@ -365,7 +360,7 @@ class Stats(object):
                     for group in matched_parts.groups ]
         siblings = [ {  'dept': dept,
                         'faculty': by_dept \
-                            .get_group(dept)[['fac_uri','fac_label']] \
+                            .get_group(dept)[['fac_id','fac_label']] \
                             .drop_duplicates().to_dict('records'),
                         'rows': by_dept \
                             .get_group(dept).to_dict('records') }
@@ -374,3 +369,23 @@ class Stats(object):
                 'id': term_data['term_id'], 'label': term_data['term_label'],
                 'uri': term_data['term_uri'], 'count': term_data['count'],
                 'cousins': cousins, 'siblings': siblings }
+
+    def faculty_details(self, fac_id):
+        fac_data = self.faculty[ self.faculty['fac_id'] == fac_id ] \
+                    .to_dict('records')[0]
+        fac_terms = self.faculty_terms[ \
+                        self.faculty_terms['fac_uri'] == fac_data['fac_uri'] ] \
+                        .merge(self.terms, on='term_uri', how='inner')
+        fac_parts = self.particles[ \
+                        self.particles['term_uri'].isin(fac_terms['term_uri']) ]
+        counts = self.particles[ \
+                        self.particles['particle'].isin(fac_parts['particle'])] \
+                        .groupby('particle').size().reset_index() \
+                        .rename(columns={0:'count'})
+        parts_data = fac_parts.merge(counts, on='particle', how='left') \
+                        .to_dict('records')
+        term_data = fac_terms.to_dict('records')
+        return {
+                'id': fac_data['fac_id'], 'label': fac_data['fac_label'],
+                'uri': fac_data['fac_uri'], 'terms': term_data,
+                'particles': parts_data }

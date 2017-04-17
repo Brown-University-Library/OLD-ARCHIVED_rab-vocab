@@ -31,7 +31,7 @@
 			<p>Faculty using term:</p>
 			<ul>
 				{% for fac in sib.faculty %}
-				<li><a href="{{ fac.fac_uri }}">{{ fac.fac_label }}</a></li>
+				<li><a href="{{ url_for('faculty_details', fac_id=fac.fac_id) }}">{{ fac.fac_label }}</a></li>
 				{% endfor %}
 			</ul>
 			<p>Other terms for faculty:</p>

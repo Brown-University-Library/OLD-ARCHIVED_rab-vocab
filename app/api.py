@@ -40,12 +40,17 @@ def terms_dashboard(term_group):
 @app.route('/depts/<dept_id>')
 def department_details(dept_id):
 	dept_data = vdash.department_details(dept_id)
-	return render_template('department_detail.html', data=dept_data)
+	return render_template('detail_department.html', data=dept_data)
 
 @app.route('/terms/details/<term_id>')
 def term_details(term_id):
 	term_data = vdash.term_details(term_id)
-	return render_template('term_detail.html', data=term_data)
+	return render_template('detail_term.html', data=term_data)
+
+@app.route('/faculty/details/<fac_id>')
+def faculty_details(fac_id):
+	fac_data = vdash.faculty_details(fac_id)
+	return render_template('detail_faculty.html', data=fac_data)
 
 @app.route('/search/', methods=['GET'])
 def solr_search():

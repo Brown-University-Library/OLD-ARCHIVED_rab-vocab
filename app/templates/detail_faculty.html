@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vocab.dashboard.css') }}">
+{% endblock %}
+{% block body %}
+<a href="{{ url_for( 'main' ) }}">&lt;&lt; Back</a>
+<h2>{{ data.label }}</h2>
+<div class="term-details-box">
+	<div class="term-details-col term-details-cousins">
+	<h3>Terms</h3>
+	<ul>	
+		{% for row in data.terms %}
+			<li>
+				<a href="{{ url_for('term_details', term_id=row.term_id) }}">
+					{{ row.term_label }}</a>
+					<span class="badge">{{ row.count }}</span>
+			</li>
+		{% endfor %}
+	</ul>
+	</div>
+	<div class="term-details-col term-details-siblings">
+		<h3>Particles</h3>
+		<ul>
+			{% for row in data.particles %}
+				<li>
+					<a href="{{ url_for('main') }}">
+						{{ row.particle }}
+					</a>
+					<span class="badge">{{ row.count }}</span>
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+</div>
+{% endblock %}
