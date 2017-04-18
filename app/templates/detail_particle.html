@@ -5,7 +5,7 @@
 {% endblock %}
 {% block body %}
 <a href="{{ url_for( 'main' ) }}">&lt;&lt; Back</a>
-<h2>{{ data.label }}</h2>
+<h2>{{ data.particle }}</h2>
 <div class="term-details-box">
 	<div class="term-details-col term-details-cousins">
 	<h3>Terms</h3>
@@ -20,12 +20,12 @@
 	</ul>
 	</div>
 	<div class="term-details-col term-details-siblings">
-		<h3>Particles</h3>
+		<h3>Departments</h3>
 		<ul>
-			{% for row in data.particles %}
+			{% for row in data.departments %}
 				<li>
-					<a href="{{ url_for('particle_details', particle=row.particle) }}">
-						{{ row.particle }}
+					<a href="{{ url_for('department_details', dept_id=row.dept_id) }}">
+						{{ row.dept_label }}
 					</a>
 					<span class="badge">{{ row.count }}</span>
 				</li>

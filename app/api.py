@@ -52,6 +52,11 @@ def faculty_details(fac_id):
 	fac_data = vdash.faculty_details(fac_id)
 	return render_template('detail_faculty.html', data=fac_data)
 
+@app.route('/particles/details/<particle>')
+def particle_details(particle):
+	particle_data = vdash.particle_details(particle)
+	return render_template('detail_particle.html', data=particle_data)
+
 @app.route('/search/', methods=['GET'])
 def solr_search():
 	solr_endpoint = solr_url + 'select/'

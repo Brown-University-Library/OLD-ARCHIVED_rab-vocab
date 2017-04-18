@@ -389,3 +389,15 @@ class Stats(object):
                 'id': fac_data['fac_id'], 'label': fac_data['fac_label'],
                 'uri': fac_data['fac_uri'], 'terms': term_data,
                 'particles': parts_data }
+
+    def particle_details(self, particle):
+        parts = self.particles[ self.particles['particle'] == particle ] \
+                    .merge(self.terms, on='term_uri', how='inner')
+        dept_data = self.department_terms[ \
+                    self.department_terms['term_uri'].isin(parts['term_uri']) ] \
+                    .merge(self.departments, on='dept_uri', how='inner') \
+                    .groupby(['dept_uri','dept_label']).size().reset_index() \
+                    .rename(columns={0:'count'}).to_dict('records') 
+        part_data = parts.to_dict('records')
+        return {
+                'particle': particle, 'terms': part_data, 'departments': dept_data }
