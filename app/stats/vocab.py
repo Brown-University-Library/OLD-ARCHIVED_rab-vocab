@@ -5,8 +5,10 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 import re
 import collections
 import pandas as pd
+import numpy as np
 import os
 import csv
+from scipy import stats as scipystats
 
 from app import app
 
@@ -243,7 +245,18 @@ class Stats(object):
             data=faculty_departments_data, columns=['fac_uri', 'dept_uri'])
         self.department_terms = self.faculty_departments.merge(
                                     self.faculty_terms, on='fac_uri', how='inner' ) \
-                                    .drop('fac_uri', 1).drop_duplicates()
+                                    .drop('fac_uri', 1)
+        self.department_particles = self.department_terms.merge( \
+                                        self.particles, on='term_uri', how='inner')
+        self.term_pairs = self.faculty_terms.merge(
+                            self.faculty_terms, on='fac_uri', how='inner') \
+                            .drop('fac_uri', 1)
+        self.term_pairs.columns = ['term_uri', 'coterm_uri']
+        # self.term_pairs = self.term_pairs.drop( \
+        #                     self.term_pairs[ self.term_pairs['term_uri'] \
+        #                         == self.term_pairs['coterm_uri'] ].index)
+        self.particle_pairs = self.particles.merge(self.particles, on='term_uri', how='inner')
+        self.particle_pairs.columns = ['term_uri', 'particle', 'coparticle']
 
     def department_summary(self):
         dept_faccount = self.faculty_departments.groupby('dept_uri') \
@@ -365,10 +378,12 @@ class Stats(object):
                         'rows': by_dept \
                             .get_group(dept).to_dict('records') }
                     for dept in by_dept.groups ]
+        scores = self.corr(term_data['term_uri'])
         return {
                 'id': term_data['term_id'], 'label': term_data['term_label'],
                 'uri': term_data['term_uri'], 'count': term_data['count'],
-                'cousins': cousins, 'siblings': siblings }
+                'cousins': cousins, 'siblings': siblings,
+                'major': scores['major'], 'minor': scores['minor'] }
 
     def faculty_details(self, fac_id):
         fac_data = self.faculty[ self.faculty['fac_id'] == fac_id ] \
@@ -401,3 +416,164 @@ class Stats(object):
         part_data = parts.to_dict('records')
         return {
                 'particle': particle, 'terms': part_data, 'departments': dept_data }
+
+    def term_profile(self, term_id):
+        term_data = self.terms[ self.terms['term_id'] == term_id ] \
+                        .to_dict('records')[0]
+        term_parts = self.particles[ \
+                        self.particles['term_uri']  == term_data['term_uri'] ]
+        depts_for_term = self.department_terms[ \
+                            self.department_terms['term_uri'] \
+                                == term_data['term_uri'] ]
+        depts = self.departments[ self.departments['dept_uri'].isin( \
+                    depts_for_term['dept_uri']) ]
+        coterms = self.term_pairs[ self.term_pairs['term_uri'] == term_data['term_uri'] ]
+        coparts = coterms.merge(self.particles, \
+                    left_on='coterm_uri', right_on='term_uri', how='inner')
+        dept_totals = self.department_particles[ \
+                        self.department_particles['dept_uri'] \
+                        .isin(depts_for_term['dept_uri']) ]
+        prts_by_dept = dept_totals.groupby('dept_uri')
+        dept_groups = [ prts_by_dept.get_group(grp) for grp in prts_by_dept.groups ]
+        # all_total = self.faculty_terms.merge( \
+        #                 self.particles, on='term_uri', how='inner') \
+        #                 .groupby('particle').size().reset_index()
+        # all_mean = all_total[0].mean()
+        out = []
+        for grp in dept_groups:
+            scores = grp.groupby('particle').size().reset_index()
+            dept_mean = scores[0].mean()
+            scores['z'] = scores[0].apply( \
+                            lambda x: (x - dept_mean) / scores[0].std())
+            part_scores = scores[ scores['particle'].isin(term_parts['particle']) ].to_dict('records')
+            out.append({'dept_uri': grp['dept_uri'].unique()[0],
+                        'scores': part_scores })
+        return out
+
+    def parse_term(self, term_id):
+        term_data = self.terms[ self.terms['term_id'] == term_id ] \
+                        .to_dict('records')[0]
+        term_parts = self.particles[ \
+                        self.particles['term_uri']  == term_data['term_uri'] ]
+        depts_for_term = self.department_terms[ \
+                            self.department_terms['term_uri'] \
+                                == term_data['term_uri'] ]
+        depts = self.departments[ self.departments['dept_uri'].isin( \
+                    depts_for_term['dept_uri']) ]
+        scores = [ self.profile_dept(d) for d in depts['dept_id'].values ]
+        total = pd.concat(scores, ignore_index=True)
+        data = total[ total['particle'].isin(term_parts['particle'].values)]
+        return data
+
+    def profile_dept(self, dept_id):
+        dept_data = self.departments[ self.departments['dept_id'] == dept_id ] \
+                        .to_dict('records')[0]
+        dept_parts = self.department_particles[ \
+                        self.department_particles['dept_uri'] \
+                            == dept_data['dept_uri'] ]
+        counts = dept_parts.groupby('particle').size().reset_index()
+        profile = dept_parts.merge(counts, on='particle', how='inner') \
+                    .rename(columns={0:'count'}) \
+                    .drop('term_uri',1) \
+                    .drop_duplicates()
+        dept_mean = profile['count'].mean()
+        profile['z'] = profile['count'].apply( \
+                            lambda x: (x - dept_mean) / profile['count'].std())
+        return profile
+
+    def jaccard(self, term_id):
+        term_data = self.terms[ self.terms['term_id'] == term_id ] \
+                        .to_dict('records')[0]
+        coterms = self.term_pairs[ self.term_pairs['term_uri'] \
+                    == term_data['term_uri'] ]['coterm_uri'].values
+        term_bag = self.particles[ self.particles['term_uri'].isin(coterms) ]
+        term_set = set(term_bag['particle'])
+
+        term_parts = self.particles[ \
+                self.particles['term_uri']  == term_data['term_uri'] ] \
+                ['particle'].values
+        out = {}
+        for part in term_parts:
+            terms_with_part = self.particles \
+                        [ self.particles['particle'] == part ]['term_uri'].values
+            without_orig = np.delete(
+                    terms_with_part, np.argwhere(
+                        terms_with_part==term_data[ 'term_uri' ] ) )
+            for part_term in terms_with_part:
+                copterms = self.term_pairs[ self.term_pairs['term_uri'] \
+                                == part_term ]['coterm_uri'].values
+                copterm_bag = self.particles[ self.particles['term_uri'].isin(copterms) ]
+                copterm_set = set(copterm_bag['particle'])
+                out[ self.terms[ self.terms['term_uri'] == part_term ] \
+                    .term_label.values[0] ] \
+                    = float( len(term_set & copterm_set) ) / len(term_set | copterm_set)
+        return out
+
+    def context(self, term_id):
+        term_data = self.terms[ self.terms['term_id'] == term_id ] \
+                    .to_dict('records')[0]
+        depts = self.department_terms[ self.department_terms['term_uri'] \
+                    == term_data['term_uri'] ][ 'dept_uri' ].values
+        parts = self.particles[ \
+                    self.particles['term_uri']  == term_data['term_uri'] ] \
+                    ['particle'].values
+        out = {}
+        for dept in depts:
+            dept_parts = self.department_particles[ \
+                    self.department_particles[ 'dept_uri' ] == dept ]
+            fac_freq = self.faculty_departments[ \
+                    self.faculty_departments['dept_uri'] == dept ] \
+                    .merge(self.faculty_terms, on='fac_uri', how='inner') \
+                    .merge(self.particles, on='term_uri', how='inner') \
+                    .drop('term_uri', 1) \
+                    .drop('dept_uri', 1) \
+                    .drop_duplicates() \
+                    .groupby('particle').size().reset_index()
+            print fac_freq[0].sort_values()
+            counts = dept_parts.groupby('particle').size().reset_index() \
+                        .merge(fac_freq, on='particle', how='inner')
+            counts.columns = ['particle', 'part_count', 'fac_freq']
+            counts['s'] = counts.apply(
+                            lambda x: \
+                                float(1) * x.fac_freq / len(counts),
+                                axis=1 )
+            out[dept] = { part: counts[ counts['particle'] == part ].s.values[0] 
+                            for part in parts }
+        return out
+
+    def corr(self, term_uri):
+        depts = self.department_terms[ self.department_terms['term_uri'] \
+                    == term_uri ][ 'dept_uri' ].values
+        parts = self.particles[ \
+                    self.particles['term_uri']  == term_uri ] \
+                    ['particle'].values
+        out = { 'major': [], 'minor':[] }
+        for part in parts:
+            sharing_part = self.particles[ \
+                            self.particles['particle'] == part ]
+            term_count = len(sharing_part)
+            coparts = self.particle_pairs[ \
+                        self.particle_pairs['particle'] == part ]
+            total_coparts = len(coparts)
+            dept_total = 0
+            # part_total = self.department_particles.groupby('particle') \
+            #                 .get_group(part).size()
+            for dept in depts:
+                dept_parts = self.department_particles[ \
+                                self.department_particles['dept_uri'] == dept ]
+                dept_terms = dept_parts[ dept_parts['term_uri'] \
+                                .isin(sharing_part['term_uri'].values) ]
+                grpd = dept_terms.groupby('particle')
+                dept_count = len(grpd)
+                dept_part_count = len(grpd.get_group(part))
+                # print "dept_count: ", dept_count
+                if dept_part_count > dept_total:
+                    dept_total = dept_part_count
+            # dept_diff = total_coparts - dept_total
+            # print "dept_diff: ", dept_diff, '\n'
+            score = (float(term_count) / total_coparts) * dept_total
+            if score < 1:
+                out['minor'].append(part)
+            else:
+                out['major'].append(part)
+        return out
