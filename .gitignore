@@ -4,3 +4,6 @@ config/
 !config/template.py
 app/static/images/
 app/stats/data/
+.envrc
+.direnv/
+*.csv

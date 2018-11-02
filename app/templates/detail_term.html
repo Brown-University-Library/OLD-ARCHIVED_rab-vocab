@@ -27,14 +27,14 @@
 	<div class="term-details-col term-details-siblings">
 		<h3>Major Particles</h3>
 		<ul>
-			{% for particle in data.major %}
-			<li><a href="{{ url_for('particle_details', particle=particle) }}">{{ particle }}</a></li>
+			{% for particle, score in data.major %}
+			<li><a href="{{ url_for('particle_details', particle=particle) }}">{{ particle }}</a> ({{score}})</li>
 			{% endfor %}
 		</ul>
 		<h3>Minor Particles</h3>
 		<ul>
-			{% for particle in data.minor %}
-			<li><a href="{{ url_for('particle_details', particle=particle) }}">{{ particle }}</a></li>
+			{% for particle, score in data.minor %}
+			<li><a href="{{ url_for('particle_details', particle=particle) }}">{{ particle }}</a> ({{score}})</li>
 			{% endfor %}
 		</ul>
 		<h3>Term usage by department</h3>

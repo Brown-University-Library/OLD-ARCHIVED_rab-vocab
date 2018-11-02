@@ -8,7 +8,12 @@ import pandas as pd
 import numpy as np
 import os
 import csv
+
 from scipy import stats as scipystats
+from nltk.stem.snowball import EnglishStemmer
+stem = EnglishStemmer()
+from nltk.stem.wordnet import WordNetLemmatizer
+lemma = WordNetLemmatizer()
 
 from app import app
 
@@ -141,14 +146,14 @@ def write_query_results_csv(func, fName):
     with open( os.path.join(data_dir, fName + '.csv'), 'w+') as f:
         wrtr = csv.writer(f)
         for row in tuple_data:
-            wrtr.writerow( [ r.encode('utf-8') for r in row ] )
+            wrtr.writerow( [ r for r in row ] )
 
 def load_csv_data(fName):
     out = []
-    with open( os.path.join(data_dir, fName + '.csv'), 'rb') as f:
+    with open( os.path.join(data_dir, fName + '.csv'), 'r') as f:
         rdr = csv.reader(f)
         for row in rdr:
-            out.append([ r.decode('utf-8') for r in row ])
+            out.append([ r for r in row ])
     return out
 
 def download_data():
@@ -227,6 +232,9 @@ class Stats(object):
                             .apply(lambda x: pd.DataFrame(x.values[0])) \
                             .reset_index().drop('level_1',1)
         self.particles.columns = [ 'term_uri', 'particle' ]
+        self.lexical = self.particles.drop('term_uri',1).drop_duplicates()
+        self.lexical['stem'] = self.lexical['particle'].apply( stem.stem )
+        self.lexical['lemma'] = self.lexical['particle'].apply( lemma.lemmatize )
         self.terms = self.terms.drop('particles', 1)
         self.faculty = pd.DataFrame(
             data=faculty_data, columns=['fac_uri', 'fac_label', 'fac_id']) \
@@ -244,8 +252,7 @@ class Stats(object):
         self.faculty_departments = pd.DataFrame(
             data=faculty_departments_data, columns=['fac_uri', 'dept_uri'])
         self.department_terms = self.faculty_departments.merge(
-                                    self.faculty_terms, on='fac_uri', how='inner' ) \
-                                    .drop('fac_uri', 1)
+                                    self.faculty_terms, on='fac_uri', how='inner' )
         self.department_particles = self.department_terms.merge( \
                                         self.particles, on='term_uri', how='inner')
         self.term_pairs = self.faculty_terms.merge(
@@ -327,10 +334,10 @@ class Stats(object):
 
     def term_summary(self, term_group=None):
         if term_group == 'titlecase':
-            func = unicode.istitle
+            func = str.istitle
         elif term_group == 'withand':
             func = contains_and
-    	elif term_group == 'within':
+        elif term_group == 'within':
             func = contains_in
         elif term_group == 'nonalpha':
             func = contains_nonalpha
@@ -529,7 +536,7 @@ class Stats(object):
                     .drop('dept_uri', 1) \
                     .drop_duplicates() \
                     .groupby('particle').size().reset_index()
-            print fac_freq[0].sort_values()
+            print(fac_freq[0].sort_values())
             counts = dept_parts.groupby('particle').size().reset_index() \
                         .merge(fac_freq, on='particle', how='inner')
             counts.columns = ['particle', 'part_count', 'fac_freq']
@@ -556,9 +563,20 @@ class Stats(object):
                         self.particle_pairs['particle'] == part ]
             total_coparts = len(coparts)
             dept_total = 0
+            dept_coverage = 0
             # part_total = self.department_particles.groupby('particle') \
             #                 .get_group(part).size()
             for dept in depts:
+                roster = self.faculty_departments[ \
+                        self.faculty_departments['dept_uri'] == dept ]
+                roster_total = float(len(roster))
+                coverage = len(self.faculty_terms[ \
+                        (self.faculty_terms['term_uri'].isin(self.particles[ \
+                            self.particles['particle']==part]['term_uri'].values)) \
+                        & (self.faculty_terms[ 'fac_uri'].isin(roster['fac_uri'].values) ) ] \
+                            ['fac_uri'].unique()) / roster_total
+                if coverage > dept_coverage:
+                    dept_coverage = coverage
                 dept_parts = self.department_particles[ \
                                 self.department_particles['dept_uri'] == dept ]
                 dept_terms = dept_parts[ dept_parts['term_uri'] \
@@ -571,9 +589,174 @@ class Stats(object):
                     dept_total = dept_part_count
             # dept_diff = total_coparts - dept_total
             # print "dept_diff: ", dept_diff, '\n'
-            score = (float(term_count) / total_coparts) * dept_total
+            score =  ( dept_total / ( float(term_count) + float(total_coparts) ) ) + 10 * dept_coverage 
+            # print(score)
             if score < 1:
-                out['minor'].append(part)
+                out['minor'].append( (part,score) )
             else:
-                out['major'].append(part)
+                out['major'].append( (part, score) )
         return out
+
+    def analyze(self, term_uri):
+        term_data = self.terms[ self.terms['term_uri'] == term_uri ] \
+                    .to_dict('records')[0]
+        term_units = term_data['term_label'].split()
+        depts = self.department_terms[ self.department_terms['term_uri'] \
+                    == term_uri ][ 'dept_uri' ].values
+        if len(term_units) == 1:
+            cleaned = term_units[0].lower().replace('\.', '').strip()
+            local_matches = self.department_particles[ \
+                        ( self.department_particles['dept_uri'].isin(depts) ) \
+                        & \
+                        ( self.department_particles['particle'] == cleaned ) ]
+            local_matches = local_matches[ local_matches['term_uri'] != term_uri ]
+            other_matches = self.department_particles[ \
+                        ( self.department_particles['particle'] == cleaned ) ]
+            other_matches = other_matches[ other_matches['term_uri'] != term_uri ]
+            if not local_matches.empty:
+                matched_terms = self.terms[ self.terms['term_uri'] \
+                    .isin(local_matches['term_uri'].values)]
+                return matched_terms.to_dict('records')
+            elif not other_matches.empty:
+                matched_terms = self.terms[ self.terms['term_uri'] \
+                    .isin(other_matches['term_uri'].values)]
+                return matched_terms.to_dict('records')
+            else:
+                return {}
+        else:
+            return {'error': 'can\'t process'}
+
+    def score(self, particle):
+        particle_terms = self.particles[ self.particles['particle'] == particle ]
+        term_units = term_data['term_label'].split()
+        depts = self.department_terms[ self.department_terms['term_uri'] \
+                    == term_uri ][ 'dept_uri' ].values
+        facs = self.faculty_terms[ self.faculty_terms['term_uri'] \
+                    == term_uri ][ 'fac_uri' ].values
+
+    def dept_tfidf(self, particle, dept_uri):
+        dept_part = self.department_particles[ \
+                        (self.department_particles.particle == particle) \
+                            & \
+                        (self.department_particles.dept_uri == dept_uri) ]
+        dept_count = len(dept_part)
+        fac_count = len(dept_part.groupby('fac_uri'))
+        num_depts = len(self.department_particles[ \
+                        (self.department_particles.particle == particle) ]
+                        .groupby('dept_uri') )
+        return (float(dept_count) * fac_count) / num_depts
+
+    # def faq_tfidf(self, particle):
+
+
+    def domain_specificity(self, particle):
+        grpd = self.department_particles[ \
+                (self.department_particles.particle == particle) ] \
+                .groupby('dept_uri')
+        return { grp: float(len(grpd.get_group(grp))) / len(grpd.groups)
+                    for grp in grpd.groups }
+
+    def domain_profile(self, dept_uri):
+        roster = self.faculty_departments[ \
+            self.faculty_departments.dept_uri == dept_uri ]
+        aff_counts = self.faculty_departments[ \
+            self.faculty_departments.fac_uri.isin(roster.fac_uri.values) ] \
+            .groupby('fac_uri').size().reset_index()
+        dept_parts = self.department_particles[ \
+            (self.department_particles.dept_uri == dept_uri) \
+                & \
+            (self.department_particles.fac_uri.isin(
+                aff_counts[aff_counts[0] == 1 ]['fac_uri'].values)) ]
+        part_dept_count = self.department_particles[ \
+                self.department_particles.particle.isin(dept_parts.particle.values) ] \
+                .drop('fac_uri',1).drop('term_uri',1).drop_duplicates() \
+                .groupby('particle').size().reset_index()
+        try:
+            uniqueness = float( len(part_dept_count[part_dept_count[0] == 1]) ) / len(dept_parts)
+        except:
+            return pd.DataFrame()
+        locally_shared = dept_parts.drop('dept_uri',1).drop('term_uri',1) \
+            .groupby('particle').size().reset_index()
+        facs_with_parts = self.department_particles[
+            self.department_particles.particle.isin(
+                #locally_shared[ locally_shared[0] > 1]['particle'].values) ] \
+                locally_shared.particle.values) ] \
+            .drop('dept_uri',1).drop('term_uri',1) \
+            .groupby('particle').size().reset_index()
+        tfidf = locally_shared.merge(facs_with_parts, on='particle')
+        tfidf.columns = ['particle','local_count','total_count']
+        tfidf['coverage'] = tfidf.apply(
+            lambda x: float(x.local_count) / x.total_count, axis=1)
+        # return {'unique': uniqueness,
+        #         'locals': locally_shared,
+        #         'scored': tfidf.sort_values('coverage')}
+        return locally_shared
+
+    def dept_distance(self, dept_uri):
+        roster = self.faculty_departments[ \
+            self.faculty_departments.dept_uri == dept_uri ]
+        other_affs = self.faculty_departments[ \
+            ( self.faculty_departments.fac_uri.isin(roster.fac_uri.values) ) \
+                & \
+            ( self.faculty_departments.dept_uri != dept_uri )] \
+            .groupby('dept_uri').size().reset_index()
+        all_depts = self.departments.dept_uri.values
+        dept_bags = [ (d_uri, self.domain_profile(d_uri)) for d_uri in all_depts ]
+        local = self.domain_profile(dept_uri)
+        local_parts = set(local.particle.values)
+        out = {}
+        for d in dept_bags:
+            if not d[1].empty:
+                other_parts = set(d[1].particle.values)
+            else:
+                out[d[0]] = 'Bad'
+                continue
+            jacc = float( len(local_parts & other_parts) ) \
+                    / len(local_parts | other_parts)
+            out[d[0]] = jacc
+        return out
+
+    def department_similarity(self, department_uri):
+        roster = self.faculty_departments[ \
+                    self.faculty_departments.dept_uri == department_uri ] \
+                    ['fac_uri'].values
+        shared_fac = self.faculty_departments[ \
+                    (self.faculty_departments.fac_uri.isin(roster) ) \
+                        & \
+                    (self.faculty_departments.dept_uri != department_uri) ] \
+                    .groupby('dept_uri')
+        fac_score = { group: float(len(shared_fac.get_group(group))) / len(roster)
+                            for group in shared_fac.groups }
+        local_terms = self.department_terms[
+                        self.department_terms.dept_uri == department_uri ] \
+                        ['term_uri'].values
+        shared_terms = self.department_terms[
+                        ( self.department_terms.term_uri.isin(local_terms) ) \
+                            & \
+                        ( self.department_terms.dept_uri != department_uri )
+                            & \
+                        ( ~self.department_terms.fac_uri.isin(roster) ) ] \
+                        .groupby('dept_uri')
+        term_score = { group: float(len(shared_terms.get_group(group))) \
+                        / len(local_terms)
+                            for group in shared_terms.groups }
+        local_particles = self.department_terms[
+                            self.department_terms.dept_uri == department_uri ] \
+                            ['particles'].values
+
+    def match(self, term_uri):
+        parts = self.particles[ self.particles.term_uri == term_uri ]
+        part_matches = self.particles[ self.particles.particle.isin(
+            parts.particle.values) ]
+        term_matches = self.terms[ self.terms.term_uri.isin(
+            part_matches.term_uri.values) ]
+        term_matches = term_matches[ term_matches.term_uri != term_uri ]
+        return term_matches.to_dict('records')
+
+    def dept_links(self, dept_uri):
+        roster = self.faculty_departments[ self.faculty_departments.dept_uri == dept_uri ]
+        linked_depts = self.faculty_departments[ \
+            (self.faculty_departments.fac_uri.isin(roster.fac_uri.values) ) \
+                & \
+            (self.faculty_departments.dept_uri != dept_uri ) ]['dept_uri'].drop_duplicates()
+        return linked_depts.dept_uri.values
