@@ -92,12 +92,12 @@ def solr_search():
 
 @app.route('/describe/<rabid>', methods=['GET'])
 def describe_term(rabid):
-    term = rab.ResearchArea(id=rabid)
+    term = rab.ResearchArea.get(rabid)
     linked_attrs = ['broader','narrower','related']
     neighbor_uris = []
     for attr in linked_attrs:
-        neighbor_uris.extend( term.data[attr] )
-    out = [ rab.ResearchArea(uri=uri) for uri in neighbor_uris ]
+        neighbor_uris.extend( getattr(term, attr) )
+    out = [ rab.ResearchArea.get(uri) for uri in neighbor_uris ]
     out.append(term)
     return jsonify( [ ra.publish() for ra in out ] )
 
