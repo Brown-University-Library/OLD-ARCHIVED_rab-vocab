@@ -15,14 +15,12 @@ def parse_uri(uriData):
     return uri
 
 untyp_pattern = re.compile(r"^\".*\"$")
-typ_pattern = re.compile(r"\"\"\^\^xsd\:[a-zA-Z]{0,20}")
+typ_pattern = re.compile(r"\".*\"\^\^<http:\/\/www\.w3\.org\/2001\/XMLSchema#[a-zA-Z]{0,20}>")
 def parse_dataval(dataVal):
     if untyp_pattern.match(dataVal):
         return dataVal[1:-1]
     elif typ_pattern.match(dataVal):
-        return dataVal[1:dataVal.rfind('"^^xsd')]
-    else:
-        raise
+        return dataVal[1:dataVal.rfind('"^^<http://')]
 
 def parse_object(objData):
     if objData.startswith('<'):
@@ -31,7 +29,7 @@ def parse_object(objData):
         return parse_dataval(objData)
 
 triple_pattern = re.compile(
-    "(?P<Subject><[^>]*>) (?P<Predicate><[^>]*>) (?P<Object>(<[^>]*>|\".*\"\^\^xsd\:[a-zA-Z]{0,20}|\".*\")) \.")
+    r"(?P<Subject><[^>]*>) (?P<Predicate><[^>]*>) (?P<Object>(<[^>]*>|\".*\"\^\^<http:\/\/www\.w3\.org\/2001\/XMLSchema#[a-zA-Z]{0,20}>|\".*\")) \.")
 def parse_nt(ntText):
     # Need to eliminate 4th, unnamed capture group
     triples = [ split_triple(line, triple_pattern)
@@ -164,7 +162,8 @@ class ResearchArea:
             'hidden': self.hidden,
             'alternative': self.alternative
         }
-        return dict(id=self.uri, uri=self.uri, display=self.label, data=data)
+        return dict( id=self.uri[33:], uri=self.uri,
+            display=self.label[0], data=data)
 
 #     def _validate(self, data):
 #         attrs = [ 'class', 'label', 'narrower', 'broader', 'related',

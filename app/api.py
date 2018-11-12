@@ -61,7 +61,7 @@ def particle_details(particle):
 def solr_search():
     solr_endpoint = solr_url + 'select/'
     type_map = {
-        'vocab' : 'type:http://vivo.brown.edu/ontology/vivo-brown/ResearchArea'
+        'vocab' : 'type:http://www.w3.org/2004/02/skos/core#Concept'
     }
 
     type_param = request.args.get('type')
