@@ -17,7 +17,7 @@ lemma = WordNetLemmatizer()
 
 from app import app
 
-query_endpoint = app.config['VIVO_ENDPOINT']
+query_endpoint = app.config['VIVO_QUERY']
 viz_dir = app.config['VISUALS_DIR']
 data_dir = app.config['STATS_DATA_DIR']
 

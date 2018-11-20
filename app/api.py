@@ -104,7 +104,8 @@ def describe_term(rabid):
 @app.route('/update/', methods=['PUT'])
 def update_terms():
     data = request.get_json()
-    to_be_updated = [ (obj['data'], rab.ResearchArea(uri=obj['uri'])) for obj in data ]
+    to_be_updated = [ (obj['data'], rab.ResearchArea.get(obj['uri']))
+        for obj in data ]
     success = []
     for new_data, existing in to_be_updated:
         resp = existing.update(new_data)

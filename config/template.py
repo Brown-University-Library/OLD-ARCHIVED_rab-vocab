@@ -9,4 +9,9 @@ STATS_DATA_DIR = os.path.join(APP_ROOT, 'app/stats/data')
 APP_BASE = ''
 REST_BASE = ''
 SOLR_URL = ''
-VIVO_ENDPOINT = ''
+VIVO_QUERY = ''
+VIVO_UPDATE = ''
+
+#SETTINGS
+ADMIN_EMAIL = ''
+ADMIN_PASSWORD = ''
